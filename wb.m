@@ -1,5 +1,5 @@
 workbench
-$Id: mulk wb.m 1169 2024-02-18 Sun 21:23:12 kt $
+$Id: mulk wb.m 1173 2024-03-02 Sat 21:47:05 kt $
 #ja ワークベンチ
 
 *[man]
@@ -21,6 +21,10 @@ Operable only under Console with screen control function.
 .caption SEE ALSO
 .summary sconsole
 
+.right 3
+Is your role the public 
+who decides which editor to use because people tell you to?
+Or...!?
 .index
 
 **#ja
@@ -41,6 +45,9 @@ wbは画面ベースのテキストエディタである。
 .caption 関連項目
 .summary sconsole
 	
+.right 2
+君の役は人から言われて使うエディタを決める一般民衆か?
+それとも……!?
 .index
 
 **Operation
@@ -116,11 +123,11 @@ Move the cursor forward or backward by one character.
 	
 ***Line-by-line movement
 ****#en
-Move to the cursor with respect to the line.
+Move the cursor based on the line.
 	^z -- Move forward to the end of the line. If the cursor is already at the end of a line, it moves to the next line.
 	^q -- Move backward to the beginning of the line. If the cursor is already at the beginning of a line, move to the previous line.
 ****#ja 行単位の移動
-行を基準としたカーソルに移動を行う。
+行を基準としたカーソル移動を行う。
 	^z -- 行末へ前進させる。既に行末にあるなら次行に移動させる。
 	^q -- 行頭へ後退させる。既に行頭にあるなら前行に移動させる。
 	
@@ -146,7 +153,7 @@ The following operations are valid during the leap.
 	^f -- If the pattern is empty and you are leaping forward, move forward by one screen.
 	^b -- If the pattern is empty and you are leaping backward, move backward by one screen.
 	^g -- End the leap on the spot.
-	^q, ^[ -- Return to the position where you started the leap and end the leap.
+	^[ -- Return to the position where you started the leap and end the leap.
 	^u -- Undo the last of the operations after the start of the leap.
 	^r -- Redo undone operation.
 
@@ -175,7 +182,7 @@ When such a function is executed during non-leap, the line with the cursor is ta
 	^f -- パターンが空で前進リープ中なら1画面分前進する。
 	^b -- パターンが空で後退リープ中なら1画面分後退する。
 	^g -- その場でリープを終了する。
-	^q, ^[ -- リープを始めた位置に戻ってリープを終了する。
+	^[ -- リープを始めた位置に戻ってリープを終了する。
 	^u -- リープ開始後の操作の最後のものを取り消す。
 	^r -- 取り消した繰作をやり直す。
 それ以外の操作はリープを終了させた上で対応する機能を実行する。
@@ -304,11 +311,11 @@ Each time ^v is entered, the cursor position on the screen is switched to the be
 ***Split screen
 ****#en
 Divide the screen and refer to two places in the buffer at the same time.
-	^s, ^z -- Screen split ON/OFF.
+	^s -- Screen split ON/OFF.
 	^o -- Move the cursor to another split screen.
 ****#ja 分割
 画面を分割してバッファ中の二箇所を同時に参照する。
-	^s, ^z -- 画面分割のON/OFF。
+	^s -- 画面分割のON/OFF。
 	^o -- 分割した別画面へカーソルを移動する。
 
 **Completion (^@, ^t)
@@ -320,116 +327,6 @@ The next candidate will be displayed if you continue to complement.
 カーソルの前後の内容から入力途中の内容を補完する。
 
 続けて補完を行うと次の候補が表示される。
-
-**Execute/evaluate/load (^x + ^x)
-***#en
-If the beginning of the specified range is '!', the description after the second character is executed by 'cmd' command and the output is replaced with the specified range.
-
-In the case of '@', the description after the second character is evaluated as Mulk's statement and the result is inserted.
-
-In other cases, the specified range is read as a module.
-The entire document is loaded during non-leap.
-***#ja 実行/評価/読み込み (^x + ^x)
-指定範囲の先頭が'!'の場合、二文字目以降の記述をcmdで実行し出力を指定範囲と置き換える。
-
-'@'の場合は二文字目以降の記述をMulkのstatementとして評価し、結果を挿入する。
-
-それ以外の場合は指定範囲をモジュールとして読み込む。
-非リープ中はドキュメント全体が読み込まれる。
-
-**Extra key
-***#en
-Various functions can be registered in ASCII character keys and executed as needed.
-***#ja 拡張キー
-ASCII文字のキーに様々な機能を登録し、必要に応じて実行する事が出来る。
-
-***Execute (^x + KEY)
-****#en
-Execute the function registered in the KEY.
-****#ja 実行 (^x + キー)
-キーに登録した機能を実行する。
-
-***String registration (^x + ^y + KEY)
-****#en
-Register the string in the specified range.
-When executed, a string is inserted at the cursor position.
-****#ja 文字列登録 (^x + ^y + キー)
-指定範囲の文字列を登録する。
-実行するとカーソル位置に文字列が挿入される。
-
-***Tag registration (^x + ^t + KEY)
-****#en
-Register the cursor position as a tag.
-
-The tag is a mechanism that points to the same position regardless of editing, and when executed, the cursor is moved to the tag position.
-When a tag is set or called, that tag becomes the current tag and is displayed in [] at the bottom line.
-The current tag is valid as long as the cursor is in the document and follows its movement.
-The current tag is saved when the document is synced and restored when the file is read.
-
-The following tags have a special meaning.
-	^o -- The cursor position on the other side's screen when the screen is split.
-	^i -- Prompt location for interactive documents.
-	^u -- The position before the last leap or tag jump. If you cancel the leap, the place you moved in the last leap.
-	
-These are automatically preached and updated and do not become current tags.
-****#ja タグ登録 (^x + ^t + キー)
-カーソル位置をタグとして登録する。
-
-タグは編集に関わらず同じ位置を指す仕組みで、実行するとカーソルをタグの位置に移動させる。
-タグの設定や呼び出しを行うと、そのタグがカレントタグとなり最下行に[]で囲まれて表示される。
-カレントタグはカーソルがドキュメント中にある限り有効で、その動きに追従する。
-カレントタグはドキュメントを同期させる時に保存され、そのファイルを読み込む時に復元される。
-
-次のタグには特殊な意味がある。
-	^o -- 画面分割した際の相手側の画面のカーソル位置。
-	^i -- インタラクティブドキュメントのプロンプトの位置。
-	^u -- 直前のリープ/タグジャンプ前の位置。リープを取り消した場合は最後のリープで移動した場所。
-これらは自動的に設定・更新されカレントタグにはならない。
-
-***Macro
-****#en
-Register the series of operations and execute them to reproduce the operations.
-
-	^x + ( -- Start macro definition
-	^x + ) + KEY -- End macro definition and registration to KEY.
-.
-During the definition, M is displayed at the beginning of the bottom line.
-
-	^x + ^r + KEY -- Execute the key macro and display the prompt. If you enter ' ', it will be repeated. If you enter '1' to '9' and '0', 10 to 100 times repeated. If you enter anything else, it will end.
-****#ja マクロ
-一連の繰作の内容を登録し、実行すると繰作を再現する。
-
-	^x + ( -- マクロ定義開始
-	^x + ) + キー -- 定義終了・登録
-	
-定義中は最下行の先頭にMが表示される。
-
-	^x + ^r + キー -- キーのマクロを実行しプロンプトを表示。' 'を入力するともう一度、'1'から'9'及び'0'を入力すると10回から100回繰り返す。それ以外を入力すると終了する。
-
-**Extended Commands
-***#en
-Other extended commands are shown.
-***#ja 拡張コマンド
-その他の拡張コマンドを示す。
-
-***Leap reverse (^x + ^z)
-****#en
-During the leap, the pattern is initialized while maintaining the cursor position, and the direction of the leap is reversed.
-****#ja リープ反転 (^x + ^z)
-リープ中、カーソル位置を保持したままパターンを初期化し、リープの向きを反転する。
-***Leap string (^x + ^f + KEY)
-****#en
-Performs a forward leap with the string assigned to the extra key.
-If executed during a leap, the string is added to the pattern.
-****#ja 文字列リープ (^x + ^f + キー)
-拡張キーに割り当てた文字列で前進リープを行う。
-リープ中に実行した場合、文字列をパターンに追加する。
-
-***Goto Line (^x + ^g)
-****#en
-Moves to the line with the line number specified as the leap range.
-****#ja 行移動 (^x + ^g)
-リープ範囲として指定した行番号の行に移動する。
 
 **Quit (^[)
 ***#en
@@ -452,13 +349,119 @@ wbが異常終了した場合、mulkが実行中ならばrオプションで再�
 mulk自体が終了している場合、次にwbを実行するとインタラクティブドキュメント以外のバッファの内容を復元しようとする。
 wbが正常終了していてもRオプションで前回のセッションのバッファの内容を復元出来る。
 
+**^x prefix
+***#en
+^x performs each function depending on the character that is entered in succession.
+***#ja ^xプリフィックス (^x)
+^xは続けて入力する文字によってそれぞれの機能を実行する。
+
+***User Registration Key
+****#en
+The characters except '(', ')' and control characters can be used to register functions that are valid only for the duration of the session.
+The user registration key is executed by typing ^x followed by the registered characters.
+****#ja ユーザー登録キー
+'(', ')'及び制御文字を除く文字に、セッションの間だけ有効な機能を登録することが出来る。
+ユーザー登録キーは^xに続けて登録した文字を入力することで実行される。
+
+****String (^x + ^y + KEY)
+*****#en
+Register the string in the specified range.
+When executed, a string is inserted at the cursor position.
+*****#ja 文字列 (^x + ^y + キー)
+指定範囲の文字列を登録する。
+実行するとカーソル位置に文字列が挿入される。
+
+****Tag (^x + ^t + KEY)
+*****#en
+Register the cursor position as a tag.
+
+The tag is a mechanism that points to the same position regardless of editing, and when executed, the cursor is moved to the tag position.
+When a tag is set or called, that tag becomes the current tag and is displayed in [] at the bottom line.
+The current tag is valid as long as the cursor is in the document and follows its movement.
+The current tag is saved when the document is synced and restored when the file is read.
+
+The following tags have a special meaning.
+	^o -- The cursor position on the other side's screen when the screen is split.
+	^i -- Prompt location for interactive documents.
+	^u -- The position before the last leap or tag jump. If you cancel the leap, the place you moved in the last leap.
+	
+These are automatically preached and updated and do not become current tags.
+*****#ja タグ (^x + ^t + KEY)
+カーソル位置をタグとして登録する。
+
+タグは編集に関わらず同じ位置を指す仕組みで、実行するとカーソルをタグの位置に移動させる。
+タグの設定や呼び出しを行うと、そのタグがカレントタグとなり最下行に[]で囲まれて表示される。
+カレントタグはカーソルがドキュメント中にある限り有効で、その動きに追従する。
+カレントタグはドキュメントを同期させる時に保存され、そのファイルを読み込む時に復元される。
+
+次のタグには特殊な意味がある。
+	^o -- 画面分割した際の相手側の画面のカーソル位置。
+	^i -- インタラクティブドキュメントのプロンプトの位置。
+	^u -- 直前のリープ/タグジャンプ前の位置。リープを取り消した場合は最後のリープで移動した場所。
+これらは自動的に設定・更新されカレントタグにはならない。
+
+****Macro
+*****#en
+Register the series of operations and execute them to reproduce the operations.
+
+	^x + ( -- Start macro definition
+	^x + ) + KEY -- End macro definition and registration to KEY.
+.
+During the definition, M is displayed at the beginning of the bottom line.
+
+	^x + ^r + KEY -- Execute the key macro and display the prompt. If you enter ' ', it will be repeated. If you enter '1' to '9' and '0', 10 to 100 times repeated. If you enter anything else, it will end.
+*****#ja マクロ
+一連の繰作の内容を登録し、実行すると繰作を再現する。
+
+	^x + ( -- マクロ定義開始
+	^x + ) + キー -- 定義終了・登録
+	
+定義中は最下行の先頭にMが表示される。
+
+	^x + ^r + キー -- キーのマクロを実行しプロンプトを表示。' 'を入力するともう一度、'1'から'9'及び'0'を入力すると10回から100回繰り返す。それ以外を入力すると終了する。
+
+***Execute/evaluate/load (^x + ^x)
+****#en
+If the beginning of the specified range is '!', the description after the second character is executed by 'cmd' command and the output is replaced with the specified range.
+
+In the case of '@', the description after the second character is evaluated as Mulk's statement and the result is inserted.
+
+In other cases, the specified range is read as a module.
+The entire document is loaded during non-leap.
+****#ja 実行/評価/読み込み (^x + ^x)
+指定範囲の先頭が'!'の場合、二文字目以降の記述をcmdで実行し出力を指定範囲と置き換える。
+
+'@'の場合は二文字目以降の記述をMulkのstatementとして評価し、結果を挿入する。
+
+それ以外の場合は指定範囲をモジュールとして読み込む。
+非リープ中はドキュメント全体が読み込まれる。
+
+***Leap reverse (^x + ^z)
+****#en
+During the leap, the pattern is initialized while maintaining the cursor position, and the direction of the leap is reversed.
+****#ja リープ反転 (^x + ^z)
+リープ中、カーソル位置を保持したままパターンを初期化し、リープの向きを反転する。
+***Leap string (^x + ^f + KEY)
+****#en
+Forward leap with the string assigned to the user registration key.
+If executed during a leap, the string is added to the pattern.
+****#ja 文字列リープ (^x + ^f + キー)
+ユーザー登録キーに割り当てた文字列で前進リープを行う。
+リープ中に実行した場合、文字列をパターンに追加する。
+
+***Goto Line (^x + ^g)
+****#en
+Moves to the line with the line number specified as the leap range.
+****#ja 行移動 (^x + ^g)
+リープ範囲として指定した行番号の行に移動する。
+
 **Subcommand
 ***#en
-The following commands can be executed from an interactive document, etc.
+The following are subcommands of wb, which can be executed from interactive documents, etc.
 ***#ja サブコマンド
-以下のコマンドはインタラクティブドキュメント等から実行出来る。
+以下はwbのサブコマンドでありインタラクティブドキュメント等から実行出来る。
 
-***wb.d(ocument)
+***wb.d -- document
 ****#en
 Display a list of documents and tags in the buffer.
 
@@ -474,7 +477,7 @@ The symbol before the document or tag indicates the synchronization status.
 	* -- 同期済みだが内容は一致しない。
 	空白 -- 同期されていない。
 
-***wb.h(istory) [-f]
+***wb.h [-f] -- history
 ****#en
 Output the list of saved tags in the form of marker lines.
 
@@ -484,7 +487,7 @@ Output only the file with the f option.
 
 fオプションでファイルのみを出力する。
 
-***wb.rmh(remove history) [FILE...]
+***wb.rmh [FILE...] -- remove history
 ****#en
 Remove the saved tag corresponding to FILE.
 
@@ -494,23 +497,29 @@ If FILE is omitted, the file list is acquired from the standard input.
 
 FILEを省略すると標準入力からファイルリストを取得する。
 
-***wb.w(edge)
+***wb.w -- wedge
 ****#en
 Outputs the contents held by range editing to the standard output.
 ****#ja
 範囲編集で保持した内容を標準出力へ出力する。
 
-***wb.x(tr) [KEY [KEY]]
+***wb.x [KEY [KEY]] -- refer ^x
 ****#en
-Display a list of extra keys.
+Output the contents of the user registration key.
 
-When KEY is specified, if it is a string, the string itself is output, and if it is a tag, the contents of the document containing it are output.
-If two tags are specified as KEY, the contents of the range enclosed by both tags are output.
+If KEY is a string, output the string itself.
+If KEY is a tag, output the contents of the document containing the tag.
+If two tags are specified, the contents of the area enclosed by both tags are output.
+
+If KEY is omitted, a list of user registration keys is output.
 ****#ja
-拡張キーの一覧を出力する。
+ユーザー登録キーの内容を出力する。
 
-KEYを指定した場合、それが文字列なら文字列自体を、タグならそれを含むドキュメントの内容を出力する。
-KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容を出力する。
+KEYが文字列ならそれ自体を。
+タグならタグを含むドキュメントの内容を出力する。
+二つのタグを指定すると両タグで囲まれた範囲の内容を出力する。
+
+KEYを省略するとユーザー登録キーの一覧を出力する。
 
 *import.@
 	Mulk import: #("wcarray" "console" "pi" "cliplib" "optparse" "tempfile")
@@ -1241,7 +1250,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 		+ " undoPosTag"
 		+ " startPos endPos docMarker"
 		+ " subprocess"
-		+ " xtrDict currentTag alterTag"
+		+ " xDict currentTag alterTag"
 		+ " abbrevPattern abbrevPos abbrevList abbrevType"
 		+ " history"
 		+ " macro macroRepeat"
@@ -1252,7 +1261,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 ***Wb.class >> buffer
 	buffer!
 ***Wb.class >> cursorOf: screenArg
-	screen = screenArg ifTrue: [cursor] ifFalse: [xtrDict at: '\co']!
+	screen = screenArg ifTrue: [cursor] ifFalse: [xDict at: '\co']!
 ***Wb.class >> screen
 	screen!
 ***Wb.class >> horizontalSplit?
@@ -1307,8 +1316,8 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 	Console clear
 ***Wb.class >> swapCursor
 	cursor ->:c;
-	xtrDict at: '\co' ->cursor;
-	xtrDict at: '\co' put: c;
+	xDict at: '\co' ->cursor;
+	xDict at: '\co' put: c;
 	currentTag ->:t;
 	alterTag ->currentTag;
 	t ->alterTag;
@@ -1352,7 +1361,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 **editing.
 ***operate buffer.
 ****Wb.class >> idocPromptPos
-	xtrDict at: '\ci'!
+	xDict at: '\ci'!
 ****Wb.class >> idocTail
 	buffer lineTail: self idocPromptPos!
 ****Wb.class >> adjustPos: x for: typeArg at: posArg size: sizeArg
@@ -1361,7 +1370,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 	x < (posArg + sizeArg) ifTrue: [posArg!];
 	x - sizeArg!
 ****Wb.class >> tagsAndPosesDo: blockArg
-	xtrDict keysAndValuesDo:
+	xDict keysAndValuesDo:
 		[:ch :pos
 		pos kindOf?: Integer, ifTrue: [blockArg value: ch value: pos]]
 ****Wb.class >> adjustFor: typeArg at: posArg size: sizeArg 
@@ -1370,7 +1379,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 		[:ch :pos
 		ch = '\ci' and: [typeArg = #insert], and: [pos = posArg], 
 				and: [newlineArg? not], ifFalse:
-			[xtrDict at: ch put: (self adjustPos: pos for: typeArg at: posArg
+			[xDict at: ch put: (self adjustPos: pos for: typeArg at: posArg
 				size: sizeArg)]];
 	screen adjustFor: typeArg at: posArg size: sizeArg;
 	alterScreen notNil? ifTrue:
@@ -1390,7 +1399,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 			[buffer at: pos remove: contents size;
 			pos ->cursor];
 	self adjustFor: type at: pos size: contents size newline?: newline?;
-	op tag ->currentTag, notNil? ifTrue: [xtrDict at: currentTag put: cursor]
+	op tag ->currentTag, notNil? ifTrue: [xDict at: currentTag put: cursor]
 ****Wb.class >> operateNew: type pos: pos contents: contents
 	Wb.Operation new initType: type pos: pos contents: contents tag: currentTag
 		mergeMode: operatorMergeMode ->:op;
@@ -1497,7 +1506,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 
 **cursor motion.
 ***Wb.class >> insideCurrentDoc?: posArg
-	xtrDict at: currentTag ->:pos;
+	xDict at: currentTag ->:pos;
 	pos < posArg
 		ifTrue:
 			[pos <> 0
@@ -1511,10 +1520,10 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 ***Wb.class >> adjustCurrentTag
 	currentTag nil? ifTrue: [self!];
 	self insideCurrentDoc?: cursor,
-		ifTrue: [xtrDict at: currentTag put: cursor]
+		ifTrue: [xDict at: currentTag put: cursor]
 		ifFalse: [nil ->currentTag]
 ***Wb.class >> keepUndoPos: posArg
-	xtrDict at: '\xff' put: posArg;
+	xDict at: '\xff' put: posArg;
 	currentTag ->undoPosTag
 ***Wb.class >> leapFinish: adjustCurrentTag?
 	self keepUndoPos: leapStartPos;
@@ -1636,8 +1645,8 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 	#insert ->mode
 
 *****Wb.class >> leapWedgeCommand
-	self leapFinish: true;
 	buffer matchSize ->:remove;
+	self leapFinish: true;
 	self at: cursor remove: remove;
 	self wedgeCommand
 *****Wb.class >> leapAddPattern: ch
@@ -1755,7 +1764,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 	savedCursor ->cursor;
 	savedTags do:
 		[:cons
-		xtrDict at: cons car put: (self backwardInFocus: cons cdr)];
+		xDict at: cons car put: (self backwardInFocus: cons cdr)];
 	self message: "read " + wbfile name
 
 ***Wb.class >> writeFocusedTo: fileArg
@@ -1794,11 +1803,11 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 	self historyAt: wbfile ->:fh, nil? ifTrue: [self!];
 	self backwardInFocus: startPos + fh offset ->cursor;
 	fh tag ->:tag;
-	xtrDict includesKey?: tag,
+	xDict includesKey?: tag,
 		ifTrue: [self message: "tag " + tag describe + " already defined"]
 		ifFalse:
 			[tag ->currentTag;
-			xtrDict at: tag put: cursor]
+			xDict at: tag put: cursor]
 ****Wb.class >> saveHistory
 	self historyFile writeObject: history
 ****Wb.class >> updateHistory: wbfile tag: tag offset: offset
@@ -1810,7 +1819,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 	self saveHistory
 ****Wb.class >> updateHistoryPosition: wbfile
 	self historyAt: wbfile ->:fh, nil? ifTrue: [self!];
-	xtrDict at: fh tag ifAbsent: [nil] ->:pos, kindOf?: Integer, 
+	xDict at: fh tag ifAbsent: [nil] ->:pos, kindOf?: Integer, 
 		ifFalse: [self!];
 	pos between: startPos until: endPos, ifFalse: [nil!];
 	self updateHistory: wbfile tag: fh tag offset: pos - startPos
@@ -1862,205 +1871,6 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 	ch = 'w' ifTrue: [self writeDoc: wbfile!]
 ***Wb.class >> syncAllDocs
 	self focusAllDocsDo: [self syncFocusedDoc]
-
-**buffer backup and session.
-***Wb.class >> sessionId
-	Mulk at: #Wb.sessionId ifAbsent: ["wb"]!
-***Wb.class >> backupFile
-	self sessionId + ".bak", asWorkFile!
-***Wb.class >> runFile
-	self sessionId + ".run", asWorkFile!
-***Wb.class >> run?
-	self runFile readableFile?!
-***Wb.class >> run: flagArg
-	flagArg <> self run? ifTrue:
-		[flagArg 
-			ifTrue: [self runFile openWrite close] 
-			ifFalse: [self runFile remove]]
-***Wb.class >> focusBackupDocs
-	buffer next: self idocTail ->startPos;
-	buffer next: (buffer find: docMarker before: buffer size - 1) ->endPos
-***Wb.class >> backup
-	nil ->nextBackupTime;
-	self keepFocusDo:
-		[self focusBackupDocs;
-		self run: (startPos <> endPos ->:doBackup?);
-		doBackup? ifTrue:
-			[buffer writeFrom: startPos until: endPos toFile: self backupFile]]
-***Wb.class >> backupRecover
-	self backupFile ->:bf, readableFile? ifTrue:
-		[buffer at: (buffer next: self idocTail) insert: bf contentBytes];
-	self focusAllDocsDo:
-		[self docFile ->:wbfile;
-		wbfile notNil? and: [self historyAt: wbfile ->:fh, notNil?], ifTrue:
-			[self refocusContents;
-			xtrDict at: fh tag put: startPos + fh offset]]
-
-**xtrCommand.
-***execCommand.
-****Wb.class >> execEval
-	buffer readerFrom: startPos + 1 until: endPos ->:rd;
-	Wb.BytesStream new ->:wr;
-	In pipe:
-		[
-			[self evalReader: rd ->:result, <> self
-				ifTrue: [Out put: ' ', put: result describe]
-			] on: Error do:
-				[:e Out put: ' ', put: e message]
-		] to: wr;
-	wr seek: 0, contentBytes ->:bytes, size <> 0 
-		ifTrue: [self at: endPos insert: bytes]
-****Wb.class >> execCmd
-	buffer stringFrom: startPos until: endPos ->:str;
-	str includes?: '\n', ifTrue: [self error: "require single line"];
-	self at: startPos remove: endPos - startPos;
-	Console ->:savedConsole;
-	Wb.DummyConsole new init: self ->Console;
-	[str copyFrom: 1, pipeTo: (Wb.BytesStream new ->:rd)] finally:
-		[savedConsole ->Console];
-	rd seek: 0, contentBytes ->:bytes;
-	bytes size ->:sz, <> 0 and: [bytes at: sz - 1, = '\n' code], ifTrue:
-		[sz - (Mulk.newline = #crlf ifTrue: [2] ifFalse: [1]) ->sz;
-		bytes copyUntil: sz ->bytes];
-	self at: cursor insert: bytes
-****Wb.class >> errorInsertPos: ex
-	ex memberOf?: MethodCompiler.Error, ifFalse: [startPos!];
-	ex file notNil? ifTrue: [startPos!];
-	buffer lineHead: startPos ->:cadet;
-	ex lineNo - 1 timesRepeat:
-		[buffer next: (buffer lineTail: cadet) ->:pos;
-		pos >= endPos ifTrue: [cadet!];
-		pos ->cadet];
-	cadet!
-****Wb.class >> execCommand
-	self focusLeapAndFinish;
-	statusBar draw: "*BUSY*";
-	startPos nil? ->:noMark?, ifTrue: [self focusLine];
-	buffer at: startPos ->:ch, = '@' ifTrue: [self execEval!];
-	ch = '!' ifTrue: [self execCmd!];
-	--load command.
-	startPos ->:spos;
-	endPos ->:epos;
-	self focusDocAt: startPos, <> #doc ifTrue: [self error: "not document"];
-	self docFile ->:wbfile;
-	self refocusContents;
-	wbfile notNil? ifTrue:
-		[self updateHistoryCurrentDoc: wbfile;
-		wbfile none? or: [self equalDoc?: wbfile, not], 
-			ifTrue: [self writeDoc: wbfile]
-			ifFalse: [self message: wbfile name + " not changed"]];
-	noMark? ifFalse:
-		[spos ->startPos;
-		epos ->endPos];
-	buffer readerFrom: startPos until: endPos ->:rd;
-	rd addNewline;
-	[Loader new loadReader: rd] on: Error
-		do:
-			[:ex
-			self at: (self errorInsertPos: ex)
-				insert: (self bytes: "---" + ex message + '\n')];
-	self message: "loaded"
-
-***Wb.class >> querySetXtr: prompt
-	statusBar query: prompt ->:result;
-	result print? not | (result = '(') | (result = ')') ifTrue: 
-		[self error: "unregistable xtr char"];
-	result!
-***Wb.class >> invalidateActiveTag: ch
-	currentTag = ch ifTrue: [nil ->currentTag];
-	alterTag = ch ifTrue: [nil ->alterTag]
-***Wb.class >> tagRegistCommand
-	self focusLeapAndFinish;
-	self querySetXtr: "^x^t" ->:ch;
-	ch ->currentTag;
-	xtrDict at: ch put: cursor
-***Wb.class >> stringRegistCommand
-	self focusLeapAndFinish;
-	startPos nil? ifTrue: [self focusLine];
-	self querySetXtr: "^x^y" ->:ch;
-	self invalidateActiveTag: ch;
-	xtrDict at: ch put: self focusedBytes
-***Wb.class >> registeringMacroCheck
-	macro notNil? ifTrue:
-		[nil ->macro;
-		self error: "registering macro"]
-***Wb.class >> macroRegistStartCommand
-	self registeringMacroCheck;
-	StringWriter new ->macro
-***Wb.class >> macroRegistEndCommand
-	macro nil? ifTrue: [self error: "unregistering macro"];
-	macro asString ->:s;
-	s copyUntil: s size - 2 ->s; -- remove ^x)
-	nil ->macro;
-	self querySetXtr: "^x)" ->:ch;
-	xtrDict at: ch put: s;
-	self invalidateActiveTag: ch
-***Wb.class >> startMacro: macroArg
-	self registeringMacroCheck;
-	1 ->operatorMergeMode;
-	StringReader new init: macroArg ->macro
-***Wb.class >> macroRepeatCommand
-	statusBar query: "^x^r" ->:ch;
-	xtrDict at: ch ->:value;
-	value memberOf?: String, ifFalse: [self error: "not macro"];
-	self startMacro: value;
-	1 ->macroRepeat
-***Wb.class >> undoPosCommand
-	xtrDict at: '\xff' ->:pos;
-	undoPosTag ->:tag;
-	self keepUndoPos: cursor;
-	pos ->cursor;
-	tag ->currentTag
-
-***misc extra commands.
-****Wb.class >> xtrDict
-	xtrDict!
-	
-****leap reverse.
-*****Wb.Leap >> reverse
-	mode = #leapForward ifTrue: [#leapBackward] ifFalse: [#leapForward] ->mode
-*****Wb.class >> leapReverseCommand -- ^x^z
-	mode = #insert ifTrue: [self!];
-	self leapCopy ->:leap, pattern: nil, reverse;
-	leap mode ->mode;
-	self leapAdd: leap
-
-****Wb.class >> leapStringCommand -- ^x^f
-	mode = #insert ifTrue: [self leapForwardCommand];
-	statusBar query: "^x^f" ->:ch;
-	xtrDict at: ch ->:value;
-	value memberOf?: FixedByteArray, ifFalse: [self error: "not string"];
-	self leapCopy ->:leap;
-	leap pattern: (value makeStringFrom: 0 size: value size);
-	self leap: leap disp: 1
-	
-****Wb.class >> gotoLineCommand -- ^x^g
-	mode = #insert ifTrue: [self error: "mark digits"];
-	self focusLeapAndFinish;
-	buffer stringFrom: startPos until: endPos, asInteger ->:n;
-	self at: startPos remove: endPos - startPos;
-	self focusDocAt: cursor, <> #doc ifTrue: [self error: "not in document"];
-	startPos ->:pos;
-	n timesRepeat:
-		[buffer lineTail: pos ->pos;
-		buffer next: pos ->pos;
-		pos >= endPos ifTrue: [self error: "end of ducment"]];
-	pos ->cursor
-
-***Wb.class >> xtrCommand
-	statusBar query: "^x" ->:ch;
-	xtrDict at: ch ->:value;
-	value memberOf?: Symbol, ifTrue: [self perform: value!];
-	value memberOf?: String, ifTrue:
-		[self startMacro: value;
-		-1 ->macroRepeat!];
-	self focusLeapAndFinish;
-	value kindOf?: Integer, ifTrue:
-		[self keepUndoPos: cursor;
-		ch print? ifTrue: [ch] ifFalse: [nil] ->currentTag;
-		ch = '\ci' ifTrue: [Console imAscii];
-		value ->cursor!];
-	value memberOf?: FixedByteArray, ifTrue: [self at: cursor insert: value!]
 
 **abbrevCommand.
 ***#en
@@ -2152,12 +1962,209 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 	self syncAllDocs;
 	#quit ->mode
 
+**xCommand.
+***Wb.class >> xDict
+	xDict!
+	
+***user registration key.
+****Wb.class >> querySetXtr: prompt
+	statusBar query: prompt ->:result;
+	result print? not | (result = '(') | (result = ')') ifTrue: 
+		[self error: "unregistable char"];
+	result!
+****Wb.class >> invalidateActiveTag: ch
+	currentTag = ch ifTrue: [nil ->currentTag];
+	alterTag = ch ifTrue: [nil ->alterTag]
+****Wb.class >> stringRegistCommand
+	self focusLeapAndFinish;
+	startPos nil? ifTrue: [self focusLine];
+	self querySetXtr: "^x^y" ->:ch;
+	self invalidateActiveTag: ch;
+	xDict at: ch put: self focusedBytes
+****Wb.class >> tagRegistCommand
+	self focusLeapAndFinish;
+	self querySetXtr: "^x^t" ->:ch;
+	ch ->currentTag;
+	xDict at: ch put: cursor
+
+****macro.
+*****Wb.class >> registeringMacroCheck
+	macro notNil? ifTrue:
+		[nil ->macro;
+		self error: "registering macro"]
+*****Wb.class >> macroRegistStartCommand
+	self registeringMacroCheck;
+	StringWriter new ->macro
+*****Wb.class >> macroRegistEndCommand
+	macro nil? ifTrue: [self error: "unregistering macro"];
+	macro asString ->:s;
+	s copyUntil: s size - 2 ->s; -- remove ^x)
+	nil ->macro;
+	self querySetXtr: "^x)" ->:ch;
+	xDict at: ch put: s;
+	self invalidateActiveTag: ch
+*****Wb.class >> startMacro: macroArg
+	self registeringMacroCheck;
+	1 ->operatorMergeMode;
+	StringReader new init: macroArg ->macro
+*****Wb.class >> macroRepeatCommand
+	statusBar query: "^x^r" ->:ch;
+	xDict at: ch ->:value;
+	value memberOf?: String, ifFalse: [self error: "not macro"];
+	self startMacro: value;
+	1 ->macroRepeat
+
+***execCommand.
+****Wb.class >> execEval
+	buffer readerFrom: startPos + 1 until: endPos ->:rd;
+	Wb.BytesStream new ->:wr;
+	In pipe:
+		[
+			[self evalReader: rd ->:result, <> self
+				ifTrue: [Out put: ' ', put: result describe]
+			] on: Error do:
+				[:e Out put: ' ', put: e message]
+		] to: wr;
+	wr seek: 0, contentBytes ->:bytes, size <> 0 
+		ifTrue: [self at: endPos insert: bytes]
+****Wb.class >> execCmd
+	buffer stringFrom: startPos until: endPos ->:str;
+	str includes?: '\n', ifTrue: [self error: "require single line"];
+	self at: startPos remove: endPos - startPos;
+	Console ->:savedConsole;
+	Wb.DummyConsole new init: self ->Console;
+	[str copyFrom: 1, pipeTo: (Wb.BytesStream new ->:rd)] finally:
+		[savedConsole ->Console];
+	rd seek: 0, contentBytes ->:bytes;
+	bytes size ->:sz, <> 0 and: [bytes at: sz - 1, = '\n' code], ifTrue:
+		[sz - (Mulk.newline = #crlf ifTrue: [2] ifFalse: [1]) ->sz;
+		bytes copyUntil: sz ->bytes];
+	self at: cursor insert: bytes
+****Wb.class >> errorInsertPos: ex
+	ex memberOf?: MethodCompiler.Error, ifFalse: [startPos!];
+	ex file notNil? ifTrue: [startPos!];
+	buffer lineHead: startPos ->:cadet;
+	ex lineNo - 1 timesRepeat:
+		[buffer next: (buffer lineTail: cadet) ->:pos;
+		pos >= endPos ifTrue: [cadet!];
+		pos ->cadet];
+	cadet!
+****Wb.class >> execCommand
+	self focusLeapAndFinish;
+	statusBar draw: "*BUSY*";
+	startPos nil? ->:noMark?, ifTrue: [self focusLine];
+	buffer at: startPos ->:ch, = '@' ifTrue: [self execEval!];
+	ch = '!' ifTrue: [self execCmd!];
+	--load command.
+	startPos ->:spos;
+	endPos ->:epos;
+	self focusDocAt: startPos, <> #doc ifTrue: [self error: "not document"];
+	self docFile ->:wbfile;
+	self refocusContents;
+	wbfile notNil? ifTrue:
+		[self updateHistoryCurrentDoc: wbfile;
+		wbfile none? or: [self equalDoc?: wbfile, not], 
+			ifTrue: [self writeDoc: wbfile]
+			ifFalse: [self message: wbfile name + " not changed"]];
+	noMark? ifFalse:
+		[spos ->startPos;
+		epos ->endPos];
+	buffer readerFrom: startPos until: endPos ->:rd;
+	rd addNewline;
+	[Loader new loadReader: rd] on: Error
+		do:
+			[:ex
+			self at: (self errorInsertPos: ex)
+				insert: (self bytes: "---" + ex message + '\n')];
+	self message: "loaded"
+
+***Wb.class >> undoPosCommand
+	xDict at: '\xff' ->:pos;
+	undoPosTag ->:tag;
+	self keepUndoPos: cursor;
+	pos ->cursor;
+	tag ->currentTag
+
+***leap reverse.
+****Wb.Leap >> reverse
+	mode = #leapForward ifTrue: [#leapBackward] ifFalse: [#leapForward] ->mode
+****Wb.class >> leapReverseCommand
+	mode = #insert ifTrue: [self!];
+	self leapCopy ->:leap, pattern: nil, reverse;
+	leap mode ->mode;
+	self leapAdd: leap
+
+***Wb.class >> leapStringCommand
+	mode = #insert ifTrue: [self leapForwardCommand];
+	statusBar query: "^x^f" ->:ch;
+	xDict at: ch ->:value;
+	value memberOf?: FixedByteArray, ifFalse: [self error: "not string"];
+	self leapCopy ->:leap;
+	leap pattern: (value makeStringFrom: 0 size: value size);
+	self leap: leap disp: 1
+	
+***Wb.class >> gotoLineCommand
+	mode = #insert ifTrue: [self error: "mark digits"];
+	self focusLeapAndFinish;
+	buffer stringFrom: startPos until: endPos, asInteger ->:n;
+	self at: startPos remove: endPos - startPos;
+	self focusDocAt: cursor, <> #doc ifTrue: [self error: "not in document"];
+	startPos ->:pos;
+	n timesRepeat:
+		[buffer lineTail: pos ->pos;
+		buffer next: pos ->pos;
+		pos >= endPos ifTrue: [self error: "end of ducment"]];
+	pos ->cursor
+
+***Wb.class >> xCommand
+	statusBar query: "^x" ->:ch;
+	xDict at: ch ->:value;
+	value memberOf?: Symbol, ifTrue: [self perform: value!];
+	value memberOf?: String, ifTrue:
+		[self startMacro: value;
+		-1 ->macroRepeat!];
+	self focusLeapAndFinish;
+	value kindOf?: Integer, ifTrue:
+		[self keepUndoPos: cursor;
+		ch print? ifTrue: [ch] ifFalse: [nil] ->currentTag;
+		ch = '\ci' ifTrue: [Console imAscii];
+		value ->cursor!];
+	value memberOf?: FixedByteArray, ifTrue: [self at: cursor insert: value!]
+
+**buffer backup and session.
+***Wb.class >> sessionId
+	Mulk at: #Wb.sessionId ifAbsent: ["wb"]!
+***Wb.class >> backupFile
+	self sessionId + ".bak", asWorkFile!
+***Wb.class >> runFile
+	self sessionId + ".run", asWorkFile!
+***Wb.class >> run?
+	self runFile readableFile?!
+***Wb.class >> run: flagArg
+	flagArg <> self run? ifTrue:
+		[flagArg 
+			ifTrue: [self runFile openWrite close] 
+			ifFalse: [self runFile remove]]
+***Wb.class >> focusBackupDocs
+	buffer next: self idocTail ->startPos;
+	buffer next: (buffer find: docMarker before: buffer size - 1) ->endPos
+***Wb.class >> backup
+	nil ->nextBackupTime;
+	self keepFocusDo:
+		[self focusBackupDocs;
+		self run: (startPos <> endPos ->:doBackup?);
+		doBackup? ifTrue:
+			[buffer writeFrom: startPos until: endPos toFile: self backupFile]]
+***Wb.class >> backupRecover
+	self backupFile ->:bf, readableFile? ifTrue:
+		[buffer at: (buffer next: self idocTail) insert: bf contentBytes];
+	self focusAllDocsDo:
+		[self docFile ->:wbfile;
+		wbfile notNil? and: [self historyAt: wbfile ->:fh, notNil?], ifTrue:
+			[self refocusContents;
+			xDict at: fh tag put: startPos + fh offset]]
+
 **subprocess.
-***Wb.class >> subprocessStart
-	xtrDict at: '\ci' put: cursor;
-	Wb.Subprocess new init: self ->subprocess;
-	subprocess start;
-	self subprocessReceive
 ***Wb.class >> subprocessReceive
 	1 ->operatorMergeMode;
 	[self at: cursor insert: subprocess childConsole receive;
@@ -2166,8 +2173,13 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 		[screen draw;
 		subprocess continue];
 	0 ->operatorMergeMode;
-	xtrDict at: '\ci' put: cursor;	
+	xDict at: '\ci' put: cursor;	
 	subprocess running? ifFalse: [nil ->subprocess]
+***Wb.class >> subprocessStart
+	xDict at: '\ci' put: cursor;
+	Wb.Subprocess new init: self ->subprocess;
+	subprocess start;
+	self subprocessReceive
 ***Wb.class >> subprocessEnter
 	subprocess nil? ifTrue: [false!];
 	self idocPromptPos ->:st;
@@ -2220,7 +2232,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 		'\cu'	#undoCommand			#leapUndoCommand
 		'\cv'	#redrawCommand			#char --leap veto
 		'\cw'	#wedgeCommand			#leapWedgeCommand
-		'\cx'	#xtrCommand				#xtrCommand
+		'\cx'	#xCommand				#xCommand
 		'\cy'	#yankCommand			nil
 		'\cz'	#nextLineCommand		#nextLineCommand
 		'\c['	#quitCommand			#leapQuitCommand
@@ -2232,7 +2244,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 		ar at: i + 2 ->code, notNil? ifTrue:
 			[leapKeyCodeDict at: ch put: code]];
 	self bytes: "\n||" ->docMarker;
-	Dictionary new ->xtrDict;
+	Dictionary new ->xDict;
 	#(	'\cx'	#execCommand
 		'\ct'	#tagRegistCommand
 		'\cu'	#undoPosCommand
@@ -2247,10 +2259,10 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 		) ->ar;
 	0 until: ar size by: 2, do:
 		[:i2
-		xtrDict at: (ar at: i2) put: (ar at: i2 + 1)];
+		xDict at: (ar at: i2) put: (ar at: i2 + 1)];
 	self initHistory;
 	buffer next: (buffer lineTail: 0) ->cursor;
-	xtrDict at: '\co' put: cursor;
+	xDict at: '\co' put: cursor;
 	screen updateDisplayRangeCentering; -- for subprocess inserts prompt.
 	self subprocessStart;
 	self ->Wb;
@@ -2347,7 +2359,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 	self run: false
 
 **subcommands.
-***d)ocument.
+***wb.d.
 ****Wb.class >> markOfTag: cons file: wbfile
 	wbfile nil?
 		or: [self historyAt: wbfile ->:fh, nil?],
@@ -2386,7 +2398,7 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 					putLn]]] pipe ->:ms;
 	ms pipe: "cat" to: Out
 
-***Wb.class >> main.h: args -- h)istory
+***Wb.class >> main.h: args
 	OptionParser new init: "f" ->:op, parse: args ->args;
 	op at: 'f' ->:file?;
 	history do:
@@ -2397,14 +2409,14 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 				[Out put: fh tag, put: " <", put: fh fullName, put: "> "];
 		Out putLn]
 		
-***Wb.class >> main.rmh: args -- remove history
+***Wb.class >> main.rmh: args
 	args empty? ifTrue: [In contentLines] ifFalse: [args], do: 
 		[:fn 
 		Wb.File new init: self name: fn ->:wbfile;
 		history removeAt: wbfile fullName];
 	self saveHistory
 	
-***x)tr.
+***wb.x.
 ****Wb.class >> stringSummary: value
 	Out put: '"';
 	LimitableStringWriter new ->:wr;
@@ -2421,8 +2433,8 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 ****Wb.class >> tagSummary: value
 	self focusDocAt: value ->:type, = #top, ifTrue: [Out put: "TOP"!];
 	type = #doc ifTrue: [Out put: self docHeader]
-****Wb.class >> xtrList
-	xtrDict keysAndValuesDo:
+****Wb.class >> xList
+	xDict keysAndValuesDo:
 		[:ch :value
 		ch print? & (value memberOf?: Symbol) not ifTrue:
 			[Out put: ch, put: ' ';
@@ -2434,17 +2446,17 @@ KEYとしてタグを2つ指定すると両タグで囲まれた範囲の内容�
 						ifFalse: [self macroSummary: value]];
 			Out putLn]]
 ****Wb.class >> tagOf: tagName
-	xtrDict at: tagName first ->:result, kindOf?: Integer, ifFalse:
+	xDict at: tagName first ->:result, kindOf?: Integer, ifFalse:
 		[self error: "illegal tag " + tagName];
 	result!
 ****Wb.class >> putBytes: arg
 	Wb.BytesStream new write: arg, seek: 0, pipe: "cat" to: Out
 ****Wb.class >> main.x: args
-	args empty? ifTrue: [self xtrList!];
+	args empty? ifTrue: [self xList!];
 	
 	args size = 1
 		ifTrue:
-			[xtrDict at: args first first ->:first, kindOf?: FixedByteArray,
+			[xDict at: args first first ->:first, kindOf?: FixedByteArray,
 					ifTrue: [self putBytes: first!];
 			self focusDocAt: (self tagOf: args first), = #bottom
 				ifTrue: [self error: "tag point to bottom"];

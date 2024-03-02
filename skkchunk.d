@@ -1,5 +1,5 @@
 ;skk chunk dict
-;$Id:$
+;$Id: mulk skkchunk.d 1170 2024-02-23 Fri 22:29:00 kt $
 みのしろきん,身代金
 うつくs,美
 そうそう,早々,曹操
