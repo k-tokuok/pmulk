@@ -1,5 +1,5 @@
-;Mulk package std+skk@uc (1173)
-;2024-03-03 Sun 07:09:14
+;Mulk package std+skk@ul (1174)
+;2024-03-03 Sun 22:01:48
 k-us.d,865,lib
 bg.m,963,tool
 pwd.m,440,tool
@@ -110,7 +110,7 @@ xarray.h,406,vm
 mem.h,406,vm
 uniq.m,1148,tool
 term.c,850,vm
-wb.m,1173,tool
+wb.m,1174,tool
 wcarray.m,406,lib
 term.h,636,vm
 tr.m,1129,tool
@@ -236,7 +236,7 @@ pause.m,425,tool
 ki.h,837,vm
 hidecnsl.m,1153,tool
 tail.m,932,tool
-package.d,1173,tool
+package.d,1174,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,932,tool

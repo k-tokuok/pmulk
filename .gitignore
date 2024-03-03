@@ -1,5 +1,5 @@
 #.gitignore
-#$Id: mulk .gitignore 1166 2024-02-12 Mon 11:07:54 kt $
+#$Id: mulk .gitignore 1174 2024-03-03 Sun 22:00:49 kt $
 *.exe
 *.o
 *.a

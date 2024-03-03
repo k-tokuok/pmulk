@@ -1,5 +1,5 @@
 workbench
-$Id: mulk wb.m 1173 2024-03-02 Sat 21:47:05 kt $
+$Id: mulk wb.m 1174 2024-03-03 Sun 22:00:49 kt $
 #ja ワークベンチ
 
 *[man]
@@ -367,7 +367,7 @@ The user registration key is executed by typing ^x followed by the registered ch
 *****#en
 Register the string in the specified range.
 When executed, a string is inserted at the cursor position.
-*****#ja 文字列 (^x + ^y + キー)
+*****#ja 文字列 (^x + ^y + KEY)
 指定範囲の文字列を登録する。
 実行するとカーソル位置に文字列が挿入される。
 
@@ -414,11 +414,11 @@ During the definition, M is displayed at the beginning of the bottom line.
 一連の繰作の内容を登録し、実行すると繰作を再現する。
 
 	^x + ( -- マクロ定義開始
-	^x + ) + キー -- 定義終了・登録
+	^x + ) + KEY -- 定義終了・登録
 	
 定義中は最下行の先頭にMが表示される。
 
-	^x + ^r + キー -- キーのマクロを実行しプロンプトを表示。' 'を入力するともう一度、'1'から'9'及び'0'を入力すると10回から100回繰り返す。それ以外を入力すると終了する。
+	^x + ^r + KEY -- KEYのマクロを実行しプロンプトを表示。' 'を入力するともう一度、'1'から'9'及び'0'を入力すると10回から100回繰り返す。それ以外を入力すると終了する。
 
 ***Execute/evaluate/load (^x + ^x)
 ****#en
@@ -445,7 +445,7 @@ During the leap, the pattern is initialized while maintaining the cursor positio
 ****#en
 Forward leap with the string assigned to the user registration key.
 If executed during a leap, the string is added to the pattern.
-****#ja 文字列リープ (^x + ^f + キー)
+****#ja 文字列リープ (^x + ^f + KEY)
 ユーザー登録キーに割り当てた文字列で前進リープを行う。
 リープ中に実行した場合、文字列をパターンに追加する。
 
@@ -469,7 +469,7 @@ The symbol before the document or tag indicates the synchronization status.
 	= -- The file is synchronized and the contents match.
 	* -- Synced but content does not match.
 	Blank -- Not synced.
-****#ja
+****#ja wb.d -- ドキュメント一覧
 バッファ中のドキュメントとタグの一覧を表示する。
 
 ドキュメント、タグの前の記号は同期状態を示している。
@@ -482,7 +482,7 @@ The symbol before the document or tag indicates the synchronization status.
 Output the list of saved tags in the form of marker lines.
 
 Output only the file with the f option.
-****#ja
+****#ja wb.h [-f] -- 保存タグ一覧
 保存したタグの一覧をマーカー行の形式で出力する。
 
 fオプションでファイルのみを出力する。
@@ -492,7 +492,7 @@ fオプションでファイルのみを出力する。
 Remove the saved tag corresponding to FILE.
 
 If FILE is omitted, the file list is acquired from the standard input.
-****#ja
+****#ja wb.rmh [FILE...] -- 保存タグの削除
 保存タグからFILEに対応したものを削除する。
 
 FILEを省略すると標準入力からファイルリストを取得する。
@@ -500,7 +500,7 @@ FILEを省略すると標準入力からファイルリストを取得する。
 ***wb.w -- wedge
 ****#en
 Outputs the contents held by range editing to the standard output.
-****#ja
+****#ja wb.w -- 貼り付け
 範囲編集で保持した内容を標準出力へ出力する。
 
 ***wb.x [KEY [KEY]] -- refer ^x
@@ -512,7 +512,7 @@ If KEY is a tag, output the contents of the document containing the tag.
 If two tags are specified, the contents of the area enclosed by both tags are output.
 
 If KEY is omitted, a list of user registration keys is output.
-****#ja
+****#ja wb.x [KEY [KEY]] -- ユーザー登録キーの参照
 ユーザー登録キーの内容を出力する。
 
 KEYが文字列ならそれ自体を。
