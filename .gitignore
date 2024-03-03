@@ -1,0 +1,23 @@
+#.gitignore
+#$Id: mulk .gitignore 1166 2024-02-12 Mon 11:07:54 kt $
+*.exe
+*.o
+*.a
+*.mi
+*.wk
+*.mpi
+*~
+*.lck
+*.num
+*.obj
+*.lib
+*.map
+*.tds
+*.BAK
+*.stackdump
+*.run
+*.log
+/android/Mulk/app/release
+/android/mulka0
+/android/Mulk/app/src/main/assets/
+/msite/_sync
