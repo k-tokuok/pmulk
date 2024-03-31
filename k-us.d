@@ -1,6 +1,6 @@
 ;keymap for us.
-;$Id: mulk k-us.d 865 2022-05-14 Sat 15:48:29 kt $
-;windows vk_code,sdl scancode,android,normal,shift,control,left_p
+;$Id: mulk k-us.d 1182 2024-03-20 Wed 22:06:05 kt $
+;Windows vk_code,SDL scancode,Android,normal,shift,control,left_p
 ;esc
 27,41,1,27,27,-1,1
 ;1

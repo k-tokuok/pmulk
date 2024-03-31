@@ -1,5 +1,5 @@
 replace parts that match the regular expression
-$Id: mulk gres.m 932 2022-09-18 Sun 17:45:15 kt $
+$Id: mulk gres.m 1190 2024-03-29 Fri 23:21:16 kt $
 #ja 正規表現にマッチする部位を置換する
 
 *[man]
@@ -13,6 +13,7 @@ Escape sequences can be used in DEST.
 .caption OPTION
 	m -- output only matching lines.
 	g -- replace all matches in a line.
+	a -- ASCII mode. Matches multibyte characters byte by byte.
 .caption SEE ALSO
 .summary regexp
 **#ja
@@ -25,6 +26,7 @@ DEST中でエスケープシーケンスを使用可能。
 .caption オプション
 	m -- マッチした行のみ出力する。
 	g -- 行内の全てのマッチした箇所を置き換える。
+	a -- ASCIIモード。マルチバイト文字をバイト単位でマッチする。
 .caption 関連項目
 .summary regexp
 
@@ -46,11 +48,12 @@ DEST中でエスケープシーケンスを使用可能。
 	w put: s;
 	w asString!
 **Cmd.gres >> main: args
-	OptionParser new init: "mg" ->:op, parse: args ->args;
+	OptionParser new init: "mga" ->:op, parse: args ->args;
 	op at: 'm' ->:matchOnly?;
 	op at: 'g' ->global?;
 	
 	RegExp new compile: args first ->regexp;
+	op at: 'a', ifTrue: [regexp ascii];
 
 	"" ->dest;
 	args size = 2 ifTrue:

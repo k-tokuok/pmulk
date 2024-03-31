@@ -1,27 +1,33 @@
 ascii code table
-$Id: mulk asctable.m 775 2021-10-24 Sun 20:43:09 kt $
+$Id: mulk asctable.m 1193 2024-03-31 Sun 07:18:03 kt $
 #ja ASCIIコード表
 
 *[man]
 **#en
 .caption SYNOPSIS
-	asctable
+	asctable [-8]
 	asctable.ctrl -- Display a list of control characters.
 .caption DESCRIPTION
 Display the ASCII code table.
-
+.caption OPTION
+	8 -- Display 8-bit code range	
 **#ja
 .caption 書式
-	asctable
+	asctable [-8]
 	asctable.ctrl -- 制御文字一覧を表示する。
 .caption 説明
 ASCIIコード表を表示する。
-
+.caption オブション
+	8 -- 8bitのコード範囲を表示する
+	
 *asctable tool.@
+	Mulk import: "optparse";
 	Object addSubclass: #Cmd.asctable
 **Cmd.asctable >> main: args
+	OptionParser new init: "8" ->:op, parse: args ->args;
+	op at: '8', ifTrue: [0xff] ifFalse: [0x7f] ->:end;
 	Out putLn: "    0 1 2 3 4 5 6 7 8 9 a b c d e f";
-	0 to: 0x7f, do:
+	0 to: end, do:
 		[:code
 		code % 0x10 = 0 ifTrue:
 			[Out put: code asHexString width: 2, put: "  "];

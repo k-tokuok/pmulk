@@ -1,13 +1,13 @@
 workbench
-$Id: mulk wb.m 1174 2024-03-03 Sun 22:00:49 kt $
-#ja ワークベンチ
+$Id: mulk wb.m 1176 2024-03-10 Sun 20:59:47 kt $
+#ja テキストエディタ
 
 *[man]
 **#en
 .caption SYNOPSIS
 	wb [OPTION]
 .caption DESCRIPTION
-wb is a screen-based text editor.
+wb (workbench) is a screen-based text editor.
 .caption OPTION
 	i -- Initialize and start.
 	I FILE -- After initialization, load FILE and start it.
@@ -31,7 +31,7 @@ Or...!?
 .caption 書式
 	wb [OPTION]
 .caption 説明
-wbは画面ベースのテキストエディタである。
+wb(ワークベンチ)は画面ベースのテキストエディタである。
 .caption オプション
 	i -- 初期化して起動する。
 	I FILE -- 初期化後にFILEをロードして起動する。

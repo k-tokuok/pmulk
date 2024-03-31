@@ -1,5 +1,5 @@
 dynamic link library interface
-$Id: mulk dl.m 989 2023-01-01 Sun 15:50:35 kt $
+$Id: mulk dl.m 1179 2024-03-17 Sun 21:14:15 kt $
 #ja 動的リンクライブラリのインターフェイス
 
 *[man]
@@ -284,7 +284,7 @@ arrayでは関数名のシンボルと関数型コードを交互に指定する
 	20 -- double f(double)
 	21 -- intptr_t f(intptr_t,intptr_t,double)
 	22 -- double f(intptr_t,intptr_t)
-	100 - 114 -- (windowsのみ)__stdcall方式で呼び出す。シグネチャーはコード番号から100を引いたものと同様。
+	100 - 114 -- (Windowsのみ)__stdcall方式で呼び出す。シグネチャーはコード番号から100を引いたものと同様。
 
 intptr_t型はポインタ及び整数派生型に対応する。
 

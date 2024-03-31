@@ -1,17 +1,17 @@
-clipboard for windows (Clip.w class)
-$Id: mulk clipw.m 932 2022-09-18 Sun 17:45:15 kt $
-#ja windows版クリップボード (Clip.w class)
+clipboard for Windows (Clip.w class)
+$Id: mulk clipw.m 1179 2024-03-17 Sun 21:14:15 kt $
+#ja Windows版クリップボード (Clip.w class)
 
 *[man]
 **#en
 .caption DESCRIPTION
-Microsoft windows implementation of clipboard.
+Microsoft Windows implementation of clipboard.
 .hierarchy Clip.w
 .caption SEE ALSO
 .summary cliplib
 **#ja
 .caption 説明
-クリップボードのMicrosoft windows実装。
+クリップボードのMicrosoft Windows実装。
 .hierarchy Clip.w
 .caption 関連項目
 .summary cliplib

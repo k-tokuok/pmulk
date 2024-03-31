@@ -1,9 +1,8 @@
 #
 #	Makefile for Visual-C
-#	$Id: mulk vc.mak 1092 2023-07-16 Sun 09:04:11 kt $
+#	$Id: mulk vc.mak 1196 2024-03-31 Sun 11:25:56 kt $
 #
-#	nmake /fvc.mak [setup=setup.m] [charset=sjis|utf8]
-#	(The former is the default)
+#	nmake /fvc.mak [setup=setup.m]
 #
 #	compiler defines _MSC_VER implicit.
 #
@@ -14,29 +13,20 @@
 setup=setup.m
 !ENDIF
 
-!IFNDEF charset
-charset=sjis
-!ENDIF
-
-!IF "$(charset)"=="sjis"
-charset_ibflags=-s
-!ENDIF
-
 cc=cl
 uflags=/O2 /W3 /WX /MD
-cflags=$(uflags) /c /DNDEBUG /DINTR_CHECK_P=1 $(charset_cflags)
+cflags=$(uflags) /c /DNDEBUG /DINTR_CHECK_P=1
 lflags=$(uflags)
 link=$(cc) $(lflags) /Fe$@ $** user32.lib gdi32.lib
 
-ppflags=windows $(charset) newlineCrlf caseInsensitiveFileName
-ibflags=$(charset_ibflags)
+ppflags=windows caseInsensitiveFileName
 
 .c.obj:
 	$(cc) $(cflags) $<
 
 all: mulk.exe mulk.mi
 
-ibprimsrc=ip.c sint.c lpint.c os.c float.c fbarray.c
+ibprimsrc=ip.c sint.c lpint.c os.c float.c fbarray.c codepage.c
 ibprim.wk: $(ibprimsrc)
 	del 1.wk
 	for %i in ($**) do type %i >>1.wk
@@ -52,7 +42,7 @@ xc.lib: std.obj heap.obj xbarray.obj xctype.obj splay.obj xgetopt.obj log.obj \
 	xarray.obj pfw.obj cqueue.obj iqueue.obj xsleepw.obj xwchar.obj coord.obj \
 	csplit.obj kidec.obj kidecw.obj termw.obj vieww.obj \
 	om.obj omd.obj gc.obj prim.obj ir.obj lex.obj \
-	ip.obj sint.obj lpint.obj os.obj float.obj fbarray.obj \
+	ip.obj sint.obj lpint.obj os.obj float.obj fbarray.obj codepage.obj \
 	lock.obj sleep.obj term.obj dl.obj viewp.obj intrw.obj
 	lib /out:$@ $**
 
@@ -71,7 +61,7 @@ ib.wk: mtoib.exe pp.exe base.m
 base.wk: pp.exe base.m
 	pp $(ppflags) <base.m >$@
 base.mi: ib.exe ib.wk base.wk mulkprim.wk
-	ib $(ibflags) "Mulk load: \"base.wk\", save: \"$@\""
+	ib "Mulk load: \"base.wk\", save: \"$@\""
 mulk.mi: mulk.exe base.mi $(setup)
 	mulk -ibase.mi "Mulk load: \"$(setup)\", save: \"$@\""
 	

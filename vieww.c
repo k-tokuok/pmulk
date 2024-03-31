@@ -1,6 +1,6 @@
 /*
 	view for windows.
-	$Id: mulk vieww.c 1049 2023-04-23 Sun 14:43:55 kt $
+	$Id: mulk vieww.c 1191 2024-03-30 Sat 22:35:26 kt $
 */
 
 #include "std.h"
@@ -20,6 +20,7 @@
 #include "kidecw.h"
 #include "csplit.h"
 #include "intr.h"
+#include "codepage.h"
 
 static HWND window;
 static HBITMAP bitmap;
@@ -343,23 +344,34 @@ void view_fill_rectangle(int x,int y,int width,int height,int color)
 }
 
 #define CHAR_GAP 2
+#define WCHAR_MAX_LEN 2
+
 void view_draw_char(int x,int y,uint64_t wc,int color)
 {
-	char buf[XWCHAR_MAX_LEN];
+	wchar_t buf[WCHAR_MAX_LEN];
+	char mbytes[XWCHAR_MAX_LEN];
 	int buflen;
 	HFONT old_font;
 	SIZE size;
 	
-	buflen=xwchar_to_mbytes(wc,buf);
+	if(wc<0x7f) {
+		buf[0]=(wchar_t)wc;
+		buflen=1;
+	} else {
+		buflen=xwchar_to_mbytes(wc,mbytes);
+		buflen=MultiByteToWideChar(codepage,0,mbytes,buflen,buf,
+			WCHAR_MAX_LEN);
+		if(buflen==0) xerror("MultiByteToWideChar failed");
+	}
 	SetTextColor(bitmap_dc,wcolor(color));
 	if(wc>=0x80&&jfont!=NULL) {
 		old_font=SelectObject(bitmap_dc,jfont);
-		TextOut(bitmap_dc,x,y,buf,buflen);
+		TextOutW(bitmap_dc,x,y,buf,buflen);
 	} else {
 		old_font=SelectObject(bitmap_dc,font);
-		TextOut(bitmap_dc,x,y,buf,buflen);
+		TextOutW(bitmap_dc,x,y,buf,buflen);
 	}
-	GetTextExtentPoint32(bitmap_dc,buf,buflen,&size);
+	GetTextExtentPoint32W(bitmap_dc,buf,buflen,&size);
 	SelectObject(bitmap_dc,old_font);
 	invalid(x-CHAR_GAP,y-CHAR_GAP,x+size.cx+CHAR_GAP*2,y+size.cy+CHAR_GAP*2);
 }

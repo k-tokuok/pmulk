@@ -1,5 +1,5 @@
 character code translation library
-$Id: mulk ctrlib.m 1049 2023-04-23 Sun 14:43:55 kt $
+$Id: mulk ctrlib.m 1188 2024-03-26 Tue 22:43:40 kt $
 #ja 文字コード変換ライブラリ
 
 *[man]
@@ -28,7 +28,8 @@ Translate the character code according to the specification at the time of const
 **CodeTranslator >> init: fromTo
 	self shouldBeImplemented
 **CodeTranslator >> alloc
-	FixedByteArray basicNew: limit * 2 ->resultBuf
+	FixedByteArray basicNew: limit * 4 ->resultBuf 
+		-- for UTF-32, may worst translation rate.
 **CodeTranslator >> reserve: size
 	limit > size ifTrue: [self!];
 	limit = 0 ifTrue: [8 ->limit];
@@ -92,13 +93,13 @@ Factory class.
 Constructs and returns a CodeTranslator corresponding to the specified string fromTo.
 
 fromTo specifies the code type to be translate with the following two alphabets.
-	u -- UTF8
+	u -- UTF-8
 	s -- SJIS
 	e -- EUC-JP
 ****#ja
 指定文字列fromToに対応する変換器を構築して返す。
 
 fromToは変換するコード種別を以下のアルファベット二文字で指定する。
-	u -- UTF8
+	u -- UTF-8
 	s -- SJIS
 	e -- EUC-JP

@@ -1,5 +1,5 @@
 google drive
-$Id: mulk gdrive.m 1040 2023-03-25 Sat 21:47:31 kt $
+$Id: mulk gdrive.m 1179 2024-03-17 Sun 21:14:15 kt $
 #ja グーグルドライブ
 
 *[man]
@@ -11,7 +11,7 @@ $Id: mulk gdrive.m 1040 2023-03-25 Sat 21:47:31 kt $
 .caption DESCRIPTION
 Provides a framework for mounting Google Drive to /gdrive, /gdriveb and handling it in the same way as local files.
 
-Files under /gdrive are converted to unix format on google drive.
+Files under /gdrive are converted to Unix format on google drive.
 Files under /gdriveb are treated as binary files.
 
 .caption init
@@ -41,7 +41,7 @@ Mount google drive.
 .caption 説明
 グーグルドライブを/gdrive, /gdrivebにマウントし、ローカルなファイルと同様に扱う枠組みを提供する。
 	
-/gdrive下のファイルはグーグルドライブ上ではunix形式に変換される。
+/gdrive下のファイルはグーグルドライブ上ではUnix形式に変換される。
 /gdriveb下のファイルはバイナリファイルとして扱う。
 
 .caption init

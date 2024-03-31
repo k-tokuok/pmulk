@@ -1,15 +1,13 @@
 #
 #	makefile for gnu toolchain.
-#	$Id: mulk makefile 1093 2023-07-16 Sun 21:45:01 kt $
+#	$Id: mulk makefile 1191 2024-03-30 Sat 22:35:26 kt $
 #
 #	make hostos={cygwin,linux,macosx,minix,freebsd,netbsd,illumos,windows}
 #		[dl=on|off] [term=on|off] [view=on|off|sdl] [xft=on|off] 
-#		[charset=utf8|sjis]
 #		[setup=setup.m]
 #		[debug=off|on] [ptr=p64|p32] [disableSendCommon=off|on]
 #		[target=xxx sall]
 #	The former is the default.
-#	In cygwin or windows, use sjis as default charset.
 #
 
 unixen=cygwin linux macosx minix freebsd netbsd illumos
@@ -75,8 +73,8 @@ cflags+=-DINTER_ISFINITE_P=1
 else
 toolprefix=x86_64-w64-mingw32-
 endif
-charset?=sjis
-ppflags+=newlineCrlf caseInsensitiveFileName
+ppflags+=caseInsensitiveFileName
+extibprim+=codepage.c
 extobj+=pfw.o xsleepw.o intrw.o kidecw.o
 exe=.exe
 termobj+=termw.o
@@ -90,8 +88,7 @@ termobj+=termu.o
 endif
 
 ifeq ($(hostos),cygwin)
-ppflags+=newlineCrlf caseInsensitiveFileName
-charset?=sjis
+ppflags+=caseInsensitiveFileName
 termlibs+=-lncurses
 xftcflags+=-I/usr/include/freetype2
 endif
@@ -190,19 +187,13 @@ cflags+=-DINTR_CHECK_P=1
 ibobj+=intrs.o
 endif
 
-ifeq ($(charset),sjis)
-ibflags=-s
-endif
-
 ifeq ($(disableSendCommon),on)
 ppflags+=disableSendCommon
 endif
 
-ppflags+=$(charset)
-
 all: $(mulk) mulk.mi
 
-ibprim=ip.c sint.c lpint.c os.c float.c fbarray.c
+ibprim=ip.c sint.c lpint.c os.c float.c fbarray.c $(extibprim)
 ibprim.wk: $(ibprim)
 	cat $+ | grep ^DEFPRIM >$@
 

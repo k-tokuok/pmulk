@@ -1,5 +1,5 @@
 character code conversion
-$Id: mulk ctr.m 1048 2023-04-22 Sat 22:29:30 kt $
+$Id: mulk ctr.m 1179 2024-03-17 Sun 21:14:15 kt $
 #ja 文字コード変換
 
 *[man]
@@ -13,7 +13,7 @@ Convert standard input character code and end-of-line code.
 FROM and TO specify the conversion source and destination codes with two characters, the character code and the end-of-line code, respectively.
 
 	character code
-		u -- UTF8
+		u -- UTF-8
 		s -- SJIS
 		e -- EUC-JP
 	end of line code
@@ -38,7 +38,7 @@ If FROM is omitted, '=' is assumed.
 FROMとTOはそれぞれ変換元と変換先のコードを文字コードと行末コードの2文字で指定する。
 
 	文字コード
-		u -- UTF8
+		u -- UTF-8
 		s -- SJIS
 		e -- EUC-JP
 	行末コード

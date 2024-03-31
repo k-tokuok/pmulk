@@ -1,6 +1,6 @@
 #
-#	Makefile for Digital Mars C.
-#	$Id: mulk dm.mak 1092 2023-07-16 Sun 09:04:11 kt $
+#	Makefile for Digital Mars C (SJIS)
+#	$Id: mulk dm.mak 1196 2024-03-31 Sun 11:25:56 kt $
 #
 #	copy /y dm.mak+make.d make.wk
 #	make -fmake.wk [setup=setup.m]
@@ -13,8 +13,7 @@ uflags=-WA
 cflags=$(uflags) -c -o -wx -w7 -DNDEBUG -DINTR_CHECK_P=1
 lflags=$(uflags)
 link=$(cc) $(lflags) -o$@ $** gdi32.lib
-ppflags=windows sjis newlineCrlf caseInsensitiveFileName
-ibflags=-s
+ppflags=windows caseInsensitiveFileName
 setup=setup.m
 
 .c.obj:
@@ -22,14 +21,14 @@ setup=setup.m
 
 all: mulk.exe mulk.mi
 
-ibprimsrc=ip.c sint.c lpint.c os.c float.c fbarray.c
+ibprimsrc=ip.c sint.c lpint.c os.c float.c fbarray.c codepage.c
 mulkprimsrc=$(ibprimsrc) lock.c sleep.c term.c termw.c dl.c viewp.c
 
 xc.lib: std.obj heap.obj xbarray.obj xctype.obj splay.obj xgetopt.obj log.obj \
 	xarray.obj pfw.obj cqueue.obj iqueue.obj xsleepw.obj xwchar.obj coord.obj \
 	csplit.obj kidec.obj kidecw.obj termw.obj vieww.obj \
 	om.obj omd.obj gc.obj prim.obj ir.obj lex.obj \
-	ip.obj sint.obj lpint.obj os.obj float.obj fbarray.obj \
+	ip.obj sint.obj lpint.obj os.obj float.obj fbarray.obj codepage.obj \
 	lock.obj sleep.obj term.obj dl.obj viewp.obj intrw.obj
 	lib -c $@ $**
 
@@ -55,7 +54,7 @@ ib.wk: mtoib.exe pp.exe base.m
 base.wk: pp.exe base.m
 	cmd /c "pp $(ppflags) <base.m >$@"
 base.mi: ib.exe ib.wk base.wk mulkprim.wk
-	ib $(ibflags) "Mulk load: \"base.wk\", save: \"$@\""
+	ib "Mulk load: \"base.wk\", save: \"$@\""
 mulk.mi: mulk.exe base.mi $(setup)
 	mulk -ibase.mi "Mulk load: \"$(setup)\", save: \"$@\""
 

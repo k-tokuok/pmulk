@@ -1,5 +1,5 @@
 manual
-$Id: mulk man.m 1030 2023-03-04 Sat 20:46:29 kt $
+$Id: mulk man.m 1177 2024-03-11 Mon 22:52:28 kt $
 #ja マニュアル
 
 *[man]
@@ -48,11 +48,13 @@ When creating from a mm file, reshape the third and subsequent lines as they are
 	f -- Output the document before format (man command only).
 	m -- Do not perform paging by more.
 	l LANG -- Output the manual of the specified language.
+	p ATTR -- Specifies the package attribute. If omitted, "*" is assumed (only for whatis).
 	
 .caption SEE ALSO
 .summary more
 .summary format
 .summary regexp
+.summary package
 
 **#ja
 .caption 書式
@@ -96,14 +98,16 @@ When creating from a mm file, reshape the third and subsequent lines as they are
 mmファイルから生成する場合は、3行目以降をそのまま整形する。
 
 .caption オプション
-	f -- format前の文書を出力する。(manコマンドのみ)
+	f -- format前の文書を出力する(manコマンドのみ)。
 	m -- moreによるページングを行わない。
 	l LANG -- 指定の言語のマニュアルを出力する。
+	p ATTR -- パッケージ属性を指定する。省略時は"*"が接待されたと見做す(whatisのみ)。
 	
 .caption 関連項目
 .summary more
 .summary format
 .summary regexp
+.summary package
 
 *import.@
 	Mulk import: #("optparse")
@@ -259,16 +263,16 @@ mmファイルから生成する場合は、3行目以降をそのまま整形�
 		self setMore];
 	In pipe: pipes to: Out
 **Cmd.man >> main.whatis: args
-	OptionParser new init: "ml:" ->op, parse: args ->args;
+	OptionParser new init: "ml:p:" ->op, parse: args ->args;
 	self setLang;
 	Array new ->pipes;
-	pipes addLast: "ls " + (Mulk.systemDirectory + "?*.m(m|)") quotedPath;
+	op at: 'p' ->:attr, nil? ifTrue: ['*' ->attr];
+	pipes addLast: "package.list " + attr + " | grep ?*.m(m|)$ | gres .?*$";
 	pipes addLast:
 		[In contentLinesDo:
 			[:ln
-			ln copyUntil: (ln indexOf: '.') ->:name;
 			Out putLn: 
-				(ManualSummaryGenerator new init: lang, summary: name)]];
+				(ManualSummaryGenerator new init: lang, summary: ln)]];
 	args empty? ifFalse:
 		[pipes addLast: "grep '" + args first + "'"];
 	self setMore;

@@ -1,5 +1,5 @@
 create tar + bz2 format mulk package
-$Id: mulk packtbz.m 1101 2023-09-03 Sun 10:54:09 kt $
+$Id: mulk packtbz.m 1179 2024-03-17 Sun 21:14:15 kt $
 #ja tar + bz2形式のmulkパッケージの作成
 
 *[man]
@@ -9,7 +9,7 @@ $Id: mulk packtbz.m 1101 2023-09-03 Sun 10:54:09 kt $
 .caption DESCRIPTION
 Create a Mulk package specified by EXPR and compress it in tar + bz2 format.
 .caption LIMITATION
-cygwin commands can be executed on windows.
+cygwin commands can be executed on Windows.
 .caption SEE ALSO
 .summary package
 **#ja
@@ -18,7 +18,7 @@ cygwin commands can be executed on windows.
 .caption 説明
 EXPRで指定されたMulkパッケージを作り、tar + bz2形式で圧縮する。
 .caption 制限事項
-windows上ではcygwinのコマンドが実行可能であること。
+Windows上ではcygwinのコマンドが実行可能であること。
 .caption 関連項目
 .summary package
 

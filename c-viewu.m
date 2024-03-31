@@ -1,6 +1,6 @@
-console for utf-8 view (Console.viewu class)
-$Id: mulk c-viewu.m 406 2020-04-19 Sun 11:29:54 kt $
-#ja utf-8 view用コンソール (Console.viewu class)
+console for UTF-8 view (Console.viewu class)
+$Id: mulk c-viewu.m 1179 2024-03-17 Sun 21:14:15 kt $
+#ja UTF-8 view用コンソール (Console.viewu class)
 
 *[man]
 **#en

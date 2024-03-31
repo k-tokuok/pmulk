@@ -1,44 +1,76 @@
 /*
-	path and files for windows.
-	$Id: mulk pfw.c 1132 2023-11-11 Sat 16:46:01 kt $
+	path and files for windows/WIDECHAR API.
+	$Id: mulk pfw.c 1191 2024-03-30 Sat 22:35:26 kt $
 */
 
 #include "std.h"
+#include "codepage.h"
 #include "pf.h"
 #include "mem.h"
 
 #include <windows.h>
 
-static char *to_mfn(char *pfn,struct xbarray *xba)
+#define WCSIZE sizeof(wchar_t)
+
+static WCHAR *to_mfn(char *pfn,struct xbarray *xba)
 {
-	xbarray_init(xba);
-	xbarray_adds(xba,pfn);
+	struct xbarray wk;
+	int len;
+
+	xbarray_init(&wk);
+	xbarray_adds(&wk,pfn);
 	if(pfn[0]=='/') {
-		xba->elt[0]=pfn[1];
-		xba->elt[1]=':';
-		if(pfn[2]=='\0') xbarray_add(xba,'/');
+		wk.elt[0]=pfn[1];
+		wk.elt[1]=':';
+		if(pfn[2]=='\0') xbarray_add(&wk,'/');
 	}
-	xbarray_add(xba,'\0');
+	xbarray_add(&wk,'\0');
+	
+	len=MultiByteToWideChar(codepage,0,wk.elt,-1,NULL,0);
+	if(len==0) xerror("MultiByteToWideChar failed");
+	xbarray_init(xba);
+	xbarray_reserve(xba,len*WCSIZE);
+	MultiByteToWideChar(codepage,0,wk.elt,-1,(wchar_t*)xba->elt,len);
+	xbarray_free(&wk);
+	return (WCHAR*)xba->elt;
+}
+
+static char *to_mbytes(WCHAR *wstr,struct xbarray *xba)
+{
+	int len;
+	len=WideCharToMultiByte(codepage,0,wstr,-1,NULL,0,NULL,NULL);
+	xbarray_reset(xba);
+	xbarray_reserve(xba,len);
+	WideCharToMultiByte(codepage,0,wstr,-1,xba->elt,len,NULL,NULL);
 	return xba->elt;
 }
 
-static char *to_pfn(char *mfn,struct xbarray *xba)
+static char *to_pfn(WCHAR *mfn,struct xbarray *xba)
 {
+	struct xbarray wk;
 	char *p;
 	int ch;
-	if(mfn[1]!=':') xerror("to_pfn missing drive name.");
+	
+	xbarray_init(&wk);
+	to_mbytes(mfn,&wk);
+	if(wk.elt[1]!=':') xerror("to_pfn missing drive name");
+	
 	xbarray_init(xba);
 	xbarray_add(xba,'/');
-	xbarray_add(xba,mfn[0]);
-	if(mfn[3]!='\0') {
-		p=mfn+2;
+	xbarray_add(xba,wk.elt[0]);
+	if(wk.elt[3]!='\0') {
+		p=wk.elt+2;
 		while((ch=LC(p++))!='\0') {
 			if(ch=='\\') ch='/';
 			xbarray_add(xba,ch);
-			if(IsDBCSLeadByte(ch)) xbarray_add(xba,LC(p++));
+			if(codepage!=CP_UTF8) {
+				/* may be double byte char */
+				if(IsDBCSLeadByte(ch)) xbarray_add(xba,LC(p++));
+			}
 		}
+		xbarray_add(xba,'\0');
 	}
-	xbarray_add(xba,'\0');
+	xbarray_free(&wk);
 	return xba->elt;
 }
 	
@@ -46,7 +78,13 @@ FILE *pf_open(char *pfn,char *mode)
 {
 	struct xbarray xba;
 	FILE *fp;
-	fp=fopen(to_mfn(pfn,&xba),mode);
+	wchar_t wmode[10];
+	int i,ch;
+	
+	for(i=0;(ch=LC(mode+i))!='\0';i++) wmode[i]=ch;
+	wmode[i]='\0';
+	
+	fp=_wfopen(to_mfn(pfn,&xba),wmode);
 	xbarray_free(&xba);
 	return fp;
 }
@@ -57,7 +95,7 @@ int pf_stat(char *pfn,struct pf_stat *statbuf)
 	WIN32_FILE_ATTRIBUTE_DATA attr;
 	int en,st,result;
 	
-	st=GetFileAttributesEx(to_mfn(pfn,&xba),GetFileExInfoStandard,&attr);
+	st=GetFileAttributesExW(to_mfn(pfn,&xba),GetFileExInfoStandard,&attr);
 	xbarray_free(&xba);
 	if(!st) {
 		en=GetLastError();
@@ -84,16 +122,12 @@ static int check(char *fn,int mode)
 
 void pf_exepath(char *argv0,struct xbarray *path)
 {
-#if PGMPTR_P
-	to_pfn(_pgmptr,path);
-#else
-	char mfn[MAX_STR_LEN];
+	wchar_t mfn[MAX_STR_LEN];
 	int st;
-	st=GetModuleFileName(NULL,mfn,MAX_STR_LEN);
+	st=GetModuleFileNameW(NULL,mfn,MAX_STR_LEN);
 	if(st>=MAX_STR_LEN) st=0;
 	if(st==0) xerror("GetModuleFileName failed.");
 	to_pfn(mfn,path);
-#endif
 }
 
 #ifdef __DMC__
@@ -124,7 +158,7 @@ int pf_utime(char *pfn,uint64_t mtime)
 #endif
 	ft.dwLowDateTime=mtime&0xffffffff;
 	ft.dwHighDateTime=mtime>>32;
-	hFile=CreateFile(to_mfn(pfn,&xba),GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+	hFile=CreateFileW(to_mfn(pfn,&xba),GENERIC_WRITE,0,NULL,OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL,NULL);
 	xbarray_free(&xba);
 	if(hFile==INVALID_HANDLE_VALUE) return FALSE;
@@ -138,11 +172,10 @@ char *pf_getcwd(void)
 	int len;
 	struct xbarray mba,pba;
 	char *result;
-	len=GetCurrentDirectory(0,NULL);
+	len=GetCurrentDirectoryW(0,NULL);
 	xbarray_init(&mba);
-	GetCurrentDirectory(len+1,xbarray_reserve(&mba,len+1));
-	to_pfn(mba.elt,&pba);
-	result=xstrdup(to_pfn(mba.elt,&pba));
+	GetCurrentDirectoryW(len+1,(wchar_t*)xbarray_reserve(&mba,(len+1)*WCSIZE));
+	result=xstrdup(to_pfn((wchar_t*)mba.elt,&pba));
 	xbarray_free(&mba);
 	xbarray_free(&pba);
 	return result;
@@ -152,41 +185,45 @@ int pf_readdir(char *pfn,struct xbarray *dirs)
 {
 	struct xbarray xba;
 	char *fn;
-	WIN32_FIND_DATA data;
+	WIN32_FIND_DATAW data;
 	HANDLE h;
 	DWORD err;
-
-	to_mfn(pfn,&xba);
-	xba.size--;
-	xbarray_adds(&xba,"\\*");
-	xbarray_add(&xba,'\0');
-	if((h=FindFirstFile(xba.elt,&data))==INVALID_HANDLE_VALUE) return FALSE;
-	xbarray_free(&xba);
+	int result;
 	
+	to_mfn(pfn,&xba);
+	xba.size-=WCSIZE;
+	*(wchar_t*)(xbarray_reserve(&xba,WCSIZE))='\\';
+	*(wchar_t*)(xbarray_reserve(&xba,WCSIZE))='*';
+	*(wchar_t*)(xbarray_reserve(&xba,WCSIZE))='\0';
+
+	if((h=FindFirstFileW((wchar_t*)xba.elt,&data))==INVALID_HANDLE_VALUE) {
+		xbarray_free(&xba);
+		return FALSE;
+	}
+
+	result=TRUE;
 	while(TRUE) {
-		fn=data.cFileName;
+		fn=to_mbytes(data.cFileName,&xba);
 		if(!(strcmp(fn,".")==0||strcmp(fn,"..")==0)) {
 			xbarray_adds(dirs,fn);
 			xbarray_add(dirs,'\n');
 		}
-		if(FindNextFile(h,&data)==0) {
+		if(FindNextFileW(h,&data)==0) {
 			err=GetLastError();
-			if(err==ERROR_NO_MORE_FILES) break;
-			else {
-				FindClose(h);
-				return FALSE;
-			}
+			if(err!=ERROR_NO_MORE_FILES) result=FALSE;
+			break;
 		}
 	}
+	xbarray_free(&xba);
 	FindClose(h);
-	return TRUE;
+	return result;
 }
 
 int pf_mkdir(char *pfn)
 {
 	struct xbarray xba;
 	int st;
-	st=CreateDirectory(to_mfn(pfn,&xba),NULL);
+	st=CreateDirectoryW(to_mfn(pfn,&xba),NULL);
 	xbarray_free(&xba);
 	return st;
 }
@@ -194,11 +231,11 @@ int pf_mkdir(char *pfn)
 int pf_remove(char *pfn)
 {
 	struct xbarray xba;
-	char *mfn;
+	wchar_t *mfn;
 	int st;
 	mfn=to_mfn(pfn,&xba);
-	if(check(pfn,PF_DIR)) st=RemoveDirectory(mfn);
-	else st=DeleteFile(mfn);
+	if(check(pfn,PF_DIR)) st=RemoveDirectoryW(mfn);
+	else st=DeleteFileW(mfn);
 	xbarray_free(&xba);
 	return st;
 }
@@ -207,7 +244,7 @@ int pf_chdir(char *pfn)
 {
 	struct xbarray xba;
 	int st;
-	st=SetCurrentDirectory(to_mfn(pfn,&xba));
+	st=SetCurrentDirectoryW(to_mfn(pfn,&xba));
 	xbarray_free(&xba);
 	return st;
 }

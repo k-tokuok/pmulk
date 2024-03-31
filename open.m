@@ -1,5 +1,5 @@
 opens a file or url in the host system
-$Id: mulk open.m 955 2022-10-16 Sun 20:41:31 kt $
+$Id: mulk open.m 1182 2024-03-20 Wed 22:06:05 kt $
 #ja ホストシステムでファイルまたはURLを開く
 
 *[man]
@@ -11,7 +11,7 @@ Opens the file or URL specified by the argument in the corresponding application
 
 If ARG is omitted, the current directory is targeted.
 .caption LIMITATION
-Only URL is supported on android.
+Only URL is supported on Android.
 
 **#ja
 .caption 書式
@@ -21,7 +21,7 @@ Only URL is supported on android.
 
 ARGを省略した場合、カレントディレクトリを対象とする。
 .caption 制限事項
-androidではURLのみ対応。
+AndroidではURLのみ対応。
 
 *open tool.@
 	Object addSubclass: #Cmd.open
@@ -34,7 +34,7 @@ androidではURLのみ対応。
 	Android method: #openUrl signature: "VS"
 ***Cmd.open >> main: args
 	args first ->:url;
-	self url?: url, ifFalse: [self error: "android supports only url"];
+	self url?: url, ifFalse: [self error: "Android supports only url"];
 	Android call: #openUrl with: url
 
 **Mulk.hostOS <> #android >

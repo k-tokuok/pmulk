@@ -1,15 +1,15 @@
-console for utf-8 terminal (Console.termu class)
-$Id: mulk c-termu.m 422 2020-05-09 Sat 22:42:52 kt $
-#ja utf-8端末用コンソール (Console.termu class)
+console for UTF-8 terminal (Console.termu class)
+$Id: mulk c-termu.m 1179 2024-03-17 Sun 21:14:15 kt $
+#ja UTF-8端末用コンソール (Console.termu class)
 
 *[man]
 **#en
 .caption SYNOPSIS
 	cset termu
 .caption DESCRIPTION
-Console compatible with display errors when using utf-8 fonts.
+Console compatible with display errors when using UTF-8 fonts.
 .hierarchy Console.termu
-When using utf-8 fonts in uxterm etc., there are cases where the glyph moves the cursor by one character, even though the glyphs are full-width, and the glyphs of the font are different from the windows environment and the display is disturbed.
+When using UTF-8 fonts in uxterm etc., there are cases where the glyph moves the cursor by one character, even though the glyphs are full-width, and the glyphs of the font are different from the Windows environment and the display is disturbed.
 Such characters are displayed correctly by replacing the output characters or adding a blank space.
 .caption SEE ALSO
 .summary console
@@ -17,9 +17,9 @@ Such characters are displayed correctly by replacing the output characters or ad
 .caption 書式
 	cset termu
 .caption 説明
-utf-8フォント使用時の表示異常に対応したコンソール。
+UTF-8フォント使用時の表示異常に対応したコンソール。
 .hierarchy Console.termu
-uxterm等でutf-8フォントを使用するとグリフが全角にも関わらず、カーソルを1文字分しか進めなかったり、フォントのグリフがwindows環境と異なっていて表示が乱れるケースが存在する。
+uxterm等でUTF-8フォントを使用するとグリフが全角にも関わらず、カーソルを1文字分しか進めなかったり、フォントのグリフがWindows環境と異なっていて表示が乱れるケースが存在する。
 こういった文字に対しても出力文字を差し替えたり、空白を後付けする事で正しく表示する。
 .caption 関連項目
 .summary console

@@ -1,12 +1,7 @@
 /*
 	xc character type.
-	$Id: mulk xctype.h 406 2020-04-19 Sun 11:29:54 kt $
+	$Id: mulk xctype.h 1191 2024-03-30 Sat 22:35:26 kt $
 */
-
-extern int sjis_trail_size(int ch);
-extern int sjis_mblead_p(int ch);
-extern int sjis_mbtrail_p(int ch);
-
 extern int utf8_trail_size(int ch);
 extern int utf8_mblead_p(int ch);
 extern int utf8_mbtrail_p(int ch);

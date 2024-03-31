@@ -1,11 +1,11 @@
 parse command line options (OptionParser class)
-$Id: mulk optparse.m 960 2022-10-27 Thu 22:12:46 kt $
+$Id: mulk optparse.m 1179 2024-03-17 Sun 21:14:15 kt $
 #ja コマンドラインオプションを解釈する (OptionParser class)
 
 *[man]
 **#en
 .caption DESCRIPTION
-A parser class for unix-like command line options.
+A parser class for Unix-like command line options.
 
 .hierarchy OptionParser
 
@@ -19,7 +19,7 @@ If a command argument that is not an option or '--' is specified, it is consider
 
 **#ja
 .caption 説明
-unix-likeなコマンドラインオプションのパーサ。
+Unix-likeなコマンドラインオプションのパーサ。
 
 .hierarchy OptionParser
 

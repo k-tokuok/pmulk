@@ -1,12 +1,13 @@
 #
 #	c source dependency.
-#	$Id: mulk make.d 1092 2023-07-16 Sun 09:04:11 kt $
+#	$Id: mulk make.d 1191 2024-03-30 Sat 22:35:26 kt $
 #
 # following rules are generated automatically.
 # !ls ?*.c | cdep $(objsuf)
 addxc.$(objsuf): addxc.c std.h config.h u64.h
 cfgfile.$(objsuf): cfgfile.c std.h config.h u64.h heap.h splay.h pf.h xbarray.h cfgfile.h
 cm.$(objsuf): cm.c std.h config.h u64.h cm.h
+codepage.$(objsuf): codepage.c std.h config.h u64.h codepage.h om.h xarray.h prim.h xbarray.h
 coord.$(objsuf): coord.c std.h config.h u64.h coord.h
 cqueue.$(objsuf): cqueue.c std.h config.h u64.h cqueue.h mem.h
 csplit.$(objsuf): csplit.c std.h config.h u64.h csplit.h
@@ -44,7 +45,8 @@ os.$(objsuf): os.c std.h config.h u64.h pf.h xbarray.h mem.h om.h xarray.h gc.h 
 pfcm.$(objsuf): pfcm.c std.h config.h u64.h mem.h cm.h pf.h xbarray.h
 pfd.$(objsuf): pfd.c std.h config.h u64.h pf.h xbarray.h mem.h
 pfu.$(objsuf): pfu.c std.h config.h u64.h pf.h xbarray.h
-pfw.$(objsuf): pfw.c std.h config.h u64.h pf.h xbarray.h mem.h
+pfw.$(objsuf): pfw.c std.h config.h u64.h codepage.h pf.h xbarray.h mem.h
+pfwa.$(objsuf): pfwa.c std.h config.h u64.h pf.h xbarray.h mem.h
 pfwu64.$(objsuf): pfwu64.c std.h config.h u64.h pf.h xbarray.h ms.h
 pp.$(objsuf): pp.c std.h config.h u64.h mem.h heap.h splay.h xbarray.h
 prim.$(objsuf): prim.c std.h config.h u64.h mem.h om.h xarray.h gc.h prim.h xbarray.h
@@ -61,7 +63,7 @@ u64.$(objsuf): u64.c std.h config.h u64.h
 u64t.$(objsuf): u64t.c std.h config.h u64.h
 viewp.$(objsuf): viewp.c std.h config.h u64.h viewp.h view.h coord.h xwchar.h om.h xarray.h prim.h xbarray.h
 views.$(objsuf): views.c std.h config.h u64.h iqueue.h xwchar.h viewp.h view.h coord.h intr.h ki.h kidec.h heap.h csplit.h om.h xarray.h ip.h
-vieww.$(objsuf): vieww.c std.h config.h u64.h iqueue.h xwchar.h om.h xarray.h ip.h viewp.h view.h coord.h ki.h kidec.h heap.h kidecw.h csplit.h intr.h
+vieww.$(objsuf): vieww.c std.h config.h u64.h iqueue.h xwchar.h om.h xarray.h ip.h viewp.h view.h coord.h ki.h kidec.h heap.h kidecw.h csplit.h intr.h codepage.h
 viewx.$(objsuf): viewx.c std.h config.h u64.h mem.h iqueue.h viewp.h view.h coord.h xwchar.h intr.h ki.h om.h xarray.h ip.h
 xarray.$(objsuf): xarray.c std.h config.h u64.h xarray.h
 xbarray.$(objsuf): xbarray.c std.h config.h u64.h xbarray.h

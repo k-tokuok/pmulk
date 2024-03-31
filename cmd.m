@@ -1,5 +1,5 @@
 command interpreter
-$Id: mulk cmd.m 933 2022-09-18 Sun 20:43:34 kt $
+$Id: mulk cmd.m 1179 2024-03-17 Sun 21:14:15 kt $
 #ja コマンドインタプリタ
 
 *[man]
@@ -7,7 +7,7 @@ $Id: mulk cmd.m 933 2022-09-18 Sun 20:43:34 kt $
 .caption SYNOPSIS
 	cmd [SCRIPT]
 .caption DESCRIPTION
-Read a unix-like command line from standard input and execute it.
+Read a Unix-like command line from standard input and execute it.
 
 If a SCRIPT is specified, read from the SCRIPT file.
 Command line descriptions correspond to comments (#), redirects (<, <<,>, >>), pipes (|), and sequential execution (;).
@@ -29,7 +29,7 @@ In this case, the main.<subcommand name>: method is executed instead of the main
 .caption 書式
 	cmd [スクリプト]
 .caption 説明
-標準入力からunix-likeなコマンド行を読み込み、実行する。
+標準入力からUnix-likeなコマンド行を読み込み、実行する。
 
 スクリプトが指定された場合は、スクリプトファイルから読み込みを行う。
 

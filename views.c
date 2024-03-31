@@ -1,6 +1,6 @@
 /*
 	view for sdl.
-	$Id: mulk views.c 1049 2023-04-23 Sun 14:43:55 kt $
+	$Id: mulk views.c 1191 2024-03-30 Sat 22:35:26 kt $
 */
 
 #include "std.h"
@@ -220,16 +220,17 @@ void view_fill_rectangle(int x,int y,int width,int height,int color_code)
 
 #if WINDOWS_P
 #include <windows.h>
+
 static int wchar_to_utf8(uint64_t wc,char *buf)
 {
 	char sjisbuf[XWCHAR_MAX_LEN];
 	WCHAR utf16buf[2];
 	int sjislen,utf16len,utf8len;
 	
-	if(wc<0x7f||GetACP()==CP_UTF8) return xwchar_to_mbytes(wc,buf);
+	if(codepage==CP_UTF8||wc<0x7f) return xwchar_to_mbytes(wc,buf);
 	
 	sjislen=xwchar_to_mbytes(wc,sjisbuf);
-	utf16len=MultiByteToWideChar(CP_ACP,0,sjisbuf,sjislen,utf16buf,
+	utf16len=MultiByteToWideChar(codepage,0,sjisbuf,sjislen,utf16buf,
 		sizeof(utf16buf));
 	if(utf16len==0) xerror("MultiByteToWideChar failed.");
 	utf8len=WideCharToMultiByte(CP_UTF8,0,utf16buf,utf16len,buf,XWCHAR_MAX_LEN,

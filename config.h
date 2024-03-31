@@ -1,6 +1,6 @@
 /*
 	configure.
-	$Id: mulk config.h 1132 2023-11-11 Sat 16:46:01 kt $
+	$Id: mulk config.h 1185 2024-03-23 Sat 22:04:42 kt $
 */
 
 /* archtecture and compiler */
@@ -71,7 +71,6 @@
 
 #ifdef __BORLANDC__
 #define OS_CODE OS_WINDOWS
-#define PGMPTR_P FALSE
 #if __BORLANDC__/0x10==0x55
 #define BORLANDC_55
 #define INCLUDE_INTTYPES_P FALSE
@@ -86,7 +85,6 @@
 
 #ifdef __POCC__
 #define OS_CODE OS_WINDOWS
-#define PGMPTR_P FALSE
 #endif
 
 /** msdos/freedos with dosextender */
@@ -173,8 +171,8 @@
 #define _FILE_OFFSET_BITS 64
 #endif
 
-#ifndef PGMPTR_P
-#define PGMPTR_P TRUE
+#ifndef WINDOWS_CP
+#define WINDOWS_CP 65001 /* CP_UTF8 */
 #endif
 
 /* options for mulk */

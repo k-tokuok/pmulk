@@ -1,5 +1,5 @@
 text printing
-$Id: mulk print.m 1040 2023-03-25 Sat 21:47:31 kt $
+$Id: mulk print.m 1179 2024-03-17 Sun 21:14:15 kt $
 #ja テキスト印刷
 
 *[man]
@@ -23,9 +23,9 @@ At this time, if the -l option is specified, landscape paper is used.
 	n -- Print line numbers.
 	d -- 2-sided printing.
 	c N -- Print copies of N copies.
-	u -- Print utf-8 files.
+	u -- Print UTF-8 files.
 .caption LIMITATION
-Works only on windows.
+Works only on Windows.
 **#ja
 .caption 書式
 	print [オプション] FILE
@@ -46,9 +46,9 @@ queryサブコマンドはデフォルトプリンタがmm単位で指定され�
 	n -- 行番号を印刷。
 	d -- 両面印刷。
 	c N -- コピーをN部印刷。
-	u -- utf-8のファイルを印刷する。
+	u -- UTF-8のファイルを印刷する。
 .caption 制限事項
-windowsでのみ動作。
+Windowsでのみ動作。
 
 *print tool.@
 	Mulk import: #("dl" "optparse");
@@ -57,7 +57,7 @@ windowsでのみ動作。
 			--config
 			"fontHeightMM height width column cgap landscape?"
 			+ " duplex? copies title"
-			--windows print service.
+			--Windows print service.
 			+ " device driver devmode hDC hFont hOldFont"
 			+ " paperWidthPix paperHeightPix paperHeightMM fontHeightPix"
 			+ " paperWidth paperHeight" -- char unit.
@@ -83,7 +83,7 @@ windowsでのみ動作。
 ***Cmd.print >> setup.s
 	self setup: #(8 30 40 1 0 false)
 	
-**windows print service.
+**Windows print service.
 ***load dll.@
 	DL import: "kernel32.dll" procs: #(#GetProfileStringA 105);
 	DL import: "winspool.drv" procs:

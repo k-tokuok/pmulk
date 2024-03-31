@@ -1,5 +1,5 @@
 revision control system
-$Id: mulk git.m 454 2020-06-27 Sat 15:41:07 kt $
+$Id: mulk git.m 1183 2024-03-23 Sat 14:03:47 kt $
 #ja 改訂管理システム
 
 *[man]
@@ -25,16 +25,18 @@ Execute git on the host system as a command.
 	b yyyy-mm-dd -- 日付以前のログを表示する。
 	
 *git tool.@
-	Mulk import: #("os" "optparse");
+	Mulk import: #("os" "optparse" "cmdstr");
 	Object addSubclass: #Cmd.git
+**Cmd.git >> runGit: strArg
+	"os git " + strArg ->:cmdstr;
+	Mulk.charset = #sjis, ifTrue: [cmdstr + " | ctr u s" ->cmdstr];
+	cmdstr runCmd
 **Cmd.git >> main: args
-	Array new ->:osargs;
-	osargs addLast: "git", addAll: args;
-	Cmd.os new main: osargs
+	self runGit: args asCmdString
 **Cmd.git >> main.log: args
 	OptionParser new init: "n:a:b:" ->:op, parse: args ->args;
 	
-	"git log --date=short --oneline \"--pretty=format:%cd %h %s\""->:ln;
+	"log --date=short --oneline \"--pretty=format:%cd %h %s\""->:ln;
 	op at: 'n' ->:opt, nil?
 		ifTrue: ["10" ->opt]
 		ifFalse: [opt = "-" ifTrue: [nil ->opt]];
@@ -42,5 +44,4 @@ Execute git on the host system as a command.
 	op at: 'a' ->opt, notNil? ifTrue: [ln + " --after " + opt ->ln];
 	op at: 'b' ->opt, notNil? ifTrue: [ln + " --before " + opt ->ln];
 	args empty? ifFalse: [ln + ' ' + args first ->ln];
-	ln runCmd;
-	Out putLn
+	self runGit: ln

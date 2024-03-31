@@ -1,17 +1,15 @@
 #
 #	makefile for MinGW-w64 tool chain.
-#	$Id: mulk mingw.mak 1125 2023-11-02 Thu 22:01:20 kt $
+#	$Id: mulk mingw.mak 1196 2024-03-31 Sun 11:25:56 kt $
 #	MinGW-w64:
 #		https://www.mingw-w64.org/
 #	binary releases:
 #		https://github.com/niXman/mingw-builds-binaries/releases (gcc)
 #		https://github.com/mstorsjo/llvm-mingw/releases (llvm)
 #	
-#	mingw32-make -fmingw.mak [setup=setup.m] [charset=sjis|utf8]
-#	(the former is the default)
+#	mingw32-make -fmingw.mak [setup=setup.m]
 #
 setup?=setup.m
-charset?=sjis
 cc=gcc
 ar=ar
 strip=strip
@@ -25,16 +23,11 @@ dostrip=$(strip) -s $@
 .c.o:
 	$(cc) $(cflags) $<
 
-ppflags=windows newlineCrlf caseInsensitiveFileName $(charset)
-ibflags=
-
-ifeq ($(charset),sjis)
-ibflags+=-s
-endif
+ppflags=windows caseInsensitiveFileName
 
 all: mulk.exe mulk.mi 
 
-ibprim=ip.c sint.c lpint.c os.c float.c fbarray.c
+ibprim=ip.c sint.c lpint.c os.c float.c fbarray.c codepage.c
 mulkprim=$(ibprim) lock.c sleep.c dl.c term.c termw.c viewp.c
 
 xc.a: std.o heap.o xbarray.o xctype.o splay.o xgetopt.o log.o xarray.o \
@@ -69,7 +62,7 @@ ib.wk: mtoib.exe pp.exe base.m
 base.wk: pp.exe base.m
 	pp $(ppflags) <base.m >base.wk
 base.mi: ib.exe ib.wk base.wk mulkprim.wk
-	ib $(ibflags) 'Mulk load: "base.wk", save: "base.mi"'
+	ib 'Mulk load: "base.wk", save: "base.mi"'
 mulk.mi: mulk.exe base.mi $(setup)
 	mulk -ibase.mi 'Mulk load: "$(setup)", save: "mulk.mi"'
 

@@ -1,6 +1,6 @@
 /*
 	image builder.
-	$Id: mulk ib.c 1041 2023-03-26 Sun 07:12:39 kt $
+	$Id: mulk ib.c 1191 2024-03-30 Sat 22:35:26 kt $
 */
 
 #include "std.h"
@@ -42,14 +42,13 @@ static void option(int argc,char *argv[])
 	base_fn="ib.wk";
 	charset_sjis_p=FALSE;
 		
-	while((ch=xgetopt(argc,argv,"lL:omxb:s"))!=EOF) switch(ch) {
+	while((ch=xgetopt(argc,argv,"lL:omxb:"))!=EOF) switch(ch) {
 	case 'l': log_open(NULL); break;
 	case 'L': log_open(xoptarg); break;
 	case 'o': dump_object_table_p=TRUE; break;
 	case 'm': dump_method_p=TRUE; break;
 	case 'x': execute_p=FALSE; break;
 	case 'b': base_fn=xoptarg; break;
-	case 's': charset_sjis_p=TRUE; break;
 	default:
 		fputs("\
 -l to show log.\n\
@@ -58,7 +57,6 @@ static void option(int argc,char *argv[])
 -m to dump method.\n\
 -x to not execute.\n\
 -b FN as base for ib, not ib.wk\n\
--s to set charset sjis otherwise utf8.\n\
 ",stderr);
 		exit(1);
 	}
@@ -381,7 +379,7 @@ static object char_table;
 static object char_new(int ch)
 {
 	object result;
-	int attr,mblead_p,mbtrail_p,trail_size;
+	int attr;
 	
 	result=object_new(om_Char);
 	result->xchar.code=sint(ch);
@@ -394,20 +392,10 @@ static object char_new(int ch)
 		if(islower(ch)) attr|=8;
 		if(isupper(ch)) attr|=16;
 	}
-	if(charset_sjis_p) {
-		mblead_p=sjis_mblead_p(ch);
-		mbtrail_p=sjis_mbtrail_p(ch);
-		trail_size=sjis_trail_size(ch);
-		if(0xa1<=ch&&ch<=0xdf) attr|=1;
-	} else {
-		mblead_p=utf8_mblead_p(ch);
-		mbtrail_p=utf8_mbtrail_p(ch);
-		trail_size=utf8_trail_size(ch);
-	}
-
-	if(mblead_p) attr|=32;
-	if(mbtrail_p) attr|=64;
-	attr|=trail_size<<8;	
+	
+	if(utf8_mblead_p(ch)) attr|=32;
+	if(utf8_mbtrail_p(ch)) attr|=64;
+	attr|=utf8_trail_size(ch)<<8;
 
 	result->xchar.attr=sint(attr);
 	om_set_hash(result,ch+1);

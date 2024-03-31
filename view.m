@@ -1,5 +1,5 @@
 graphic screen
-$Id: mulk view.m 956 2022-10-22 Sat 22:34:12 kt $
+$Id: mulk view.m 1182 2024-03-20 Wed 22:06:05 kt $
 #ja グラフィック画面
 
 *[man]
@@ -230,14 +230,14 @@ View全体を背景色で塗り潰す。
 *****#en
 Specify the character font with the following character string that depends on the host environment.
 
-|unix/X11
+|Unix/X11
 	X11 font set name. ex. "8x13,kanji16,8x16kana".
 	'*' freeType font name. ex. "*Monospace-12".
-|windows
+|Windows
 	font name [',' font height [',' Non-ASCII font name [',' Non-ASCII font height]]]. ex. "MS Gothic,16".
-|android
+|Android
 	Size. ex. "9".
-|sdl
+|SDL
 	TTF file [',' font size] ex. "VL-Gothic-Regular.ttf,16"
 	
 Only fixed pitch fonts can be used, and Char with width 2 is displayed in full width.
@@ -254,14 +254,14 @@ By passing an instance of Dictionary, the drawing position of characters can be 
 *****#ja
 文字フォントをホスト環境に依存する以下の文字列で指定する。
 
-|unix/X11
+|Unix/X11
 	フォントセット指定。ex. "8x13,kanji16,8x16kana"
 	'*' FreeTypeフォント名 ex. "*monospace-12"
-|windows
+|Windows
 	フォント名 [',' フォントの高さ [',' 非アスキーフォント名 [',' 非アスキーフォントの高さ]]] ex. "MS Gothic,16"
-|android
+|Android
 	サイズ ex. "9"
-|sdl
+|SDL
 	TTFファイル [',' サイズ] ex. "VL-Gothic-Regular.ttf,16"
 	
 固定ピッチフォントのみ使用可能で、widthが2となるCharは全角で表示される。

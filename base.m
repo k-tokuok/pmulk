@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1166 2024-02-12 Mon 11:07:54 kt $
+$Id: mulk base.m 1194 2024-03-31 Sun 09:36:59 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -1157,9 +1157,9 @@ OSはグローバルオブジェクトであり、再構築してはならない
 	$os_time
 ****[man.m]
 *****#en
-Returns the number of seconds since the unix epoch (January 1, 1970, 00:00:00 UTC).
+Returns the number of seconds since the Unix epoch (January 1, 1970, 00:00:00 UTC).
 *****#ja
-現時刻のunix epoch(協定世界時 1970年1月1日0時0分0秒)からの相対秒数を返す。
+現時刻のUnix epoch(協定世界時 1970年1月1日0時0分0秒)からの相対秒数を返す。
 
 ***OS.class >> timediff
 	timediff!
@@ -3268,7 +3268,7 @@ Returns the number of trail bytes if the receiver is the lead byte of a multibyt
 	self assert: '\x00' width = 0
 
 ***WideChar class.#
-	class WideChar AbstractChar;
+	class WideChar AbstractChar : width;
 	--WideChar.dictionary.
 ****[man.c]
 *****#en
@@ -3286,9 +3286,31 @@ Wide characters are treated as printable characters that are neither blank nor a
 
 ワイド文字は全て空白でも英数字でもない印字可能文字として扱う。
 
-****WideChar >> initCode: codeArg
-	codeArg ->code
+****WideChar >> solveWidth
+	--ref: http://ftp.unicode.org/Public/UNIDATA/EastAsianWidth.txt
+	code = 0xe280a6, {U+2026 Horizontal Ellipsis}
+	or: [code = 0xe296bc], {U+25BC BLACK DOWN-POINTING TRIANGLE}
+	or: [code = 0xe296bd], {U+25BD WHITE DOWN-POINTING TRIANGLE}
+	or: [code between: 0xe2ba80 and: 0xe4b6bf],
+		{U+2E80 CJK Radical Repeat - U+33FF SQUARE GAL
+		U+3400-U+4DBF CJK Unified Ideographs Extension A}
+	or: [code between: 0xe4b880 and: 0xe9bfbf],
+		{U+4E00-U+9FFF CJK Unified Ideographs}
+	or: [code between: 0xefa480 and: 0xefabbf],
+		{U+F900-U+FAFF CJK Compatibility Ideographs}
+	ifTrue: [2] ifFalse: [1]!
 
+****WideChar >> initCode: codeArg
+	codeArg ->code;
+	self solveWidth ->width
+
+****WideChar >> width
+	width!
+*****#ja
+******[test.m]
+	self assert: 'ｧ' width = 1;
+	self assert: 'あ' width = 2
+	
 ****WideChar >> printOn: writerArg
 	writerArg putWideCharCode: code
 *****#ja
@@ -3303,18 +3325,6 @@ Wide characters are treated as printable characters that are neither blank nor a
 	'漢' printEscapedOn: w;
 	self assert: w asString = "漢"
 	
-****WideChar >> width
-.if sjis
-	2!
-.else
-	--Unicode Halfwidth Kantakana to 1, otherwise 2. 
-	code between: 0xefbda1 and: 0xefbe9f, ifTrue: [1] ifFalse: [2]!
-.end
-*****#ja
-******[test.m]
-	self assert: 'ｧ' width = 1;
-	self assert: 'あ' width = 2
-
 **DateAndTime class.#
 	class DateAndTime Object
 		: unixTime year month day dayWeek hour minute second;
@@ -3417,9 +3427,9 @@ Returns the receiver's second (0-59).
 	unixTime!
 *****[man.m]
 ******#en
-Returns the number of seconds relative to the receiver's unix epoch (January 1, 1970, 00:00:00 UTC).
+Returns the number of seconds relative to the receiver's Unix epoch (January 1, 1970, 00:00:00 UTC).
 ******#ja
-レシーバーのunix epoch(協定世界時 1970年1月1日0時0分0秒)からの相対秒数を返す。
+レシーバーのUnix epoch(協定世界時 1970年1月1日0時0分0秒)からの相対秒数を返す。
 *****[test.m]
 	self assert: d unixTime = (1407737889 - OS timediff)
 	
@@ -3492,11 +3502,11 @@ Returns the number of seconds relative to the receiver's unix epoch (January 1, 
 ******#en
 Initialize the receiver with unixTimeArg.
 
-unixTimeArg is the number of seconds from unix epoch.
+unixTimeArg is the number of seconds from Unix epoch.
 ******#ja
 レシーバーをunixTimeArgで初期化する。
 
-unixTimeArgはunix epochからの秒数。
+unixTimeArgはUnix epochからの秒数。
 *****[test.m]
 	self assert: (DateAndTime new initUnixTime: OS timediff negated) asString
 		= "1970-01-01 Thu 00:00:00";
@@ -3767,6 +3777,8 @@ Returns an array holding the objects in order.
 ***Collection >> reverse
 	self asArray reverse!
 ****[man.m]
+*****#en
+Returns an Iterator that evaluates a group of objects in reverse order.
 *****#ja
 オブジェクト群を逆順に評価するIteratorを返す。
 ****[test.m]
@@ -4641,20 +4653,7 @@ Returns an Iterator over the substrings of the receiver separated by charArg cha
 	self assert: (s split: 'c', asArray asString = "ab de")
 	
 ****String >> lowerDo: blockArg
-.if sjis
-	0 ->:trail;
-	self do:
-		[:ch
-		trail = 0
-			ifTrue:
-				[blockArg value: ch lower;
-				ch trailSize ->trail]
-			ifFalse:
-				[blockArg value: ch;
-				trail - 1 ->trail]]
-.else
 	self do: [:ch blockArg value: ch lower]
-.end
 
 ****String >> lower
 	StringWriter new ->:w;
@@ -4678,24 +4677,10 @@ Returns the uppercase letters in the string with lowercase letters.
 	self hash = stringArg hash,
 		and: [self unmatchIndexWith: stringArg size: sz, nil?],
 		ifTrue: [true!];
-.if sjis
-	0 ->:trail;
-	self size timesDo:
-		[:i
-		self at: i ->:ch;
-		stringArg at: i ->:ch2;
-		trail = 0
-			ifTrue:
-				[ch lower = ch2 lower ifFalse: [false!];
-				ch trailSize ->trail]
-			ifFalse:
-				[ch = ch2 ifFalse: [false!];
-				trail - 1 ->trail]];
-.else
+
 	self size timesDo:
 		[:i
 		(self at: i) lower = (stringArg at: i) lower, ifFalse: [false!]];
-.end
 	true!
 *****[man.m]
 ******#en
@@ -6414,7 +6399,7 @@ Construct with String >> asFile or File >> +.
 It should not be construct by new.
 
 Pathnames are expressed in POSIX format regardless of the host OS.
-In case of dos/windows, the drive is treated as a directory directly under the root directory.
+In case of DOS/Windows, the drive is treated as a directory directly under the root directory.
 Specifying "~" at the beginning of the path name makes it a relative path from the global variable File.home.
 This is initialized at startup with the value of the environment variable HOME.
 
@@ -6426,7 +6411,7 @@ The current directory is obtained with "." asFile.
 newによって構築してはならない。
 
 パス名はホストOSに関係なくPOSIX形式で表す。
-dos/windowsの場会、ドライブはルートディレクトリ直下のディレクトリとして扱う。
+DOS/Windowsの場会、ドライブはルートディレクトリ直下のディレクトリとして扱う。
 パス名の先頭に"~"を指定すると大域変数File.homeからの相対パスとなる。
 これは起動時に環境変数HOMEの値で初期化される
 
@@ -7061,26 +7046,8 @@ Compare the receiver file with the contents of fileArg and return true if they m
 		fs getLn head?: '#' ->:result];
 	result!
 	
-**Crlf-Lf conversion.
-.if newlineCrlf
-***NewlineCrlfStream feature.#
-	class NewlineCrlfStream Feature;
-****NewlineCrlfStream >> getChar
-	self getByte ->:byte, = '\r' code
-		ifTrue: [self getChar]
-		ifFalse: [byte asChar]!
-****NewlineCrlfStream >> putCharCode: codeArg
-	codeArg = '\n' code ifTrue: [self putByte: '\r' code];
-	self putByte: codeArg
-****NewlineCrlfStream >> putString: stringArg
-	stringArg bytesDo: [:code self putCharCode: code]
-.end
-
 **FileStream class.#
 	class FileStream AbstractStream : fp;
-.if newlineCrlf
-		feature FileStream NewlineCrlfStream;
-.end
 
 ***[man.c]
 ****#en
@@ -7090,15 +7057,15 @@ Constructed by a method of the File class.
 Must not be constructed by new.
 
 When character input/output is performed on Windows OS, newline characters are processed as CR/LF.
-On unix-based OS, only LF is available.
+On Unix-based OS, only LF is available.
 ****#ja
 ファイルに対するストリーム。
 
 Fileクラスのメソッドによって構築する。
 newによって構築してはならない。
 
-windows系OSでキャラクタ入出力を行うと、改行文字はCR/LFとして処理される。
-unix系OSではLFのみとなる。
+Windows系OSでキャラクタ入出力を行うと、改行文字はCR/LFとして処理される。
+Unix系OSではLFのみとなる。
 ***[test] Test.FileStream class.@
 	UnitTest addSubclass: #Test.FileStream
 ****Test.FileStream >> makeFile
@@ -8734,6 +8701,7 @@ Skip '*' in the outline line from the beginning of the block.
 	singleton Array Mulk.quitHook;
 
 	--Mulk.hostOS
+	--Mulk.codepage
 	--Mulk.charset
 	--Mulk.newline
 	--Mulk.caseInsensitiveFileName?
@@ -8756,13 +8724,14 @@ The following global objects hold configuration information.
 	Mulk.systemDirectory -- System directory. Holds system files.
 	Mulk.extraSystemDirectory -- Additional system directory. It is searched before systemDirectory.
 	Mulk.workDirectory -- Work directory. Hold work files.
-	Mulk.lang -- Language settings. "ja" or "en".
+	Mulk.lang -- Language settings. "en" or "ja".
 
 The following are fixed values, and hold information about the implementation.
 
 	Mulk.hostOS -- OS name symbol of the running host system.
-	Mulk.hostOSUnix? -- true if the host system is unix compatible.
-	Mulk.charset -- A symbol representing a wide character code. #sjis or #utf8.
+	Mulk.hostOSUnix? -- true if the host system is Unix compatible.
+	Mulk.codepage -- (Windows only) Codepage number. If undefined, UTF-8 is used.
+	Mulk.charset -- A symbol representing a wide character code. #utf8 or #sjis.
 	Mulk.newline -- Newline character for text files. #lf or #crlf.
 	Mulk.caseInsensitiveFileName? -- true if the file name is not case sensitive.
 ***#ja
@@ -8782,13 +8751,14 @@ Mulkはグローバルオブジェクト全てを保持する連想配列で、M
 	Mulk.systemDirectory -- システムディレクトリ。システムファイルを保持する。
 	Mulk.extraSystemDirectory -- 追加のシステムディレクトリ。systemDirectoryに先行して検索される。
 	Mulk.workDirectory -- ワークディレクトリ。ワークファイルを保持する。
-	Mulk.lang -- 言語設定。"ja"か"en"。
+	Mulk.lang -- 言語設定。"en"か"ja"。
 
 以下は固定値であり、実装についての情報を保持している。
 
 	Mulk.hostOS -- 動作しているホストシステムのOS名称シンボル。
-	Mulk.hostOSUnix? -- ホストシステムがunix互換ならtrue。
-	Mulk.charset -- ワイド文字の文字コードを表すシンボル。#sjisもしくは#utf8。
+	Mulk.hostOSUnix? -- ホストシステムがUnix互換ならtrue。
+	Mulk.codepage -- (Windowsのみ)コードページ番号。未定義時はUTF-8となる。
+	Mulk.charset -- ワイド文字の文字コードを表すシンボル。#utf8もしくは#sjis。
 	Mulk.newline -- テキストファイルの改行文字。#lfもしくは#crlf。
 	Mulk.caseInsensitiveFileName? -- ファイル名は英字の大文字小文字を区別しない場合、true。
 	
@@ -8914,6 +8884,11 @@ Quit the system.
 ****#ja
 システムを終了する。
 
+.if windows
+**Mulk.class >> codepage: arg
+	$codepage
+.end
+
 **Mulk.class >> initFiles
 	OS init;
 	FileStream new init: (OS propertyAt: 0) ->In ->In0;
@@ -8996,21 +8971,8 @@ Quit the system.
 .end
 		;
 		
-	Mulk at: #Mulk.charset put:
-.if sjis
-		#sjis
-.else
-		#utf8
-.end
-		;
-
-	Mulk at: #Mulk.newline put:
-.if newlineCrlf
-		#crlf
-.else
-		#lf
-.end
-		;
+	Mulk at: #Mulk.charset put: #utf8;
+	Mulk at: #Mulk.newline put: #lf;
 
 	Mulk at: #Mulk.caseInsensitiveFileName? put:
 .if caseInsensitiveFileName
@@ -9023,7 +8985,7 @@ Quit the system.
 	#Cmd.eval ->Mulk.defaultMainClass ->:mainClass;
 	Mulk.bootHook init;
 	Mulk.quitHook init;
-	"ja" ->Mulk.lang;
+	"en" ->Mulk.lang;
 
 	args at: 2 ->:mainArgs;
 .else
@@ -9036,6 +8998,9 @@ Quit the system.
 		->mainClass;
 	args at: 1 ->:mainArgs;
 
+.if windows
+	self codepage: (Mulk at: #Mulk.codepage ifAbsent: [65001]);
+.end
 	self initFiles;
 	
 	args at: 2,

@@ -1,5 +1,5 @@
 hide console
-$Id: mulk hidecnsl.m 1153 2024-01-04 Thu 07:58:57 kt $
+$Id: mulk hidecnsl.m 1179 2024-03-17 Sun 21:14:15 kt $
 #ja コンソールを非表示とする
 
 *[man]
@@ -12,7 +12,7 @@ Hide the console of mulk process.
 Get the window handle of the console and hide it.
 The console itself remains unopened, so no new console is allocated even if a child process is executed.
 .caption LIMITATION
-Can only work on windows.
+Can only work on Windows.
 .caption SEE ALSO
 https://learn.microsoft.com/ja-jp/troubleshoot/windows-server/performance/obtain-console-window-handle
 
@@ -25,7 +25,7 @@ mulkプロセスのコンソールを非表示とする。
 コンソールのwindow handleを取得し、それを非表示とする。
 コンソール自体は開放されないまま残るので、子プロセスを実行しても新たなコンソールが確保されることはない。
 .caption 制限事項
-windowsでのみ動作可。
+Windowsでのみ動作可。
 .caption 参考
 https://learn.microsoft.com/ja-jp/troubleshoot/windows-server/performance/obtain-console-window-handle
 
