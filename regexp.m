@@ -346,7 +346,7 @@ Eine Sprache, ein Regularer Ausdruck, ein Architekt.
 ***#ja
 ****RegExp >> groupAlias: chArg
 	chArg = 'z' ifTrue:
-		["[　！”＃＄％＆’（）＊＋，－．／０-９：；＜＝＞？＠Ａ-Ｚ［￥］＾＿｀ａ-ｚ｛｜｝～]"!];
+		["[　！”＃＄％＆’（）＊＋，−．／０-９：；＜＝＞？＠Ａ-Ｚ［￥］＾＿｀ａ-ｚ｛｜｝〜]"!];
 	chArg = 'o' ifTrue: 
 		["[" + (Mulk at: #OldChars in: "oldchars", oldstr) + ']'!];
 	self groupAliasEn: chArg!

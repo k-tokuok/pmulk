@@ -136,7 +136,7 @@ Set valueArg to the receiver's hash value (0-0xfffff).
 The hash value is set appropriately at object construction.
 Since the hash values of objects that succeed in equivalence judgment must match, it is necessary to re-set at an appropriate timing in a class in which equivalence judgment is redefined.
 ******#ja
-valueArgをレシーバーのハッシュ値(0～0xfffff)に設定する。
+valueArgをレシーバーのハッシュ値(0〜0xfffff)に設定する。
 
 ハッシュ値はオブジェクト構築時に適当に設定される。
 同値判定に成功するオブジェクト同士のハッシュ値は一致しなくてはならない為、同値判定を再定義したクラスでは適切なタイミングで再設定する必要がある。
@@ -2309,7 +2309,7 @@ In case of -1 it returns nil.
 ******#ja
 レシーバーを文字コードとするCharのインスタンスを返す。
 
-レシーバーは-1～255の間である事。
+レシーバーは-1〜255の間である事。
 -1の場合はnilを返す。
 *****[test.m]
 	self assert: 'a' code asChar = 'a';
@@ -3359,7 +3359,7 @@ Returns the year of the receiver.
 ******#en
 Returns the month of the receiver (1-12).
 ******#ja
-レシーバーの月(1～12)を返す。
+レシーバーの月(1〜12)を返す。
 *****[test.m]
 	self assert: d month = 8
 	
@@ -3369,7 +3369,7 @@ Returns the month of the receiver (1-12).
 ******#en
 Returns the day of the receiver (1-31).
 ******#ja
-レシーバーの日(1～31)を返す。
+レシーバーの日(1〜31)を返す。
 *****[test.m]
 	self assert: d day = 11
 	
@@ -3379,7 +3379,7 @@ Returns the day of the receiver (1-31).
 ******#en
 Returns the index of the day of the week of the receiver (0-6, 0 corresponds to Sunday).
 ******#ja
-レシーバーの曜日の通し番号(0～6, 0が日曜に対応)を返す。
+レシーバーの曜日の通し番号(0〜6, 0が日曜に対応)を返す。
 *****[test.m]
 	self assert: d dayWeek = 1
 	
@@ -3389,7 +3389,7 @@ Returns the index of the day of the week of the receiver (0-6, 0 corresponds to 
 ******#en
 Returns the receiver's hour (0-23).
 ******#ja
-レシーバーの時刻(0～23)を返す。
+レシーバーの時刻(0〜23)を返す。
 *****[test.m]
 	self assert: d hour = 6
 
@@ -3399,7 +3399,7 @@ Returns the receiver's hour (0-23).
 ******#en
 Returns the receiver's minute (0-59).
 ******#ja
-レシーバーの分(0～59)を返す。
+レシーバーの分(0〜59)を返す。
 *****[test.m]
 	self assert: d minute = 18
 	
@@ -3409,7 +3409,7 @@ Returns the receiver's minute (0-59).
 ******#en
 Returns the receiver's second (0-59).
 ******#ja
-レシーバーの秒(0～59)を返す。
+レシーバーの秒(0〜59)を返す。
 *****[test.m]
 	self assert: d second = 9
 	
@@ -4273,7 +4273,7 @@ Only integers from 0 to 255 can be stored as elements.
 *****#ja
 固定長バイト配列。
 
-要素として0～255の整数のみを保持出来る。
+要素として0〜255の整数のみを保持出来る。
 ****[test] Test.FixedByteArray class.@
 	UnitTest addSubclass: #Test.FixedByteArray instanceVars: "ar"
 *****Test.FixedByteArray >> setup
@@ -5000,7 +5000,7 @@ The element must not contain an object other than an integer from 0 to 255.
 ******#ja
 レシーバーと同じ内容のFixedByteArrayを返す。
 
-要素として0～255の整数以外のオブジェクトが含まれていてはならない。
+要素として0〜255の整数以外のオブジェクトが含まれていてはならない。
 *****[test.m]
 	a asFixedByteArray ->a;
 	self assert: (a memberOf?: FixedByteArray);
@@ -6102,7 +6102,7 @@ Input 1 byte from the stream and return a value in the range of 0-255.
 
 Returns -1 when the stream reaches the end.
 *****#ja
-ストリームから1byte入力し、値を0～255の範囲で返す。
+ストリームから1byte入力し、値を0〜255の範囲で返す。
 
 ストリームが末尾に到達したら-1を返す。
 

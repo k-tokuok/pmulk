@@ -1,0 +1,26 @@
+*.bat text working-tree-encoding=cp932
+*.c text working-tree-encoding=cp932
+*.cgi text working-tree-encoding=cp932
+*.cpp text working-tree-encoding=cp932
+*.d text working-tree-encoding=cp932
+#dotx -- windows用ドキュメントテンプレート。バイナリ
+*.gradle text working-tree-encoding=cp932
+*.h text working-tree-encoding=cp932
+*.htm text working-tree-encoding=cp932
+#jar -- android用に一部入ってる。バイナリ
+*.java text working-tree-encoding=cp932
+*.l text working-tree-encoding=cp932
+*.m text working-tree-encoding=cp932
+*.mak text working-tree-encoding=cp932
+#make -- classic mac用makefile バイナリ
+*.mc text working-tree-encoding=cp932
+*.mk text working-tree-encoding=cp932
+*.mm text working-tree-encoding=cp932
+*.mpw text working-tree-encoding=cp932
+#ott -- libreoffice用テンプレート、バイナリ
+#png -- android用のリソースにある、バイナリ
+*.pro text working-tree-encoding=cp932
+*.properties text working-tree-encoding=cp932
+#r -- classic mac用リソースファイル、バイナリ
+*.txt text working-tree-encoding=cp932
+*.xml text working-tree-encoding=cp932
