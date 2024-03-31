@@ -1,6 +1,6 @@
-google drive
-$Id: mulk gdrive.m 1179 2024-03-17 Sun 21:14:15 kt $
-#ja グーグルドライブ
+Google Drive
+$Id: mulk gdrive.m 1197 2024-03-31 Sun 21:48:00 kt $
+#ja Googleドライブ
 
 *[man]
 **#en
@@ -11,13 +11,13 @@ $Id: mulk gdrive.m 1179 2024-03-17 Sun 21:14:15 kt $
 .caption DESCRIPTION
 Provides a framework for mounting Google Drive to /gdrive, /gdriveb and handling it in the same way as local files.
 
-Files under /gdrive are converted to Unix format on google drive.
+Files under /gdrive are converted to Unix format on Google Drive.
 Files under /gdriveb are treated as binary files.
 
 .caption init
 Initialize.
 
-Run an application that supports google drive api and authentication on the Google cloud platform in advance, and register its CLIENT_ID and CLIENT_SECRET.
+Run an application that supports Google Drive API and authentication on the Google Cloud Platform in advance, and register its CLIENT_ID and CLIENT_SECRET.
 
 .caption login
 Perform login processing.
@@ -31,7 +31,7 @@ This does not require input of user_code, but in order to receive the authentica
 oauthlr is in the mulk source package.
 
 .caption mount
-Mount google drive.
+Mount Google Drive.
 
 **#ja
 .caption 書式
@@ -39,15 +39,15 @@ Mount google drive.
 	gdrive.login [loopback]
 	gdrive.mount
 .caption 説明
-グーグルドライブを/gdrive, /gdrivebにマウントし、ローカルなファイルと同様に扱う枠組みを提供する。
+Googleドライブを/gdrive, /gdrivebにマウントし、ローカルなファイルと同様に扱う枠組みを提供する。
 	
-/gdrive下のファイルはグーグルドライブ上ではUnix形式に変換される。
+/gdrive下のファイルはGoogleドライブ上ではUnix形式に変換される。
 /gdriveb下のファイルはバイナリファイルとして扱う。
 
 .caption init
 初期化を行う。
 
-事前にGoogle cloud platformでgoogle drive apiと認証に対応したアプリケーションを動作させておき、そのCLIENT_IDとCLIENT_SECRETを登録する。
+事前にGoogle Cloud PlatformでGoogle Drive APIと認証に対応したアプリケーションを動作させておき、そのCLIENT_IDとCLIENT_SECRETを登録する。
 
 .caption login
 ログイン処理を行う。
@@ -61,7 +61,7 @@ user_codeとurlが表示された後、ブラウザを手動もしくは自動�
 oauthlrはmulkのソースパッケージにある。
 
 .caption mount
-グーグルドライブをマウントする。
+Googleドライブをマウントする。
 
 *import.@
 	Mulk import: #("hrlib" "jsonrd" "jsonwr" "pi" "prompt" "pfs")

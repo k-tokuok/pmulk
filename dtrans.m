@@ -1,13 +1,13 @@
-deepl translation
-$Id: mulk dtrans.m 1126 2023-11-03 Fri 22:35:43 kt $
-#ja deepl翻訳
+DeepL Translate
+$Id: mulk dtrans.m 1197 2024-03-31 Sun 21:48:00 kt $
+#ja DeepL翻訳
 
 *[man]
 **#en
 .caption SYNOPSIS
 	dtrans targetLanguageCode
 .caption DESCRIPTION
-Translate the input document using deepL's translation api.
+Translate the input document using DeepL Translate API.
 
 Register with DeepL API Free in advance and set the authentication key to Cmd.dtrans.authKey in the Mulk dictionary.
 .caption EXAMPLE
@@ -16,7 +16,7 @@ Register with DeepL API Free in advance and set the authentication key to Cmd.dt
 .caption 書式
 	dtrans 翻訳先言語コード
 .caption 説明
-deepLの翻訳apiを使用して入力した文書を翻訳する。
+DeepL翻訳APIを使用して入力した文書を翻訳する。
 
 事前にDeepL API Freeに登録し、認証キーをMulk辞書のCmd.dtrans.authKeyに設定しておくこと。
 .caption 例

@@ -1,6 +1,6 @@
-sync with google drive
-$Id: mulk gsync.m 1140 2023-11-28 Tue 23:21:21 kt $
-#ja グーグルドライブとの同期
+sync with Google Drive
+$Id: mulk gsync.m 1197 2024-03-31 Sun 21:48:00 kt $
+#ja Googleドライブとの同期
 
 *[man]
 **#en
@@ -24,7 +24,7 @@ In this case, touch the priority side and gsync again.
 .caption 書式
 	gsync [SYNCDIR]
 .caption 説明
-SYNCDIR下のファイルとグーグルドライブ直下のSYNCDIRと同名のディレクトリ下のファイルを比較し、新しい側に統一する。
+SYNCDIR下のファイルとGoogleドライブ直下のSYNCDIRと同名のディレクトリ下のファイルを比較し、新しい側に統一する。
 
 SYNCDIRを省略した場合はカレントディレクトリが対象となる。
 
@@ -33,7 +33,7 @@ SYNCDIRを省略した場合はカレントディレクトリが対象となる�
 
 同期後にSYNCDIRに"_sync"というファイルを作成する。
 次回同期時はこれより新しいものが対象となる。
-ローカルファイルとグーグルドライブ上のファイルのどちらも_syncより新しい場合は競合した旨を表示する。
+ローカルファイルとGoogleドライブ上のファイルのどちらも_syncより新しい場合は競合した旨を表示する。
 この場合、優先すべき側をtouchして再度gsyncする。
 .caption 関連項目
 .summary gdrive

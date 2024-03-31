@@ -1,13 +1,13 @@
-google translation
-$Id: mulk gtrans.m 1104 2023-09-10 Sun 20:37:24 kt $
-#ja google翻訳
+Google Translate
+$Id: mulk gtrans.m 1197 2024-03-31 Sun 21:48:00 kt $
+#ja Google翻訳
 
 *[man]
 **#en
 .caption SYNOPSIS
 	gtrans sourceLanguageCode targetLanguageCode
 .caption DESCRIPTION
-Translate the input text using google's translation service.
+Translate the input text using Google Translate service.
 
 To translate, create the following web service at https://script.google.com.
 
@@ -23,7 +23,7 @@ Make this service publicly executable by anonymous users and put the URL in the 
 .caption 書式
 	gtrans 翻訳元言語コード 翻訳先言語コード
 .caption 説明
-googleの翻訳サービスを使用して入力した文章を翻訳する。
+Google翻訳サービスを使用して入力した文章を翻訳する。
 
 翻訳を行うにはhttps://script.google.comで次のwebサービスを作成する。
 

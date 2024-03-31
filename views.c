@@ -1,6 +1,6 @@
 /*
 	view for sdl.
-	$Id: mulk views.c 1191 2024-03-30 Sat 22:35:26 kt $
+	$Id: mulk views.c 1197 2024-03-31 Sun 21:48:00 kt $
 */
 
 #include "std.h"
@@ -16,7 +16,6 @@
 #include "ki.h"
 #include "kidec.h"
 #include "csplit.h"
-
 #include "om.h"
 #include "ip.h"
 
@@ -220,6 +219,7 @@ void view_fill_rectangle(int x,int y,int width,int height,int color_code)
 
 #if WINDOWS_P
 #include <windows.h>
+#include "codepage.h"
 
 static int wchar_to_utf8(uint64_t wc,char *buf)
 {

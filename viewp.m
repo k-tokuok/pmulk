@@ -1,5 +1,5 @@
 View.p class
-$Id: mulk viewp.m 1010 2023-02-01 Wed 22:44:35 kt $
+$Id: mulk viewp.m 1197 2024-03-31 Sun 21:48:00 kt $
 #ja
 
 *[man]
@@ -46,7 +46,7 @@ SDLでは必ずこれを指定する必要がある。
 		heightArg ->height;
 		Mulk at: #View.p.initialFont ifAbsent:
 			[Mulk.hostOS = #windows
-				ifTrue: ["MS Gothic"] ifFalse: ["8x13,kanji16,8x16kana"]]
+				ifTrue: [""] ifFalse: ["8x13,kanji16,8x16kana"]]
 			->:font;
 		self font: font;
 		Mulk includesKey?: #ScreenConsole.keymap, ifTrue:

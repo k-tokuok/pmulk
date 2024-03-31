@@ -1,5 +1,5 @@
-;Mulk package std+skk (1196)
-;2024-03-31 Sun 12:00:56
+;Mulk package std+skk (1197)
+;2024-03-31 Sun 21:49:43
 k-us.d,1182,lib
 bg.m,963,tool
 pwd.m,440,tool
@@ -9,7 +9,7 @@ eval.mm,406,tool
 charc.m,1145,tool
 c-view.m,1083,lib
 iqueue.c,406,vm
-dtrans.m,1126,tool
+dtrans.m,1197,tool
 traitc.m,1145,lib
 iqueue.h,406,vm
 mtrhk.d,406,skk,ja
@@ -44,7 +44,7 @@ grep.m,1125,tool
 os.c,1091,vm
 diffdir.m,932,tool
 coord.h,644,vm
-gsync.m,1140,tool
+gsync.m,1197,tool
 coord.m,406,lib
 xorshift.m,418,lib
 jsonrd.m,1103,lib
@@ -58,7 +58,7 @@ linec.m,1145,tool
 cmdstr.m,898,lib
 om.c,406,vm
 more.m,406,tool
-views.c,1191,vm
+views.c,1197,vm
 fbarray.c,624,vm
 om.h,850,vm
 cd.m,972,tool
@@ -76,7 +76,7 @@ xconsole.c,628,vm
 addxc.c,406,vm
 xwchar.c,850,vm
 jsonwr.m,920,lib
-viewp.m,1010,lib
+viewp.m,1197,lib
 xconsole.h,1085,vm
 xwchar.h,1188,vm
 random.m,418,lib
@@ -144,7 +144,7 @@ xbarray.c,406,vm
 viewx.c,1011,vm
 xbarray.h,406,vm
 time.m,968,tool
-gtrans.m,1104,tool
+gtrans.m,1197,tool
 updateid.m,932,tool
 clipc.m,935,npw,lib
 xsleep.h,406,vm
@@ -157,7 +157,7 @@ sort.m,1030,tool
 ed.m,932,tool
 ol.m,932,tool
 kidec.h,842,vm
-make.d,1191,vm
+make.d,1197,vm
 du.m,1145,tool
 csv.m,730,tool
 icmd.m,1166,tool
@@ -183,7 +183,7 @@ dl.m,1179,lib
 multicol.m,932,tool
 csplit.c,859,vm
 sleeplib.m,623,lib
-gdrive.m,1179,tool
+gdrive.m,1197,tool
 diff.m,1163,tool
 csplit.h,859,vm
 console.m,986,lib
@@ -238,7 +238,7 @@ ki.h,837,vm
 hidecnsl.m,1179,tool
 cp932.m,1195,lib
 tail.m,932,tool
-package.d,1196,tool
+package.d,1197,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,932,tool

@@ -1,6 +1,6 @@
 #
 #	c source dependency.
-#	$Id: mulk make.d 1191 2024-03-30 Sat 22:35:26 kt $
+#	$Id: mulk make.d 1197 2024-03-31 Sun 21:48:00 kt $
 #
 # following rules are generated automatically.
 # !ls ?*.c | cdep $(objsuf)
@@ -62,7 +62,7 @@ termw.$(objsuf): termw.c std.h config.h u64.h cqueue.h term.h coord.h ki.h kidec
 u64.$(objsuf): u64.c std.h config.h u64.h
 u64t.$(objsuf): u64t.c std.h config.h u64.h
 viewp.$(objsuf): viewp.c std.h config.h u64.h viewp.h view.h coord.h xwchar.h om.h xarray.h prim.h xbarray.h
-views.$(objsuf): views.c std.h config.h u64.h iqueue.h xwchar.h viewp.h view.h coord.h intr.h ki.h kidec.h heap.h csplit.h om.h xarray.h ip.h
+views.$(objsuf): views.c std.h config.h u64.h iqueue.h xwchar.h viewp.h view.h coord.h intr.h ki.h kidec.h heap.h csplit.h om.h xarray.h ip.h codepage.h
 vieww.$(objsuf): vieww.c std.h config.h u64.h iqueue.h xwchar.h om.h xarray.h ip.h viewp.h view.h coord.h ki.h kidec.h heap.h kidecw.h csplit.h intr.h codepage.h
 viewx.$(objsuf): viewx.c std.h config.h u64.h mem.h iqueue.h viewp.h view.h coord.h xwchar.h intr.h ki.h om.h xarray.h ip.h
 xarray.$(objsuf): xarray.c std.h config.h u64.h xarray.h
