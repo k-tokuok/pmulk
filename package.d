@@ -1,5 +1,5 @@
-;Mulk package std+skk (1197)
-;2024-03-31 Sun 21:49:43
+;Mulk package std+skk (1200)
+;2024-04-03 Wed 06:46:05
 k-us.d,1182,lib
 bg.m,963,tool
 pwd.m,440,tool
@@ -76,7 +76,7 @@ xconsole.c,628,vm
 addxc.c,406,vm
 xwchar.c,850,vm
 jsonwr.m,920,lib
-viewp.m,1197,lib
+viewp.m,1200,lib
 xconsole.h,1085,vm
 xwchar.h,1188,vm
 random.m,418,lib
@@ -85,7 +85,7 @@ mtr.m,960,skk,ja
 fbdatab.m,990,npw,lib
 csvwr.m,413,lib
 cset.m,406,tool
-makefile,1191,vm
+makefile,1198,vm
 mkmulks.m,932,vm
 mulkprim.c,406,vm
 hr.m,512,tool
@@ -113,7 +113,7 @@ wcarray.m,406,lib
 term.h,636,vm
 tr.m,1129,tool
 term.m,906,lib
-setup.m,406,etc
+setup.m,406,vm
 nl.m,1145,tool
 float.c,850,vm
 h.m,1030,tool
@@ -128,7 +128,7 @@ heap.h,406,vm
 codepage.h,1191,vm
 regexp.m,1141,lib
 fold.m,418,tool
-dm.mak,1196,vm
+dm.mak,1198,vm
 omd.c,1087,vm
 tree.m,932,tool
 sleep.m,623,tool
@@ -163,7 +163,7 @@ csv.m,730,tool
 icmd.m,1166,tool
 cmp.m,1145,tool
 xctype.c,1193,vm
-base.m,1194,lib
+base.m,1200,lib
 xctype.h,1191,vm
 numlnwr.m,1145,lib
 delang.m,932,tool
@@ -193,23 +193,23 @@ cmd.m,1179,tool
 clipw.m,1179,lib
 repeatc.m,1148,tool
 skkrk.d,1039,skk
-mingw.mak,1196,vm
+mingw.mak,1198,vm
 pipe.m,967,lib
 quit.m,406,tool
 pagewr.m,406,lib
 asctable.m,1193,tool
 filec.m,1145,tool
-vc.mak,1196,vm
+vc.mak,1198,vm
 rm.m,458,tool
 randgen.m,422,lib
+edict.m,1040,tool,ja
 pi.m,956,lib
 zlib.m,1098,lib
-edict.m,1040,tool,ja
 base64.m,932,tool
 lex.c,406,vm
 ld.m,406,tool
 pf.h,1091,vm
-git.m,1183,tool
+git.m,1200,tool
 xsleepu.c,659,vm
 lex.h,406,vm
 terms.c,636,vm
@@ -236,9 +236,9 @@ packzip.m,460,tool
 pause.m,425,tool
 ki.h,837,vm
 hidecnsl.m,1179,tool
-cp932.m,1195,lib
+cp932.m,1198,lib
 tail.m,932,tool
-package.d,1197,tool
+package.d,1200,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,932,tool

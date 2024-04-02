@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1194 2024-03-31 Sun 09:36:59 kt $
+$Id: mulk base.m 1200 2024-04-02 Tue 22:39:47 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -3288,18 +3288,41 @@ Wide characters are treated as printable characters that are neither blank nor a
 
 ****WideChar >> solveWidth
 	--ref: http://ftp.unicode.org/Public/UNIDATA/EastAsianWidth.txt
-	code = 0xe280a6, {U+2026 Horizontal Ellipsis}
-	or: [code = 0xe296bc], {U+25BC BLACK DOWN-POINTING TRIANGLE}
-	or: [code = 0xe296bd], {U+25BD WHITE DOWN-POINTING TRIANGLE}
-	or: [code between: 0xe2ba80 and: 0xe4b6bf],
-		{U+2E80 CJK Radical Repeat - U+33FF SQUARE GAL
-		U+3400-U+4DBF CJK Unified Ideographs Extension A}
-	or: [code between: 0xe4b880 and: 0xe9bfbf],
-		{U+4E00-U+9FFF CJK Unified Ideographs}
-	or: [code between: 0xefa480 and: 0xefabbf],
-		{U+F900-U+FAFF CJK Compatibility Ideographs}
-	ifTrue: [2] ifFalse: [1]!
-
+	code <= 0xffff
+		ifTrue: [code & 0x1f00 >> 2 + (code & 0x3f)]
+		ifFalse:
+			[code <= 0xffffff
+				ifTrue: 
+					[code & 0xf0000 >> 4 + (code & 0x3f00 >> 2) 
+						+ (code & 0x3f)]
+				ifFalse:
+					[code & 0x7000000 >> 6 + (code & 0x3f0000 >> 4)
+						+ (code & 0x3f00 >> 2) + (code & 0x3f)]] ->:uc;
+	#(	0x2026 0x2026 -- HORIZONTAL ELLIPSIS
+		0x2160 0x216b -- ROMAN NUMERAL ONE - ROMAN NUMERAL TWELVE
+		0x2190 0x2194 -- LEFTWARDS ARROW - LEFT RIGHT ARROW
+		0x25bc 0x25bd 
+			-- BLACK DOWN-POINTING TRIANGLE - WHITE DOWN-POINTING TRIANGLE
+		0x25c6 0x25c8 
+			-- BLACK DIAMOND - WHITE DIAMOND CONTAINING BLACK SMALL DIAMOND
+		0x25cb 0x25cb -- WHITE CIRCLE
+		0x25ce 0x25d1 -- BULLSEYE - CIRCLE WITH RIGHT HALF BLACK
+		0x2640 0x2642 -- FEMALE SIGN - MALE SIGN
+		0x2667 0x266a -- WHITE CLUB SUIT -- EIGHTH NOTE
+		0x2e80 0x4bdf 
+			-- CJK RADICAL REPEAT - CJK Unified Ideographs Extension A
+		0x4e00 0x9fff -- CJK Unified Ideographs
+		0xf900 0xfaff -- CJK Compatibility Ideographs
+		0xff01 0xff60 
+			-- FULLWIDTH EXCLAMATION MARK - FULLWIDTH RIGHT WHITE PARENTHESIS
+	) ->:table;
+	0 until: table size by: 2, do:
+		[:pos
+		table at: pos ->:lo;
+		table at: pos + 1 ->:hi;
+		uc < lo ifTrue: [1!];
+		uc between: lo and: hi, ifTrue: [2!]];
+	1!
 ****WideChar >> initCode: codeArg
 	codeArg ->code;
 	self solveWidth ->width
@@ -8884,11 +8907,6 @@ Quit the system.
 ****#ja
 システムを終了する。
 
-.if windows
-**Mulk.class >> codepage: arg
-	$codepage
-.end
-
 **Mulk.class >> initFiles
 	OS init;
 	FileStream new init: (OS propertyAt: 0) ->In ->In0;
@@ -8907,6 +8925,14 @@ Quit the system.
 .else
 		[home asFile ->File.home]
 .end
+
+.if ~ib
+.if windows
+**Mulk.class >> codepage: arg
+	$codepage
+.end
+.end
+
 **Mulk.class >> boot: args
 .if ib
 	{args = #(globalTable symbolTable mainArgs)
@@ -8998,10 +9024,10 @@ Quit the system.
 		->mainClass;
 	args at: 1 ->:mainArgs;
 
+	self initFiles;
 .if windows
 	self codepage: (Mulk at: #Mulk.codepage ifAbsent: [65001]);
 .end
-	self initFiles;
 	
 	args at: 2,
 		asFile ->imageFile;

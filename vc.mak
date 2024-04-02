@@ -1,6 +1,6 @@
 #
 #	Makefile for Visual-C
-#	$Id: mulk vc.mak 1196 2024-03-31 Sun 11:25:56 kt $
+#	$Id: mulk vc.mak 1198 2024-04-01 Mon 21:37:17 kt $
 #
 #	nmake /fvc.mak [setup=setup.m]
 #
@@ -26,13 +26,13 @@ ppflags=windows caseInsensitiveFileName
 
 all: mulk.exe mulk.mi
 
-ibprimsrc=ip.c sint.c lpint.c os.c float.c fbarray.c codepage.c
+ibprimsrc=ip.c sint.c lpint.c os.c float.c fbarray.c
 ibprim.wk: $(ibprimsrc)
 	del 1.wk
 	for %i in ($**) do type %i >>1.wk
 	find "DEFPRIM" <1.wk >$@
 
-mulkprimsrc=$(ibprimsrc) lock.c sleep.c term.c termw.c dl.c viewp.c
+mulkprimsrc=$(ibprimsrc) codepage.c lock.c sleep.c term.c termw.c dl.c viewp.c
 mulkprim.wk: $(mulkprimsrc)
 	del 1.wk
 	for %i in ($**) do type %i >>1.wk
@@ -42,8 +42,8 @@ xc.lib: std.obj heap.obj xbarray.obj xctype.obj splay.obj xgetopt.obj log.obj \
 	xarray.obj pfw.obj cqueue.obj iqueue.obj xsleepw.obj xwchar.obj coord.obj \
 	csplit.obj kidec.obj kidecw.obj termw.obj vieww.obj \
 	om.obj omd.obj gc.obj prim.obj ir.obj lex.obj \
-	ip.obj sint.obj lpint.obj os.obj float.obj fbarray.obj codepage.obj \
-	lock.obj sleep.obj term.obj dl.obj viewp.obj intrw.obj
+	ip.obj sint.obj lpint.obj os.obj float.obj fbarray.obj \
+	codepage.obj lock.obj sleep.obj term.obj dl.obj viewp.obj intrw.obj
 	lib /out:$@ $**
 
 mulk.exe: mulk.obj mulkprim.obj xc.lib

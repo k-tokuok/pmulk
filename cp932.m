@@ -1,5 +1,5 @@
 codepage 932
-$Id: mulk cp932.m 1195 2024-03-31 Sun 10:38:39 kt $
+$Id: mulk cp932.m 1198 2024-04-01 Mon 21:37:17 kt $
 #ja
 
 *[man]
@@ -16,7 +16,7 @@ Windows CP932にコードページを切替える。
 	Mulk at: #Mulk.codepage put: 932;
 	Mulk at: #Mulk.charset put: #sjis;
 	
-	0x40 to: 0x8e, do:
+	0x40 to: 0x7e, do:
 		[:c1
 		c1 asChar ->:ch;
 		ch basicAt: 1 put: (ch basicAt: 1) | 0x40];

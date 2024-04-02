@@ -1,6 +1,6 @@
 #
 #	makefile for gnu toolchain.
-#	$Id: mulk makefile 1191 2024-03-30 Sat 22:35:26 kt $
+#	$Id: mulk makefile 1198 2024-04-01 Mon 21:37:17 kt $
 #
 #	make hostos={cygwin,linux,macosx,minix,freebsd,netbsd,illumos,windows}
 #		[dl=on|off] [term=on|off] [view=on|off|sdl] [xft=on|off] 
@@ -51,13 +51,13 @@ uflags=-Wall -Werror
 cflags=$(uflags) -c
 lflags=$(uflags)
 sflags=-s
-dolink=$(cc) $(lflags) -o $@ $+
+dolink=$(cc) $(lflags) -o $@ $+ $(libs)
 
 ifeq ($(debug),on)
 uflags+=-g
 else
 cflags+=-O3 -DNDEBUG
-dostrip=$(strip) $(sflags) $@
+dolink+=; $(strip) $(sflags) $@
 endif
 
 .c.o:
@@ -74,17 +74,17 @@ else
 toolprefix=x86_64-w64-mingw32-
 endif
 ppflags+=caseInsensitiveFileName
-extibprim+=codepage.c
-extobj+=pfw.o xsleepw.o intrw.o kidecw.o
+mulkprims+=codepage.c
+xcobjs+=pfw.o xsleepw.o intrw.o kidecw.o
 exe=.exe
-termobj+=termw.o
-termprim+=termw.c
+termobjs+=termw.o
+termprims+=termw.c
 endif
 
 ifneq ($(filter $(unixen),$(hostos)),)
 ppflags+=unix
-extobj+=pfu.o xsleepu.o intru.o
-termobj+=termu.o
+xcobjs+=pfu.o xsleepu.o intru.o
+termobjs+=termu.o
 endif
 
 ifeq ($(hostos),cygwin)
@@ -117,8 +117,7 @@ endif
 
 ifeq ($(hostos),freebsd)
 cflags+=-Wno-error=unused-but-set-variable
-mulklibs+=-lm
-iblibs+=-lm
+libs+=-lm
 termlibs=-lcurses
 viewcflags+=-I/usr/local/include
 xftcflags+=-I/usr/local/include/freetype2
@@ -140,51 +139,50 @@ xftcflags=-I/usr/include/freetype2
 endif
 
 ifeq ($(dl),on)
-mulklibs+=$(dllibs)
-extprim+=dl.c
+libs+=$(dllibs)
+mulkprims+=dl.c
 endif
 
 ifeq ($(term),on)
 cflags+=$(termcflags)
-mulklibs+=$(termlibs)
-extobj+=$(termobj)
-extprim+=term.c $(termprim)
+libs+=$(termlibs)
+xcobjs+=$(termobjs)
+mulkprims+=term.c $(termprims)
 endif
 
 ifeq ($(view),on)
 cflags+=$(viewcflags)
 lflags+=$(viewlflags)
-extprim+=viewp.c
+mulkprims+=viewp.c
 intrCheck=on
 
 ifneq ($(filter $(unixen),$(hostos)),)
 #in unixen, use x11
-mulklibs+=-lX11
-extobj+=viewx.o
+libs+=-lX11
+xcobjs+=viewx.o
 ifeq ($(xft),on)
 cflags+=$(xftcflags) -DXFT_P=1
-mulklibs+=-lXft
+libs+=-lXft
 endif
 endif
 
 ifeq ($(hostos),windows)
-mulklibs+=-lgdi32
-extobj+=vieww.o
-oauthlrlib=-lws2_32
+libs+=-lgdi32 -lws2_32
+xcobjs+=vieww.o
 endif
 
 endif
 
 ifeq ($(view),sdl)
-extobj+=views.o
-extprim+=viewp.c
-mulklibs+=-lSDL2 -lSDL2_ttf
+xcobjs+=views.o
+mulkprims+=viewp.c
+libs+=-lSDL2 -lSDL2_ttf
 intrCheck=on
 endif
 
 ifeq ($(intrCheck),on)
 cflags+=-DINTR_CHECK_P=1
-ibobj+=intrs.o
+ibobjs+=intrs.o
 endif
 
 ifeq ($(disableSendCommon),on)
@@ -193,30 +191,29 @@ endif
 
 all: $(mulk) mulk.mi
 
-ibprim=ip.c sint.c lpint.c os.c float.c fbarray.c $(extibprim)
-ibprim.wk: $(ibprim)
+ibprims=ip.c sint.c lpint.c os.c float.c fbarray.c
+ibprim.wk: $(ibprims)
 	cat $+ | grep ^DEFPRIM >$@
 
-mulkprim=$(ibprim) lock.c sleep.c $(extprim)
-mulkprim.wk: $(mulkprim)
+mulkprims_all=$(ibprims) lock.c sleep.c $(mulkprims)
+mulkprim.wk: $(mulkprims_all)
 	cat $+ | grep ^DEFPRIM >$@
 
 xc.a: std.o heap.o xbarray.o xctype.o splay.o xgetopt.o log.o xarray.o \
 	cqueue.o iqueue.o xwchar.o coord.o csplit.o kidec.o \
 	om.o omd.o gc.o prim.o ir.o lex.o \
-	$(mulkprim:%.c=%.o) \
-	$(extobj)
+	$(mulkprims_all:%.c=%.o) \
+	$(xcobjs)
 	rm -f $@
 	$(ar) -r $@ $+
 
 mulk=mulk$(exe)
 $(mulk): mulk.o mulkprim.o xc.a
-	$(dolink) $(mulklibs)
-	$(dostrip)
+	$(dolink)
 
 ib=ib$(exe)
-$(ib): ib.o ibprim.o $(ibobj) xc.a
-	$(dolink) $(iblibs)
+$(ib): ib.o ibprim.o $(ibobjs) xc.a
+	$(dolink)
 pp=pp$(exe)
 $(pp): pp.o xc.a
 	$(dolink)
@@ -238,8 +235,7 @@ ipp.o: ip.c
 	$(cc) $(cflags) -DIP_PROFILE -o ipp.o ip.c
 mulkp=mulkp$(exe)
 $(mulkp): mulk.o ipp.o mulkprim.o xc.a
-	$(dolink) $(mulklibs)
-	$(dostrip)
+	$(dolink)
 
 icmd.mi: $(mulk) base.mi setup.m
 	./$(mulk) -ibase.mi 'Mulk load: "setup.m", save: "$@"'
@@ -254,8 +250,7 @@ mulks.wk: $(mulk) icmd.mi $(target).mi
 	./$(mulk) -iicmd.mi "mkmulks <$(target).mi >$@"
 targetexe=$(target)$(exe)
 $(targetexe): mulks.o mulkprim.o xc.a
-	$(dolink) $(mulklibs)
-	$(dostrip)
+	$(dolink)
 sall: $(targetexe)
 sclean: clean
 	rm -f $(targetexe)
@@ -263,8 +258,7 @@ sclean: clean
 #oauthlr.
 oauthlr=oauthlr$(exe)
 $(oauthlr): oauthlr.o xc.a
-	$(dolink) $(oauthlrlib)
-	$(dostrip)
+	$(dolink)
 	
 clean:
 	rm -f *.o *.a *.wk *.mi
