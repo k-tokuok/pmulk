@@ -1,5 +1,5 @@
 CodeTranslator.iconv class
-$Id: mulk ctriconv.m 1041 2023-03-26 Sun 07:12:39 kt $
+$Id: mulk ctriconv.m 1203 2024-04-05 Fri 22:00:56 kt $
 #ja
 
 *[man]
@@ -24,7 +24,7 @@ CodeTranslator classのiconv共有ライブラリ実装。
 	DL.IntPtrBuffer new ->bufSizeAddr;
 	DL.IntPtrBuffer new ->resultAddr;
 	DL.IntPtrBuffer new ->resultSizeAddr;
-	Mulk.hostOS ->:os, = #cygwin
+	Mulk.hostOS ->:os, = #cygwin | (os = #windows)
 		ifTrue: [#(#libiconv_open 2 #libiconv 5 #libiconv_close 1)]
 		ifFalse: [#(#iconv_open 2 #iconv 5 #iconv_close 1)] ->:procs;
 	procs first ->open;
@@ -34,6 +34,7 @@ CodeTranslator classのiconv共有ライブラリ実装。
 	os = #cygwin ifTrue: ["cygiconv-2.dll" ->libName];
 	os = #macosx ifTrue: ["libiconv.dylib" ->libName];
 	os = #freebsd ifTrue: ["libiconv.so" ->libName];
+	os = #windows ifTrue: ["libiconv-2.dll" ->libName];
 	DL import: libName procs: procs
 **CodeTranslator.iconv >> codeString: ch
 	ch = 'u' ifTrue: ["UTF-8"!];

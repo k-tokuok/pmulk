@@ -1,6 +1,6 @@
 /*
 	interpreter.
-	$Id: mulk ip.c 1166 2024-02-12 Mon 11:07:54 kt $
+	$Id: mulk ip.c 1220 2024-04-22 Mon 21:26:36 kt $
 */
 
 #include "std.h"
@@ -14,7 +14,7 @@
 #include "prim.h"
 #include "intr.h"
 
-#define STACK_GAP 100
+#define STACK_GAP 200
 
 static object cur_process;
 static object cur_method;
@@ -54,10 +54,12 @@ static object process_new(int fs_size,int cs_size)
 	
 	process=gc_object_new(om_Process,0);
 
-	process->process.frame_stack=gc_object_new(om_FixedArray,fs_size);
+	process->process.frame_stack
+		=gc_object_new(om_FixedArray,fs_size+STACK_GAP);
 	process->process.sp=sint(0);
 
-	process->process.context_stack=gc_object_new(om_FixedArray,cs_size);
+	process->process.context_stack=
+		gc_object_new(om_FixedArray,cs_size+STACK_GAP);
 	process->process.cp=sint(0);
 
 	return process;
@@ -199,7 +201,7 @@ static void fs_push(object o)
 
 	fs=cur_process->process.frame_stack;
 	if(sp==fs->farray.size-STACK_GAP) error_mark("frame stack overflow.");
-	else if(sp>=fs->farray.size) xerror("frame stack overflow.");
+	else if(sp>=fs->farray.size) xerror("out of spare space in frame stack");
 	
 	fs->farray.elt[sp++]=o;
 	if(sp>sp_used) {
@@ -244,8 +246,10 @@ static void cs_push(object o)
 
 	cs=cur_process->process.context_stack;
 	if(cp==cs->farray.size-STACK_GAP) error_mark("context stack overflow.");
-	else if(cp>=cs->farray.size) xerror("context stack overflow.");
-	
+	else if(cp>=cs->farray.size) {
+		xerror("out of spare space in context stack.");
+	}
+		
 	cs->farray.elt[cp++]=o;
 	if(cp>cp_used) {
 		cp_used=cp;
@@ -449,10 +453,16 @@ static object temp_var(int no)
 	return *fs_nth(fp+no);
 }
 
+static object cur_self(void)
+{
+	if(cur_context==om_nil) return temp_var(0);
+	else return cur_context->context.vars[0];
+}
+
 static void i_push_instance_var(int no)
 {
 	object self;
-	self=temp_var(0);
+	self=cur_self();
 #ifndef NDEBUG
 	{
 		int size;
@@ -490,7 +500,7 @@ static void i_set_instance_var(int no)
 {
 	object self,o;
 
-	self=temp_var(0);
+	self=cur_self();
 #ifndef NDEBUG
 	{
 		int size;
@@ -1265,12 +1275,11 @@ static int eval_block(object b,int narg,object *args)
 	if(sint_val(b->block.narg)!=narg) return PRIM_ERROR;
 	cx=b->block.context;
 
-	fs_push(cx->context.vars[0]);
 	for(i=0;i<narg;i++) fs_push(args[i]);
 	
 	cs_save();
 	switch_method(cx->context.method);
-	fp=sp-narg-1;
+	fp=sp-narg;
 	cur_context=cx;
 	ip=sint_val(b->block.start);
 	return PRIM_SUCCESS;
@@ -1335,6 +1344,7 @@ DEFPRIM(process_basicStart)
 	cp_used=0;
 	cp_max=0;
 	perform(self,args[0],1,&parent,NULL);
+	*result=NULL;
 	return PRIM_SUCCESS;
 }
 

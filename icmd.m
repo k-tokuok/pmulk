@@ -1,5 +1,5 @@
 interactive command interpreter
-$Id: mulk icmd.m 1166 2024-02-12 Mon 11:07:54 kt $
+$Id: mulk icmd.m 1216 2024-04-17 Wed 21:25:33 kt $
 #ja 対話用コマンドインタプリタ
 
 *[man]
@@ -65,12 +65,12 @@ If there is an icmd.mc file in the work directory, load it as a startup script a
 		[Cmd.icmd.history notNil? ifTrue: [Cmd.icmd.history addCmd: s];
 		nil ->:exception;
 		cp interruptBlock: ib;
-		[self run: s] on: Error do: [:e e ->exception];
+		[self run: s] on: Error do: 
+			[:e
+			Cmd.icmd.trace? ifTrue: [e printStackTrace];
+			Out putLn: e message];
 		cp interruptBlock: nil;
 		Cmd.icmd.history notNil? ifTrue: [Cmd.icmd.history checkDir];
-		exception notNil? ifTrue:
-			[Cmd.icmd.trace? ifTrue: [exception printStackTrace];
-			Out putLn: exception message];
 		self resetInOut];
 	cp interruptBlock: ib
 **Cmd.icmd >> main: args

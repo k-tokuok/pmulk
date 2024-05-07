@@ -1,5 +1,5 @@
 hide console
-$Id: mulk hidecnsl.m 1179 2024-03-17 Sun 21:14:15 kt $
+$Id: mulk hidecnsl.m 1212 2024-04-14 Sun 20:49:24 kt $
 #ja コンソールを非表示とする
 
 *[man]
@@ -7,7 +7,7 @@ $Id: mulk hidecnsl.m 1179 2024-03-17 Sun 21:14:15 kt $
 .caption SYNOPSIS
 	hidecnsl
 .caption DESCRIPTION
-Hide the console of mulk process.
+Hide the console of Mulk process.
 
 Get the window handle of the console and hide it.
 The console itself remains unopened, so no new console is allocated even if a child process is executed.
@@ -20,7 +20,7 @@ https://learn.microsoft.com/ja-jp/troubleshoot/windows-server/performance/obtain
 .caption 書式
 	hidecnsl
 .caption 説明
-mulkプロセスのコンソールを非表示とする。
+Mulkプロセスのコンソールを非表示とする。
 
 コンソールのwindow handleを取得し、それを非表示とする。
 コンソール自体は開放されないまま残るので、子プロセスを実行しても新たなコンソールが確保されることはない。
@@ -30,17 +30,17 @@ Windowsでのみ動作可。
 https://learn.microsoft.com/ja-jp/troubleshoot/windows-server/performance/obtain-console-window-handle
 
 *@
-	Mulk import: #("dl" "sleeplib" "random")
+	Mulk import: #("dl" "sleeplib")
 *@
-	DL import: "kernel32.dll" procs: #(#SetConsoleTitleA 101),
+	DL import: "kernel32.dll" procs: 
+			#(#GetCurrentProcessId 0 #SetConsoleTitleA 101),
 		import: "user32.dll" procs: #(#FindWindowA 102 #ShowWindow 102)
 		
 *hidecnsl tool.@
 	Object addSubclass: #Cmd.hidecnsl
 **Cmd.hidecnsl >> main: args
-	"x" + (Random until: 100000000) ->:name;
+	"mulk-" + (DL call: #GetCurrentProcessId) ->:name;
 	DL call: #SetConsoleTitleA with: name;
 	0.1 sleep;
 	DL call: #FindWindowA with: 0 with: name ->:h;
 	DL call: #ShowWindow with: h with: 0
-		

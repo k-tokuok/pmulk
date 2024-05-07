@@ -1,5 +1,5 @@
 skkユーティリティ
-$Id: mulk skkut.m 1145 2023-12-09 Sat 21:39:51 kt $
+$Id: mulk skkut.m 1212 2024-04-14 Sun 20:49:24 kt $
 
 *[man]
 .caption 書式
@@ -18,15 +18,15 @@ skkutはskkの使用を支援するユーティリティプログラムである
 .summary oldchars
 
 **skkut.jtod 最大熟語長
-skkのjisyo形式をskk/mulkの変換辞書形式に変換する。
+skkのjisyo形式をskk/Mulkの変換辞書形式に変換する。
 
-skk/mulkで使用出来ない情報、azikと競合する送りがな、変換結果にかな等を含むもの、指定の最大熟語長より長いエントリは削除される。
+skk/Mulkで使用出来ない情報、azikと競合する送りがな、変換結果にかな等を含むもの、指定の最大熟語長より長いエントリは削除される。
 
 変換辞書はcsv形式で以下のフィールドからなる。
 	読み,変換候補1,候補2,...
 
 **skkut.init [DICT]
-skk/mulkの変換辞書DICT(デフォルトはskkchunk.d)、ローマ字かな変換テーブル(skkrk.d)、ひらがな-カタカナ変換テーブル(mtrhk.d)からデータファイル(skkdict.mpi)を生成し、Mulk.workDirectoryに保存する。
+skk/Mulkの変換辞書DICT(デフォルトはskkchunk.d)、ローマ字かな変換テーブル(skkrk.d)、ひらがな-カタカナ変換テーブル(mtrhk.d)からデータファイル(skkdict.mpi)を生成し、Mulk.workDirectoryに保存する。
 
 **skkut.mkfreq LOG|FREQ...
 指定されたskk.log及び頻度情報を統合し、累積した頻度情報を出力する。

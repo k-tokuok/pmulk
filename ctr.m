@@ -1,5 +1,5 @@
 character code conversion
-$Id: mulk ctr.m 1179 2024-03-17 Sun 21:14:15 kt $
+$Id: mulk ctr.m 1203 2024-04-05 Fri 22:00:56 kt $
 #ja 文字コード変換
 
 *[man]
@@ -97,7 +97,7 @@ FROMを省略した場合は'='が指定されたものと見做す。
 			self normalize: (args at: 1) ->to];
 
 	from first <> to first ifTrue:
-		[CodeTranslatorFactory new create: from first asString + to first
+		[CodeTranslatorFactory create: from first asString + to first
 			->ctr];
 	to last ->:ch, = 'n' ifTrue: [[Out putLn] ->putLn];
 	ch = 'l' ifTrue: [[Out putByte: 0xa] ->putLn];

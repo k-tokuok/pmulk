@@ -1,6 +1,6 @@
-create tar + bz2 format mulk package
-$Id: mulk packtbz.m 1179 2024-03-17 Sun 21:14:15 kt $
-#ja tar + bz2形式のmulkパッケージの作成
+create tar + bz2 format Mulk package
+$Id: mulk packtbz.m 1212 2024-04-14 Sun 20:49:24 kt $
+#ja tar + bz2形式のMulkパッケージの作成
 
 *[man]
 **#en

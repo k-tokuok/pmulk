@@ -1,5 +1,5 @@
 text formatting
-$Id: mulk format.m 932 2022-09-18 Sun 17:45:15 kt $
+$Id: mulk format.m 1208 2024-04-08 Mon 20:32:13 kt $
 #ja テキスト整形
 
 *[man]
@@ -154,7 +154,7 @@ The following variables can be set with the eval command.
 ***Format >> readParagraphTo: buf
 	buf addString: self readLine;
 	[next = #text] whileTrue:
-		[buf last ->:last;
+		[[buf last ->:last, space?] whileTrue: [buf removeLast];
 		StringReader new init: nextLine, getWideChar ->:nfirst;
 		self insertSpaceForConcatLineBetween: last and: nfirst,
 			ifTrue: [buf addLast: ' '];

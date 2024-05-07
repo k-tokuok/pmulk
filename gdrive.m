@@ -1,5 +1,5 @@
 Google Drive
-$Id: mulk gdrive.m 1197 2024-03-31 Sun 21:48:00 kt $
+$Id: mulk gdrive.m 1212 2024-04-14 Sun 20:49:24 kt $
 #ja Googleドライブ
 
 *[man]
@@ -28,7 +28,7 @@ After completing the authorization on the browser, return to Mulk and complete t
 
 Specifying "loopback" as an argument performs loopback authentication.
 This does not require input of user_code, but in order to receive the authentication code by loopback redirection, it is necessary to install the external program oauthlr in a directory in the PATH.
-oauthlr is in the mulk source package.
+oauthlr is in the Mulk source package.
 
 .caption mount
 Mount Google Drive.
@@ -58,7 +58,7 @@ user_codeとurlが表示された後、ブラウザを手動もしくは自動�
 
 引数として"loopback"を指定するとloopback認証を行う。
 これはuser_codeの入力を必要としないが、loopback redirectionで認証コードを受け取るために、外部プログラムoauthlrをPATHの通ったディレクトリにインストールしておく必要がある。
-oauthlrはmulkのソースパッケージにある。
+oauthlrはMulkのソースパッケージにある。
 
 .caption mount
 Googleドライブをマウントする。
@@ -312,22 +312,6 @@ Googleドライブをマウントする。
 		self writeFileBytes;
 		file resetStat]
 
-*Mulk.hostOS = #windows >
-**GDrive.TextStream class.@
-	GDrive.Stream addSubclass: #GDrive.TextStream,
-		features: #(NewlineCrlfStream)
-***GDrive.TextStream >> readFileBytes
-	MemoryStream new write: (GDrive getBytes: file id), seek: 0 ->:rd;
-	self initEmpty;
-	rd pipe: "ctr u =" to: self;
-	false ->update?
-***GDrive.TextStream >> writeFileBytes
-	self seek: 0;
-	MemoryStream new ->:wr;
-	self pipe: "ctr u" to: wr;
-	wr seek: 0;
-	GDrive putBytes: wr contentBytes file: file
-	
 *GDrive.File class.
 **GDrive.File >> initParent: parentArg name: nameArg
 	super initParent: parentArg name: nameArg;
@@ -394,9 +378,23 @@ Googleドライブをマウントする。
 	--resetstat
 	result!
 
-*GDrive.TextFile class.
-**Mulk.hostOS = #windows >
-***GDrive.TextFile >> streamClass
+*Mulk.newline = #crlf | Mulk.charset <> #utf8 >
+**GDrive.TextStream class.@
+	GDrive.Stream addSubclass: #GDrive.TextStream,
+		features: #(NewlineCrlfStream)
+***GDrive.TextStream >> readFileBytes
+	MemoryStream new write: (GDrive getBytes: file id), seek: 0 ->:rd;
+	self initEmpty;
+	rd pipe: "ctr u =" to: self;
+	false ->update?
+***GDrive.TextStream >> writeFileBytes
+	self seek: 0;
+	MemoryStream new ->:wr;
+	self pipe: "ctr u" to: wr;
+	wr seek: 0;
+	GDrive putBytes: wr contentBytes file: file
+	
+**GDrive.TextFile >> streamClass
 	GDrive.TextStream!
 	
 *tool.@

@@ -1,5 +1,5 @@
 CodeTranslator.w class
-$Id: mulk ctrw.m 1188 2024-03-26 Tue 22:43:40 kt $
+$Id: mulk ctrw.m 1204 2024-04-06 Sat 07:05:30 kt $
 #ja
 *[man]
 **#en
@@ -33,20 +33,8 @@ CodeTranslator classのWindows実装。
 **CodeTranslator.w >> init: fromTo
 	self codeNumber: fromTo first ->fromCode;
 	self codeNumber: (fromTo at: 1) ->toCode
-**CodeTranslator.w >> replace: buf size: size source: src target: tgt
-	0 ->:i;
-	src size ->:srcsz;
-	size - srcsz + 1->:en;
-	[buf indexOf: src size: srcsz from: i until: en ->i, notNil?] whileTrue:
-		[buf basicAt: i copyFrom: tgt at: 0 size: srcsz;
-		i + srcsz ->i]
 **CodeTranslator.w >> translate: bufArg from: fromArg size: sizeArg
 	self reserve: sizeArg;
-	fromCode = 65001 ifTrue:
-		[bufArg copyFrom: fromArg until: fromArg + sizeArg ->bufArg;
-		0 ->fromArg;
-		self replace: bufArg size: sizeArg 
-			source: "\xe3\x80\x9c" target: "\xef\xbd\x9e"];
 	DL call: #MultiByteToWideChar
 		with: fromCode with: 0
 		with: bufArg address + fromArg with: sizeArg
@@ -55,7 +43,4 @@ CodeTranslator classのWindows実装。
 		with: toCode with: 0
 		with: wcBuf with: wcCount
 		with: resultBuf with: resultBuf size with: #(0 0) ->:result;
-	toCode = 65001 ifTrue:
-		[self replace: resultBuf size: result
-			source:"\xef\xbd\x9e" target: "\xe3\x80\x9c"];
 	result!

@@ -1,6 +1,6 @@
-create mulk/Windows binary package
-$Id: mulk packwin.m 1195 2024-03-31 Sun 10:38:39 kt $
-#ja mulk/Windowsバイナリパッケージを作成する
+create Mulk/Windows binary package
+$Id: mulk packwin.m 1218 2024-04-20 Sat 06:51:50 kt $
+#ja Mulk/Windowsバイナリパッケージを作成する
 
 *[man]
 **#en
@@ -16,6 +16,8 @@ If EXPR is omitted, a package is created with the minimum configuration of std.
 	d DLLDIR -- Include the DLLs at DLLDIR in the package. You can also specify one file.
 	b BASEDIR -- The directory where mulk.exe and base.mi are located. If omitted, Mulk.systemDirectory is assumed to be specified.
 	i INPUTMETHOD -- Specifies the input method (jim|skk) to include.
+	c CHARSET -- Character code (utf8|sjis). If omitted, it is selected appropriately according to the language specification.
+	C -- Create a new cross compiled version of mulk.exe and base.mi.
 .caption SEE ALSO
 .summary package
 **#ja
@@ -31,12 +33,15 @@ EXPRを省略するとstdの最小構成でパッケージが作られる。
 	d DLLDIR -- パッケージにDLLDIRにあるDLLを含める。一つであればファイルを指定することもできる。
 	b BASEDIR -- コピー元のmulk.exeとbase.miのあるディレクトリ。省略時はMulk.systemDirectoryが指定されたものとする。
 	i INPUTMETHOD -- 組込むインプットメソッド(jim|skk)を指定する。
+	c CHARSET -- 文字コード(utf8|sjis)。省略時は言語指定によって適切に選ばれる。
+	C -- mulk.exeとbase.miをクロスコンパイルで新規に作成する。
 .caption 関連項目
 .summary package
 
 *packwin tool.@
 	Mulk import: #("optparse" "tempfile");
-	Object addSubclass: #Cmd.packwin instanceVars: "lang dll inputMethod"
+	Object addSubclass: #Cmd.packwin instanceVars: 
+		"lang dll inputMethod charset ctrdst"
 **Cmd.packwin >> make_install_bat
 	Out putLn: "cd /d \"%~dp0\"",
 		putLn: "install\\mulk -i install/base.mi"
@@ -44,7 +49,9 @@ EXPRを省略するとstdの最小構成でパッケージが作られる。
 **Cmd.packwin >> make_install_m
 	Out putLn: (Mulk at: #Cmd.packwin.installer);
 	Out putLn: "*@";
-	Out putLn: "Installer new lang: \"" + lang + "\" ->:installer;";
+	Out putLn: "Installer new ->:installer;";
+	Out putLn: "installer charset: \"" + charset + "\";";
+	Out putLn: "installer lang: \"" + lang + "\";";
 	dll notNil? ifTrue: [Out putLn: "installer dll;"];
 	inputMethod notNil? ifTrue: 
 		[Out putLn: "installer inputMethod: \"" + inputMethod + "\";"];
@@ -55,13 +62,27 @@ EXPRを省略するとstdの最小構成でパッケージが作られる。
 	"ar.c " + qdir, pipeTo: destArg;
 	"rm " + qdir, runCmd
 **Cmd.packwin >> main: args
-	OptionParser new init: "l:d:b:i:" ->:op, parse: args ->args;
+	OptionParser new init: "l:d:b:i:c:C" ->:op, parse: args ->args;
 	op at: 'l' ->:opt, nil? ifTrue: [Mulk.lang] ifFalse: [opt] ->lang;
 	op at: 'd' ->dll;
 	op at: 'b' ->opt, nil? 
 		ifTrue: [Mulk.systemDirectory] 
-		ifFalse: [opt asFile] ->:basedir;
+		ifFalse: [opt asFile] ->:baseDir;
 	op at: 'i' ->inputMethod;
+	op at: 'c' ->opt, nil?
+		ifTrue: [lang = "ja" ifTrue: ["sjis"] ifFalse: ["utf8"]]
+		ifFalse: [opt] ->charset;
+	charset = "sjis" ifTrue: ["s"] ifFalse: ["u"] ->ctrdst;
+	ctrdst + "c" ->ctrdst;
+	
+	op at: 'C' ->:cross?, ifTrue:
+		[TempFile create mkdir ->:crossDir;
+		"package vm " + crossDir quotedPath, runCmd;
+		"base.m" asSystemFile pipeTo: crossDir + "base.m";
+		"os -o sh -c 'cd " + crossDir quotedPath + " ; make hostos=windows cross=wine mulk.exe base.mi'" ->:s;
+		Out putLn: s;
+		s runCmd;
+		crossDir ->baseDir];
 		
 	args size = 1 
 		ifTrue: 
@@ -70,29 +91,33 @@ EXPRを省略するとstdの最小構成でパッケージが作られる。
 			expr + "-vm-npw" ->expr;
 			lang = "en" ifTrue: [expr + "-ja" ->expr];
 			expr + '#' + lang ->expr;
+			expr + '@' + ctrdst ->expr;
 			args first ->:dest]
 		ifFalse:
 			[args first ->expr;
 			args at: 1 ->dest];
 
 	TempFile create ->:topDir;
-	[self make_install_bat] pipeTo: topDir + "install.bat";
-	[self make_install_m] pipeTo: topDir + "install/install.m";
-	basedir + "mulk.exe" pipeTo: topDir + "install/mulk.exe";
-	basedir + "base.mi" pipeTo: topDir + "install/base.mi";
+	[self make_install_bat] pipe: "ctr = " + ctrdst, 
+		pipeTo: topDir + "install.bat";
+	[self make_install_m] pipe: "ctr = " + ctrdst,
+		pipeTo: topDir + "install/install.m";
+	baseDir + "mulk.exe" pipeTo: topDir + "install/mulk.exe";
+	baseDir + "base.mi" pipeTo: topDir + "install/base.mi";
 	self make_mulk_ar: expr to: topDir + "install/mulk.ar";
 	dll notNil? ifTrue:
 		[topDir + "dll" ->:dllDestDir;
 		dll asFile ->:dllFile, file? ifTrue: [dllDestDir mkdir];
 		"cp " + dllFile quotedPath + ' ' + dllDestDir quotedPath, runCmd];
 	"zip.c " + dest + ' ' + topDir quotedPath, runCmd;
-	"rm " + topDir quotedPath, runCmd
-	
+	"rm " + topDir quotedPath, runCmd;
+	cross? ifTrue: ["rm " + crossDir quotedPath, runCmd]
 *->Cmd.packwin.installer
 installer for Windows binary kit.
 
 **installer.@
-	Object addSubclass: #Installer instanceVars: "lang dll? inputMethod"
+	Object addSubclass: #Installer instanceVars: 
+		"lang charset dll? inputMethod"
 ***Installer >> init
 	false ->dll?
 ***Installer >> readString: arArg
@@ -115,24 +140,29 @@ installer for Windows binary kit.
 ***Installer >> make_mulk_mi
 	Out putLn: "\"mulk\" asFile ->Mulk.systemDirectory;",
 		putLn: "\"work\" asFile ->Mulk.workDirectory;",
+		putLn: "Mulk at: #charset put: #" + charset + ";",
 		putLn: "\"" + lang + "\" ->Mulk.lang;",
-		putLn: "Mulk import: #(\"crlf\" \"cp932\" \"icmd\");",
-		putLn: "#Cmd.icmd ->Mulk.defaultMainClass;",
+		putLn: "Mulk import: #(\"crlf\" \"icmd\");";
+	charset = "sjis" ifTrue: [Out putLn: "Mulk import: \"cp932\";"];
+	Out	putLn: "#Cmd.icmd ->Mulk.defaultMainClass;",
 		putLn: "Mulk save: \"bin/mulk.mi\""
 ***Installer >> make_icmd_mc
 	Out putLn: "os.path " + "bin" asFile quotedPath;
-	dll? ifTrue: [Out putLn: "os.path " + "dll" asFile quotedPath]
-***Installer >> make_tmulk_mc
-	Out 
-		putLn: "cmd " + "work/icmd.mc" asFile quotedPath,
-		putLn: "cset term";
+	dll? ifTrue: [Out putLn: "os.path " + "dll" asFile quotedPath];
+	Out putLn: "ld -s h.m",
+		putLn: "ld -s clipw.m"
+***Installer >> make_vmulk_mc
+	Out putLn: "cmd " + "work/icmd.mc" asFile quotedPath,
+		putLn: "cset view";
 	inputMethod notNil? ifTrue: [Out putLn: inputMethod];
-	Out 
+	Out putLn: "hidecnsl",
 		putLn: "icmd.next wb"
-***Installer >> make_tmulk_bat
-	Out putLn: "mulk -- -s " + "work/tmulk.mc" asFile quotedPath
+***Installer >> make_vmulk_bat
+	Out putLn: "start mulk -- -s " + "work/vmulk.mc" asFile quotedPath
 ***Installer >> lang: langArg
 	langArg ->lang
+***Installer >> charset: charsetArg
+	charsetArg ->charset
 ***Installer >> inputMethod: inputMethodArg
 	inputMethodArg ->inputMethod
 ***Installer >> dll
@@ -145,11 +175,11 @@ installer for Windows binary kit.
 	self extract;
 	"mulk" asFile ->Mulk.systemDirectory;
 	"work" asFile ->Mulk.workDirectory;
-	Mulk import: "cmd";
+	Mulk import: #("crlf" "cmd");
 	"bin" asFile mkdir;
 	"work" asFile mkdir;
 	"cp install/mulk.exe bin" runCmd;
 	[self make_mulk_mi] pipe: "os -i install\\mulk -i install/base.mi";
 	[self make_icmd_mc] pipeTo: (self customFile: "work/icmd.mc" asFile);
-	[self make_tmulk_mc] pipeTo: (self customFile: "work/tmulk.mc" asFile);
-	[self make_tmulk_bat] pipeTo: (self customFile: "bin/tmulk.bat" asFile)
+	[self make_vmulk_mc] pipeTo: (self customFile: "work/vmulk.mc" asFile);
+	[self make_vmulk_bat] pipeTo: (self customFile: "bin/vmulk.bat" asFile)

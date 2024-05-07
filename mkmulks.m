@@ -1,6 +1,6 @@
-standalone mulk build utility
-$Id: mulk mkmulks.m 932 2022-09-18 Sun 17:45:15 kt $
-#ja スタンドアロンmulkの構築ユーティリティ
+standalone Mulk build utility
+$Id: mulk mkmulks.m 1212 2024-04-14 Sun 20:49:24 kt $
+#ja スタンドアロンMulkの構築ユーティリティ
 
 *[man]
 **#en

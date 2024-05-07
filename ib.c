@@ -1,6 +1,6 @@
 /*
 	image builder.
-	$Id: mulk ib.c 1191 2024-03-30 Sat 22:35:26 kt $
+	$Id: mulk ib.c 1220 2024-04-22 Mon 21:26:36 kt $
 */
 
 #include "std.h"
@@ -686,7 +686,7 @@ static int parse_factor(void)
 	if(next_token==tIDENTIFIER) {
 		name=parse_token_str(tIDENTIFIER);
 		if(strcmp(name,"super")==0) {
-			gen1(PUSH_TEMP_VAR_INST,0);
+			gen1(PUSH_CONTEXT_VAR_INST,0);
 			return TRUE;
 		} else if((no=local_var_find(name))!=-1) {
 			gen1(PUSH_CONTEXT_VAR_INST,no);
@@ -711,7 +711,7 @@ static int parse_factor(void)
 		gen2(BLOCK_INST,local_vars.size-argpos,0);
 		block_start=bytecode.size;
 		for(i=0;i<local_vars.size-argpos;i++) {
-			gen1(PUSH_TEMP_VAR_INST,i+1);
+			gen1(PUSH_TEMP_VAR_INST,i);
 			gen1(SET_CONTEXT_VAR_INST,argpos+i);
 		}
 		if(parse_statement()) gen0(RETURN_INST);
@@ -879,7 +879,8 @@ static char *basic_inst_table[]={
 	"branch-backward",
 	"drop",
 	"end",
-	"return"
+	"return",
+	"dup"
 };
 
 static void method_dump(object method)

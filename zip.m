@@ -1,5 +1,5 @@
 zip archiver
-$Id: mulk zip.m 1055 2023-05-14 Sun 06:36:01 kt $
+$Id: mulk zip.m 1203 2024-04-05 Fri 22:00:56 kt $
 #ja zipアーカイバ
 
 *[man]
@@ -159,7 +159,7 @@ DIRとして対象のディレクトリを、FILEとして対象のファイル�
 	
 **Mulk.charset = #sjis >
 ***Zip >> createCtr: arg
-	Mulk at: #CodeTranslatorFactory in: "ctrlib", new create: arg ->ctr
+	Mulk at: #CodeTranslatorFactory in: "ctrlib", create: arg ->ctr
 
 **Zip >> init
 	FixedByteArray basicNew: 256 ->buf

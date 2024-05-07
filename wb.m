@@ -1,5 +1,5 @@
-workbench
-$Id: mulk wb.m 1176 2024-03-10 Sun 20:59:47 kt $
+text editor
+$Id: mulk wb.m 1218 2024-04-20 Sat 06:51:50 kt $
 #ja テキストエディタ
 
 *[man]
@@ -22,7 +22,7 @@ Operable only under Console with screen control function.
 .summary sconsole
 
 .right 3
-Is your role the public 
+Is your role the public
 who decides which editor to use because people tell you to?
 Or...!?
 .index
@@ -333,20 +333,20 @@ The next candidate will be displayed if you continue to complement.
 Quit wb.
 
 Synchronize all documents that have a file name and differ from the file in content.
-If wb is run again without exiting mulk, it resumes from the previous state.
+If wb is run again without exiting Mulk, it resumes from the previous state.
 
-If wb terminates abnormally, it will try to resume with the r option if mulk is running.
-If mulk itself has terminated, the next run of wb will try to restore the contents of the non-interactive document buffer.
+If wb terminates abnormally, it will try to resume with the r option if Mulk is running.
+If Mulk itself has terminated, the next run of wb will try to restore the contents of the non-interactive document buffer.
 Even if wb exited normally, you can restore the contents of the previous session's buffer with the R option.
 
 ***#ja 終了 (^[)
 wbを終了する。
 
 ファイル名を持ち、ファイルと内容が異なる全てのドキュメントを同期する。
-mulkを終了せずに再びwbを実行すると直前の状態から再開する。
+Mulkを終了せずに再びwbを実行すると直前の状態から再開する。
 
-wbが異常終了した場合、mulkが実行中ならばrオプションで再開しようとする。
-mulk自体が終了している場合、次にwbを実行するとインタラクティブドキュメント以外のバッファの内容を復元しようとする。
+wbが異常終了した場合、Mulkが実行中ならばrオプションで再開しようとする。
+Mulk自体が終了している場合、次にwbを実行するとインタラクティブドキュメント以外のバッファの内容を復元しようとする。
 wbが正常終了していてもRオプションで前回のセッションのバッファの内容を復元出来る。
 
 **^x prefix
@@ -1050,8 +1050,9 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		+ " parent parentConsole parentIO"
 		+ " childConsole childIO"
 ***Wb.Subprocess >> init: wbArg
-	FixedArray basicNew: 1024 ->frameStack;
-	FixedArray basicNew: 1024 ->contextStack;
+	200 ->:gap;
+	FixedArray basicNew: 1024 + gap ->frameStack;
+	FixedArray basicNew: 1024 + gap ->contextStack;
 	false ->running?;
 	false ->waitInput?;
 	Console ->parentConsole;
@@ -1813,8 +1814,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 ****Wb.class >> updateHistory: wbfile tag: tag offset: offset
 	self historyAt: wbfile ->:fh;
 	fh notNil? and: [fh tag = tag], and: [fh offset = offset], ifTrue: [self!];
-	history at: wbfile fullName put: 
-		(Wb.History new init: wbfile fullName tag: tag offset: offset);
+	wbfile fullName ->:fn;
+	history at: fn put: (Wb.History new init: fn tag: tag offset: offset);
 	self message: tag describe + " saved";
 	self saveHistory
 ****Wb.class >> updateHistoryPosition: wbfile
@@ -1858,7 +1859,9 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 ***Wb.class >> focusAllDocsDo: block
 	0 ->endPos;
 	[endPos ->startPos;
-	buffer find: docMarker after: startPos ->:pos, nil? ifTrue: [self!];
+	buffer find: docMarker after: startPos ->:pos, nil? ifTrue: 
+		[buffer size ->endPos;
+		block value!];
 	buffer next: pos ->endPos;
 	block value] loop
 ***Wb.class >> syncFocusedDoc
@@ -1969,8 +1972,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 ***user registration key.
 ****Wb.class >> querySetXtr: prompt
 	statusBar query: prompt ->:result;
-	result print? not | (result = '(') | (result = ')') ifTrue: 
-		[self error: "unregistable char"];
+	result between: ' ' and: '~', not | (result = '(') | (result = ')') 
+		ifTrue: [self error: "unregistable char " + result describe];
 	result!
 ****Wb.class >> invalidateActiveTag: ch
 	currentTag = ch ifTrue: [nil ->currentTag];
@@ -2369,7 +2372,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	cons cdr = fh offset ifTrue: ['='!];
 	'*'!
 ****Wb.class >> main.d: args
-	[self focusAllDocsDo:
+	self focusAllDocsDo:
 		[self docHeader ->:hd;
 		hd = "" ifTrue: ["(noname)" ->hd];
 		self docFile ->:wbfile;
@@ -2395,8 +2398,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 					put: cons2 car describe,
 					put: ' ',
 					put: cons2 cdr,
-					putLn]]] pipe ->:ms;
-	ms pipe: "cat" to: Out
+					putLn]]
 
 ***Wb.class >> main.h: args
 	OptionParser new init: "f" ->:op, parse: args ->args;
@@ -2432,6 +2434,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	Out put: "M " + value describe
 ****Wb.class >> tagSummary: value
 	self focusDocAt: value ->:type, = #top, ifTrue: [Out put: "TOP"!];
+	type = #bottom ifTrue: [Out put: "BOTTOM"!];
 	type = #doc ifTrue: [Out put: self docHeader]
 ****Wb.class >> xList
 	xDict keysAndValuesDo:

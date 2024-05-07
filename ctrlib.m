@@ -1,5 +1,5 @@
 character code translation library
-$Id: mulk ctrlib.m 1188 2024-03-26 Tue 22:43:40 kt $
+$Id: mulk ctrlib.m 1203 2024-04-05 Fri 22:00:56 kt $
 #ja 文字コード変換ライブラリ
 
 *[man]
@@ -73,21 +73,22 @@ Terminate process and release resource.
 ****#ja
 処理を終了し、リソースを開放する。
 
-*CodeTranslatorFactory class.@
-	Object addSubclass: #CodeTranslatorFactory
+*CodeTranslatorFactory.class class.@
+	Object addSubclass: #CodeTranslatorFactory.class instanceVars: "ctrClass"
 **[man.c]
 ***#en
 Factory class.
+
+The only instance of the global object CodeTranslatorFactory is used to construct the translator.
 ***#ja
 ファクトリークラス
 
-**CodeTranslatorFactory >> create: fromTo
-	"iconv" ->:name;
-	Mulk.hostOS = #windows ifTrue: ["w" ->name];
-	Mulk.hostOS = #android ifTrue: ["a" ->name];
-
-	Mulk at: ("CodeTranslator." + name) asSymbol in: "ctr" + name,
-		new init: fromTo!
+グローバルオブジェクトCodeTranslatorFactoryを唯一のインスタンスとし、これを用いて変換器を構築する。
+**CodeTranslatorFactory.class >> ctrClass: arg
+	arg ->ctrClass
+	
+**CodeTranslatorFactory.class >> create: fromTo
+	ctrClass new init: fromTo!
 ***[man.m]
 ****#en
 Constructs and returns a CodeTranslator corresponding to the specified string fromTo.
@@ -103,3 +104,11 @@ fromToは変換するコード種別を以下のアルファベット二文字�
 	u -- UTF-8
 	s -- SJIS
 	e -- EUC-JP
+	
+*register.@
+	"iconv" ->:name;
+	Mulk.hostOS = #windows ifTrue: ["w" ->name];
+	Mulk.hostOS = #android ifTrue: ["a" ->name];
+	CodeTranslatorFactory.class new, ctrClass:
+		(Mulk at: ("CodeTranslator." + name) asSymbol in: "ctr" + name) ->:f;
+	Mulk at: #CodeTranslatorFactory put: f

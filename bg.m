@@ -1,5 +1,5 @@
 background execution
-$Id: mulk bg.m 963 2022-10-30 Sun 20:28:43 kt $
+$Id: mulk bg.m 1212 2024-04-14 Sun 20:49:24 kt $
 #ja バックグラウンド実行
 
 *[man]
@@ -15,7 +15,7 @@ Queue commands and execute them one at a time in the background.
 If bg is executed without command argument, list of queues will be displayed, 'c' + number will cancel the specified command, 'r' + number will execute it in another process.
 Any other input terminates.
 .caption LIMITATION
-The host OS must be able to execute mulk as a child process in the background, and the PATH environment variable etc. must be set appropriately.
+The host OS must be able to execute Mulk as a child process in the background, and the PATH environment variable etc. must be set appropriately.
 
 **#ja
 .caption 書式
@@ -29,7 +29,7 @@ The host OS must be able to execute mulk as a child process in the background, a
 コマンド引数なしでbgを実行するとキューの一覧を表示し、'c'+番号で指定のコマンドのキャンセル、'r'+番号で別プロセスでの実行を行う。
 それ以外の入力で終了する。
 .caption 制限事項
-ホストOSがmulkを子プロセスとしてバックグラウンドで実行可能で、PATH環境変数等が適切に設定されていなくてはならない。
+ホストOSがMulkを子プロセスとしてバックグラウンドで実行可能で、PATH環境変数等が適切に設定されていなくてはならない。
 
 *bg tool.@
 	Mulk import: #("pi" "lock" "tempfile" "prompt" "cmdstr");

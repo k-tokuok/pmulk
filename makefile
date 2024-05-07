@@ -1,10 +1,10 @@
 #
 #	makefile for gnu toolchain.
-#	$Id: mulk makefile 1198 2024-04-01 Mon 21:37:17 kt $
+#	$Id: mulk makefile 1208 2024-04-08 Mon 20:32:13 kt $
 #
 #	make hostos={cygwin,linux,macosx,minix,freebsd,netbsd,illumos,windows}
 #		[dl=on|off] [term=on|off] [view=on|off|sdl] [xft=on|off] 
-#		[setup=setup.m]
+#		[setup=setup.m] [cross=|wine]
 #		[debug=off|on] [ptr=p64|p32] [disableSendCommon=off|on]
 #		[target=xxx sall]
 #	The former is the default.
@@ -79,6 +79,9 @@ xcobjs+=pfw.o xsleepw.o intrw.o kidecw.o
 exe=.exe
 termobjs+=termw.o
 termprims+=termw.c
+ifeq ($(cross),wine)
+wine=wine
+endif
 endif
 
 ifneq ($(filter $(unixen),$(hostos)),)
@@ -221,15 +224,15 @@ mtoib=mtoib$(exe)
 $(mtoib): mtoib.o xc.a
 	$(dolink)
 ib.wk: $(pp) $(mtoib) base.m
-	./$(pp) ib $(ppflags) <base.m >1.wk
-	./$(mtoib) 2.wk <1.wk >3.wk
+	$(wine) ./$(pp) ib $(ppflags) <base.m >1.wk
+	$(wine) ./$(mtoib) 2.wk <1.wk >3.wk
 	cat 2.wk 3.wk >$@
 base.wk: $(pp) base.m
-	./$(pp) $(ppflags) <base.m >$@
+	$(wine) ./$(pp) $(ppflags) <base.m >$@
 base.mi: $(ib) ib.wk base.wk mulkprim.wk
-	./$(ib) $(ibflags) 'Mulk load: "base.wk", save: "$@"'
+	$(wine) ./$(ib) $(ibflags) 'Mulk load: "base.wk", save: "$@"'
 mulk.mi: $(mulk) base.mi $(setup)
-	./$(mulk) -ibase.mi 'Mulk load: "$(setup)", save: "$@"'
+	$(wine) ./$(mulk) -ibase.mi 'Mulk load: "$(setup)", save: "$@"'
 
 ipp.o: ip.c
 	$(cc) $(cflags) -DIP_PROFILE -o ipp.o ip.c
@@ -238,16 +241,16 @@ $(mulkp): mulk.o ipp.o mulkprim.o xc.a
 	$(dolink)
 
 icmd.mi: $(mulk) base.mi setup.m
-	./$(mulk) -ibase.mi 'Mulk load: "setup.m", save: "$@"'
+	$(wine) ./$(mulk) -ibase.mi 'Mulk load: "setup.m", save: "$@"'
 
 test: $(mulk) icmd.mi unittest.m
-	./$(mulk) -iicmd.mi unittest base.m
+	$(wine) ./$(mulk) -iicmd.mi unittest base.m
 
 #standalone.
 $(target).mi: $(mulk) base.mi s-$(target).m
-	./$(mulk) -ibase.mi 'Mulk load: "s-$(target).m", save: "$@"'
+	$(wine) ./$(mulk) -ibase.mi 'Mulk load: "s-$(target).m", save: "$@"'
 mulks.wk: $(mulk) icmd.mi $(target).mi
-	./$(mulk) -iicmd.mi "mkmulks <$(target).mi >$@"
+	$(wine) ./$(mulk) -iicmd.mi "mkmulks <$(target).mi >$@"
 targetexe=$(target)$(exe)
 $(targetexe): mulks.o mulkprim.o xc.a
 	$(dolink)
@@ -262,7 +265,7 @@ $(oauthlr): oauthlr.o xc.a
 	
 clean:
 	rm -f *.o *.a *.wk *.mi
-	rm -f $(mulk) $(ib) $(pp) $(mtoib)
+	rm -f $(mulk) $(ib) $(pp) $(mtoib) $(mulkp) $(oauthlr)
 
 allclean: clean
 	rm -f *.lck *.log *.mpi *.num

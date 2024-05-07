@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1200 2024-04-02 Tue 22:39:47 kt $
+$Id: mulk base.m 1221 2024-04-27 Sat 21:39:35 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -340,7 +340,7 @@ Send the Symbol selectorArg and two arguments arg0 and arg1 to the receiver.
 	self assert: (a respondsTo?: #a);
 	self assert: (a respondsTo?: #b) not
 	
-***evaluate and repl.
+***evaluate.
 ****Object >> evalReader: readerArg
 	MethodCompiler new compileBody: readerArg class: self class ->:m;
 	self performMethod: m!
@@ -373,35 +373,6 @@ Execute Mulk statement stringArg under the receiver and return the value of the 
 Mulk命令文stringArgをレシーバーの下で実行し、最後の式の値を返す。
 *****[test.m]
 	self assert: (a evalExpr: "a") = #a
-
-****Object >> evalAndPrint: stringArg
-	self eval: stringArg ->:result, <> self ifTrue:
-		[Out putLn: result describe;
-		result ->_last]
-****Object >> repl
-	[
-		Out put: self describe + '>';
-		In getLn ->:stmts, nil? or: [stmts = "!"], ifTrue: [self!];
-		[self evalAndPrint: stmts] on: Error do:
-			[:e
-			e printStackTrace;
-			Out putLn: e message]
-	] loop
-*****[man.m]
-******#en
-Enter interactive mode (read eval print loop) for the receiver.
-
-In interactive mode, it evaluates statements entered at the prompt.
-At this time, if the evaluation result is not self, it is displayed and set in the global variable _last.
-
-Enter EOF or a line containing only '!' at the prompt to terminate.
-******#ja
-レシーバーに対して対話モード(read eval print loop)に入る。
-
-対話モードではプロンプトに対して入力されたステートメントを評価する。
-この時、評価結果がselfでない場合はそれを表示し、グローバル変数_lastに設定する。
-
-プロンプトに対しEOFか'!'のみの行を入力すると終了する。
 
 ***error and exceptions.
 ****Object >> signalError: messageArg
@@ -1251,50 +1222,55 @@ Close all file streams.
 ****[test.m]
 	self assert: m selector = #a:
 	
-***Method >> printSignatureOn: writerArg
-	writerArg put: belongClass, put: " >> ", put: selector
-****[test.m]
-	m printSignatureOn: (StringWriter new ->:w);
-	self assert: w asString = "Test.A >> a:"
-	
 ***Method >> printOn: writerArg
 	super printOn: writerArg;
-	writerArg put: '(';
-	self printSignatureOn: writerArg;
-	writerArg put: ')'
+	writerArg put: '(', put: belongClass, put: " >> ", put: selector, put: ')'
 ****[test.m]
 	self assert: m asString = "aMethod(Test.A >> a:)"
-	
-**Context class.#
-	class Context Object :
-		method sp cp {localVars};
 
-***[test] Test.Context class.@
-	UnitTest addSubclass: #Test.Context instanceVars: "cx"
-****Test.Context >> setup
-	[0 ->:a]; --to make context.
-	Kernel currentProcess basicAt: 0 ->cx --getContext of setup
-
-***Context >> method
-	method!
-****[test.m]
-	self assert: cx method asString = "aMethod(Test.Context >> setup)"
+***Method >> nargs
+	attr & 0xf!
 	
-***Context >> printOn: writerArg
+**AbstractContext class.#
+	class AbstractContext Object : method;
+***AbstractContext >> serializeTo: writeArg
+	--Context refers process and has variable field
+	self assertFailed
+***AbstractContext >> printOn: writerArg
 	super printOn: writerArg;
 	writerArg put: '(';
-	method printSignatureOn: writerArg;
+	self varAt: 0, describeOn: writerArg;
+	writerArg put: " >>";
+	method selector asString ->:selector;
+	selector includes?: ':',
+		ifTrue:
+			[1 ->:i;
+			selector split: ':', do:
+				[:kw
+				writerArg put: ' ', put: kw, put: ": ";
+				self varAt: i, describeOn: writerArg;
+				i + 1 ->i]]
+		ifFalse:
+			[writerArg put: ' ', put: selector;
+			method nargs = 1, ifTrue:
+				[writerArg put: ' ';
+				self varAt: 1, describeOn: writerArg]];
 	writerArg put: ')'
-****[test.m]
-	self assert: cx asString = "aContext(Test.Context >> setup)"
 	
-***Context >> serializeTo: writerArg
-	-- note: can't serialize, because Context has variable field.
-	-- see: ImageWriter >> putObject
-	self assertFailed
-****[test.m]
-	self assertError: [cx serializeTo: nil] message: "assertFailed"
-	
+**Context class.#
+	class Context AbstractContext : sp cp {localVars};
+***Context >> varAt: ixArg
+	self basicAt: ixArg + 3!
+
+**StackContext class.#
+	class StackContext AbstractContext : fp frameStack;
+***StackContext >> initMethod: methodArg frameStack: stackArg fp: fpArg
+	methodArg ->method;
+	stackArg ->frameStack;
+	fpArg ->fp
+***StackContext >> varAt: ixArg
+	frameStack at: fp + ixArg!
+		
 **Block class.#
 	class Block Object :
 		context narg start;
@@ -1476,7 +1452,8 @@ Evaluate the receiver, and if an exception of catchClassArg occurs during evalua
 	self on: Exception do:
 		[:e
 		blockArg value;
-		e signal] ->:result;
+		--signal again.
+		Kernel currentProcess signal: e] ->:result;
 	blockArg value;
 	result!
 ****[man.m]
@@ -1549,7 +1526,7 @@ If it occurs while executing repl or Cmd, you can abort the process and return t
 replやCmdの実行中に発生すると処理を打ち切ってプロンプトに戻る事が出来る。
 
 ****Error >> signal
-	stackTrace nil? ifTrue: [Kernel currentProcess stackTrace ->stackTrace];
+	Kernel currentProcess stackTrace ->stackTrace;
 	super signal
 ****Error >> stackTrace
 	stackTrace!
@@ -1595,43 +1572,30 @@ In principle, this exception is not caught and terminates the Mulk system itself
 		exceptionHandlers removeLast;
 		exceptionArg kindOf?: tuple car, 
 			ifTrue: [tuple cdr value: exceptionArg]]
+***Process >> topOfStack
+	context nil?
+		ifTrue: 
+			[StackContext new initMethod: method frameStack: frameStack fp: fp]
+		ifFalse: [context]!
 ***Process >> stackTrace
 	--get stacktrace immdiately after "currentProcess"
-	cp ->:p;
 	Array new ->:result;
-	result addLast: method;
-	p > 0 and: [contextStack at: p - 1, memberOf?: Context], ifTrue:
-		[p - 1 ->p];
+	result addLast: self topOfStack;
+	cp ->:p;
+	contextStack at: p - 1, = context ifTrue: [p - 1 ->p];
 	[p > 0] whileTrue:
 		[p - 3 ->p;
 		contextStack at: p ->:cx, memberOf?: Context,
 			ifTrue:
-				[result addLast: cx method;
-				p > 0 and: [contextStack at: p - 1, = cx], ifTrue: [p - 1 ->p]]
-			ifFalse: [result addLast: cx]];
+				[result addLast: cx;
+				p > 0 and: [contextStack at: p - 1, = cx],
+					ifTrue: [p - 1 ->p]]
+			ifFalse:
+				[result addLast: (StackContext new initMethod: cx
+					frameStack: frameStack fp: (contextStack at: p + 1))]];
 	result!
 ***Process >> printCall
-	context nil?
-		ifTrue:
-			[frameStack ->:args;
-			fp ->:argOff]
-		ifFalse:
-			[context ->args;
-			3 ->argOff];
-	method selector asString ->:sel;
-	Out put: (args basicAt: argOff) describe;
-	argOff + 1 ->argOff;
-	sel includes?: ':',
-		ifTrue:
-			[sel split: ':', do:
-				[:s
-				Out put: " " + s + ": " + (args basicAt: argOff) describe;
-				argOff + 1 ->argOff]]
-		ifFalse:
-			[Out put: " " + sel;
-			sel first ->:ch, alpha? or: [ch = '_'], ifFalse:
-				[Out put: " " + (args basicAt: argOff) describe]];
-	Out putLn
+	Out putLn: self topOfStack
 ***Process >> interruptBlock: blockArg
 	blockArg ->interruptBlock
 ***Process >> interruptBlock
@@ -3298,24 +3262,49 @@ Wide characters are treated as printable characters that are neither blank nor a
 				ifFalse:
 					[code & 0x7000000 >> 6 + (code & 0x3f0000 >> 4)
 						+ (code & 0x3f00 >> 2) + (code & 0x3f)]] ->:uc;
-	#(	0x2026 0x2026 -- HORIZONTAL ELLIPSIS
-		0x2160 0x216b -- ROMAN NUMERAL ONE - ROMAN NUMERAL TWELVE
-		0x2190 0x2194 -- LEFTWARDS ARROW - LEFT RIGHT ARROW
+	#(	-- 0xb1 0xb1 -- PLUS-MINUS SIGN
+		-- 0xd7 0xd7 -- MULTIPLICATION SIGN
+		-- 0xa7 0xa7 -- SECTION SIGN
+		-- 0xf7 0xf7 -- DIVISION SIGN
+		0x2010 0x2010 -- HYPHEN
+		0x2013 0x2015 -- EN DASH..HORIZONTAL BAR
+		0x2018 0x2019 
+			-- LEFT SINGLE QUOTATION MARK..RIGHT SINGLE QUOTATION MARK
+		0x201c 0x201d 
+			-- LEFT DOUBLE QUOTATION MARK..RIGHT DOUBLE QUOTATION MARK
+		0x2025 0x2026 -- GENERAL PUNCTUATION..HORIZONTAL ELLIPSIS
+		0x203b 0x203b -- REFERENCE MARK
+		0x2103 0x2103 -- DEGREE CELSIUS
+		0x2160 0x216b -- ROMAN NUMERAL ONE..ROMAN NUMERAL TWELVE
+		0x2190 0x2194 -- LEFTWARDS ARROW..LEFT RIGHT ARROW
+		0x2212 0x2212 -- MINUS SIGN
+		0x221d 0x2220 -- PROPORTIONAL TO..ANGLE
+		0x2234 0x2237 -- THEREFORE..PROPORTION
+		0x2260 0x2261 -- NOT EQUAL TO..IDENTICAL TO
+		0x2264 0x2267 -- LESS-THAN OR EQUAL TO..GREATER-THAN OVER EQUAL TO
+		0x22ef 0x22ef -- MIDLINE HORIZONTAL ELLIPSIS
+		0x2500 0x257f 
+		-- BOX DRAWINGS LIGHT HORIZONTAL..BOX DRAWINGS HEAVY UP AND LIGHT DOWN
+		0x25a0 0x25a1 -- BLACK SQUARE..WHITE SQUARE
+		0x25b2 0x25b3 
+			-- BLACK UP-POINTING TRIANGLE..WHITE UP-POINTING TRIANGLE
 		0x25bc 0x25bd 
-			-- BLACK DOWN-POINTING TRIANGLE - WHITE DOWN-POINTING TRIANGLE
+			-- BLACK DOWN-POINTING TRIANGLE..WHITE DOWN-POINTING TRIANGLE
 		0x25c6 0x25c8 
-			-- BLACK DIAMOND - WHITE DIAMOND CONTAINING BLACK SMALL DIAMOND
+			-- BLACK DIAMOND..WHITE DIAMOND CONTAINING BLACK SMALL DIAMOND
 		0x25cb 0x25cb -- WHITE CIRCLE
-		0x25ce 0x25d1 -- BULLSEYE - CIRCLE WITH RIGHT HALF BLACK
-		0x2640 0x2642 -- FEMALE SIGN - MALE SIGN
-		0x2667 0x266a -- WHITE CLUB SUIT -- EIGHTH NOTE
+		0x25ce 0x25d1 -- BULLSEYE..CIRCLE WITH RIGHT HALF BLACK
+		0x2605 0x2606 -- BLACK STAR..WHITE STAR
+		0x2640 0x2642 -- FEMALE SIGN..MALE SIGN
+		0x2660 0x266a -- BLACK SPADE SUIT..EIGHTH NOTE
 		0x2e80 0x4bdf 
-			-- CJK RADICAL REPEAT - CJK Unified Ideographs Extension A
+			-- CJK RADICAL REPEAT..CJK Unified Ideographs Extension A
 		0x4e00 0x9fff -- CJK Unified Ideographs
 		0xf900 0xfaff -- CJK Compatibility Ideographs
 		0xff01 0xff60 
-			-- FULLWIDTH EXCLAMATION MARK - FULLWIDTH RIGHT WHITE PARENTHESIS
-	) ->:table;
+			-- FULLWIDTH EXCLAMATION MARK..FULLWIDTH RIGHT WHITE PARENTHESIS
+		0xffe0 0xffe6 -- FULLWIDTH CENT SIGN..FULLWIDTH WON SIGN
+		) ->:table;
 	0 until: table size by: 2, do:
 		[:pos
 		table at: pos ->:lo;
@@ -5905,7 +5894,7 @@ Stream protocols define functions for handling streams.
 
 A stream is a mechanism for handling files and consoles, and provides a function that performs input / output in units of characters, character strings, and lines in addition to bytes and byte sequences.
 
-The standard input / output is the following global variable, and a stream corresponding to the standard input / output of the mulk interpreter is allocated.
+The standard input / output is the following global variable, and a stream corresponding to the standard input / output of the Mulk interpreter is allocated.
 
 	Out/Out0 -- standard input
 	In/In0 -- standard output
@@ -5917,7 +5906,7 @@ Stream protocolsはストリームを扱う為の機能を定義する。
 
 ストリームはファイルやコンソールを扱う為の機構で、バイト、バイト列の他、文字、文字列、行といった単位で入出力を行う機能を提供する。
 
-標準入出力は、以下のグローバル変数で、mulkインタプリタの標準入出力に対応するストリームが割り当てられる。
+標準入出力は、以下のグローバル変数で、Mulkインタプリタの標準入出力に対応するストリームが割り当てられる。
 
 	Out/Out0 -- 標準出力
 	In/In0 -- 標準入力。
@@ -7855,11 +7844,13 @@ Skip '*' in the outline line from the beginning of the block.
 	singleton Dictionary MethodCompiler.primitiveTable;
 ****MethodCompiler.Parser >> error: messageArg
 	lexer error: messageArg
-****MethodCompiler.Parser >> addLocalVar: name
+****MethodCompiler.Parser >> addVarCheck: name
 	instanceVars includes?: name, ifTrue:
 		[self error: "override instance var " + name];
-	localVars indexOf: name, notNil? ifTrue:
-		[self error: "duplicate local var " + name];
+	localVars includes?: name, ifTrue:
+		[self error: "redefine local var " + name]
+****MethodCompiler.Parser >> addLocalVar: name
+	self addVarCheck: name;
 	localVars addLast: name
 
 ****lexer i/f.
@@ -7926,28 +7917,31 @@ Skip '*' in the outline line from the beginning of the block.
 		add: self parseStatement ->:tr;
 	self scan: ']';
 	tr!
+*****MethodCompiler.Parser >> literal: arg
+	Cons new car: #literal, add: arg!
+*****MethodCompiler.Parser >> referGlobalVar: gvArg
+	Cons new car: #send, add: #get, add: (self literal: gvArg)!
+*****MethodCompiler.Parser >> referVarOrGlobal: name
+	name = "super" ifTrue: [Cons new car: #super!];
+	localVars indexOf: name ->:no, notNil? 
+		ifTrue: [Cons new car: #localVar, add: no!];
+	instanceVars indexOf: name ->no, notNil? ifTrue:
+		[Cons new car: #instanceVar, add: no!];
+	self globalAt: name ->:obj, kindOf?: GlobalVar, 
+		ifTrue: [self referGlobalVar: obj]
+		ifFalse: [self literal: obj]!
 *****MethodCompiler.Parser >> parseFactor
-	self next?: #identifier, ifTrue:
-		[self scan ->:name, = "super" ifTrue: [Cons new car: #super!];
-		localVars indexOf: name ->:no, notNil? ifTrue:
-			[Cons new car: #localVar, add: no!];
-		instanceVars indexOf: name ->no, notNil? ifTrue:
-			[Cons new car: #instanceVar, add: no!];
-		self globalAt: name ->:o;
-		Cons new car: #literal, add: o ->:tr;
-		o kindOf?: GlobalVar, ifTrue:
-			[Cons new car: #send, add: #get, add: tr ->tr];
-		tr!];
+	self next?: #identifier, ifTrue: [self referVarOrGlobal: self scan!];
 
 	self next?: '(', ifTrue:
 		[self scan;
-		self parseExpression ->tr;
+		self parseExpression ->:tr;
 		self scan: ')';
 		tr!];
 
 	self next?: '[', ifTrue: [self parseBlock!];
 
-	Cons new car: #literal, add: (self parseLiteral)!
+	self literal: self parseLiteral!
 *****MethodCompiler.Parser >> parseUnaryMessage: tr
 	Cons new car: #send, add: self scan asSymbol, add: tr!
 *****MethodCompiler.Parser >> parseUnaryExpression
@@ -7973,24 +7967,27 @@ Skip '*' in the outline line from the beginning of the block.
 	self parseBinaryExpression ->:tr;
 	self next?: #keywordSelector, ifTrue: [self parseKeywordMessage: tr ->tr];
 	tr!
+*****MethodCompiler.Parser >> assign: tr toNewVar: name
+	self addLocalVar: name;
+	Cons new car: #setLocalVar, add: tr, add: localVars size - 1!
+*****MethodCompiler.Parser >> assign: tr toGlobalVar: gv
+	Cons new car: #send, add: #setTo:, add: tr, add: (self literal: gv)!
+*****MethodCompiler.Parser >> assign: tr toVar: name
+	localVars indexOf: name ->:no, notNil? ifTrue:
+		[no = 0 ifTrue: [self error: "can't assign to self"];
+		Cons new car: #setLocalVar, add: tr, add: no!];
+	instanceVars indexOf: name ->no, notNil? ifTrue:
+		[Cons new car: #setInstanceVar, add: tr, add: no!];
+	self globalAt: name ->:gv, kindOf?: GlobalVar, ifFalse:
+		[self error: name + "is not var"];
+	self assign: tr toGlobalVar: gv!
 *****MethodCompiler.Parser >> parseAssign: tr
 	self scan: #arrow;
 	self next?: ':',
 		ifTrue:
 			[self scan;
-			self addLocalVar: (self scan: #identifier);
-			Cons new car: #setLocalVar, add: tr, add: localVars size - 1!]
-		ifFalse:
-			[self scan: #identifier ->:name;
-			localVars indexOf: name ->:no, notNil? ifTrue:
-				[no = 0 ifTrue: [self error: "can't assign to self"];
-				Cons new car: #setLocalVar, add: tr, add: no!];
-			instanceVars indexOf: name ->no, notNil? ifTrue:
-				[Cons new car: #setInstanceVar, add: tr, add: no!];
-			self globalAt: name ->:gv, kindOf?: GlobalVar, ifFalse:
-				[self error: name + " is not var"];
-			Cons new car: #literal, add: gv ->gv;
-			Cons new car: #send, add: #setTo:, add: tr, add: gv!]
+			self assign: tr toNewVar: (self scan: #identifier)!]
+		ifFalse: [self assign: tr toVar: (self scan: #identifier)!]
 *****MethodCompiler.Parser >> parseCascade: tr
 	self scan: ',';
 	tr ->:tr0;
@@ -8052,8 +8049,6 @@ Skip '*' in the outline line from the beginning of the block.
 	0x3ff {METHOD_MAX_PRIM} ->primCode
 *****MethodCompiler.Parser >> selector
 	selector!
-*****MethodCompiler.Parser >> selector: symbol
-	symbol ->selector
 *****MethodCompiler.Parser >> belongClass
 	belongClass!
 *****MethodCompiler.Parser >> belongClass: class
@@ -8407,6 +8402,10 @@ Skip '*' in the outline line from the beginning of the block.
 	selector = #timesDo: or: [selector = #timesRepeat:], ifTrue:
 		[self generateTimesDo: tr!];
 	self assertFailed	
+*****MethodCompiler.CG >> generatePushSelf
+	blockExist?
+		ifTrue: [self genPushContextVar: 0]
+		ifFalse: [self genPushTempVar: 0]
 *****MethodCompiler.CG >> generateSend: tr
 	-- (#send #selector receiver arg ...)
 	tr cdar ->:selector;
@@ -8415,7 +8414,7 @@ Skip '*' in the outline line from the beginning of the block.
 	
 	exps car car = #super
 		ifTrue:
-			[self genPushTempVar: 0;
+			[self generatePushSelf;
 			narg > 0 ifTrue:
 				[exps cdr do: [:exp self generateExpression: exp]];
 			self genSendSuper: selector narg: narg!];
@@ -8432,10 +8431,7 @@ Skip '*' in the outline line from the beginning of the block.
 	
 	bytecode size ->:st;
 
-	narg timesDo:
-		[:i
-		self genPushTempVar: i + 1;
-		self genSetContextVar: argPos + i];
+	narg timesDo: [:i self genSetContextVar: argPos + narg - i - 1];
 		
 	tr cdddar ->:stmt;
 	self generateStatement: stmt;
@@ -8490,16 +8486,13 @@ Skip '*' in the outline line from the beginning of the block.
 	tr nil? ifTrue: [self!];
 
 	blockExist? ifTrue:
-		[argCount + 1 timesDo:
-			[:i
-			self genPushTempVar: i;
-			self genSetContextVar: i]];
+		[argCount + 1 timesDo: [:i self genSetContextVar: argCount - i]];
 
 	tr car = '!'
 		ifTrue: [self generateStatement: tr]
 		ifFalse:
 			[self generateStatement: tr drop?: true;
-			self genPushTempVar: 0;
+			self generatePushSelf;
 			self genInst: #return]
 *****MethodCompiler.CG >> bytecode
 	bytecode!
@@ -8507,63 +8500,52 @@ Skip '*' in the outline line from the beginning of the block.
 	literal!
 
 ***MethodCompiler class.#
-	class MethodCompiler Object :
-		parser cg reader argCount localVarsCount blockExist?;
-****MethodCompiler >> makeMethod
-	Method basicNew: cg literal size + (cg bytecode size << 8) ->:result;
-	blockExist?
-		ifTrue:
-			[result
-				initSelector: parser selector
-				argCount: argCount
-				belongClass: parser belongClass
-				primCode: parser primCode
-				extTempSize: 0
-				contextSize: localVarsCount
-				bytecode: cg bytecode
-				literal: cg literal]
+	class MethodCompiler Object : parser belongClass selector argCount;
+****MethodCompiler >> compileMain
+	parser parseBody ->:tr;
+	parser localVarsCount ->:localVarsCount;
+	MethodCompiler.Optimizer new init: belongClass = Object, optimize: tr;
+	MethodCompiler.BlockFinder new blockExist?: tr ->:blockExist?;
+	MethodCompiler.CG new initArgCount: argCount blockExist?: blockExist? 
+		->:cg;
+	cg generateBody: tr;
+	
+	blockExist? 
+		ifTrue: 
+			[0 ->:extTempSize;
+			localVarsCount ->:contextSize]
 		ifFalse:
-			[result
-				initSelector: parser selector
-				argCount: argCount
-				belongClass: parser belongClass
-				primCode: parser primCode
-				extTempSize: localVarsCount - argCount - 1
-				contextSize: 0
-				bytecode: cg bytecode
-				literal: cg literal]!
-****MethodCompiler >> compile: r
-	r ->reader;
-	MethodCompiler.Parser new init: reader ->parser;
+			[localVarsCount - argCount - 1 ->extTempSize;
+			0 ->contextSize];
+	Method basicNew: cg literal size + (cg bytecode size << 8),
+		initSelector: selector
+		argCount: argCount
+		belongClass: belongClass
+		primCode: parser primCode
+		extTempSize: extTempSize
+		contextSize: contextSize
+		bytecode: cg bytecode
+		literal: cg literal!
+****MethodCompiler >> compile: readerArg
+	MethodCompiler.Parser new init: readerArg ->parser;
 
 	parser parseSignature;
-	--Out putLn: "compile: " + parser belongClass + ' ' + parser selector;
+	parser belongClass ->belongClass;
+	parser selector ->selector;
 	parser localVarsCount - 1 ->argCount;
-	parser parseBody ->:tr;
-	parser localVarsCount ->localVarsCount;
-	MethodCompiler.Optimizer new init: parser belongClass = Object,
-		optimize: tr;
-	MethodCompiler.BlockFinder new blockExist?: tr ->blockExist?;
-	MethodCompiler.CG new initArgCount: argCount blockExist?: blockExist? ->cg;
-	cg generateBody: tr;
-	
-	self makeMethod!
-****MethodCompiler >> compileBody: r class: bc selector: s
-	r ->reader;
-	MethodCompiler.Parser new init: reader, selector: s, belongClass: bc
-		->parser;
 
+	self compileMain!
+****MethodCompiler >> compileBody: readerArg class: belongClassArg 
+		selector: selectorArg
+	belongClassArg ->belongClass;
+	MethodCompiler.Parser new init: readerArg, belongClass: belongClass
+		->parser;
+	selectorArg ->selector;
 	0 ->argCount;
-	parser parseBody ->:tr;
-	parser localVarsCount ->localVarsCount;
-	MethodCompiler.Optimizer new init: bc = Object, optimize: tr;
-	MethodCompiler.BlockFinder new blockExist?: tr ->blockExist?;
-	MethodCompiler.CG new initArgCount: argCount blockExist?: blockExist? ->cg;
-	cg generateBody: tr;
-	
-	self makeMethod!
-****MethodCompiler >> compileBody: r class: bc
-	self compileBody: r class: bc selector: #_!
+
+	self compileMain!
+****MethodCompiler >> compileBody: readerArg class: bc
+	self compileBody: readerArg class: bc selector: #_!
 
 **Loader class.#
 	class Loader Object : reader;
@@ -8703,10 +8685,11 @@ Skip '*' in the outline line from the beginning of the block.
 
 *Cmd.eval class.#
 	class Cmd.eval Object;
-	singleton GlobalVar _last; -- for repl.
 **Cmd.eval >> main: args
 	args size <> 0
-		ifTrue: [self evalAndPrint: args asString]
+		ifTrue: 
+			[self eval: args asString ->:result, <> self ifTrue:
+				[Out putLn: result describe]]
 		ifFalse: [self evalReader: In]
 
 *Mulk.class class.#
@@ -8998,6 +8981,9 @@ Quit the system.
 		;
 		
 	Mulk at: #Mulk.charset put: #utf8;
+.if windows
+	Mulk at: #Mulk.codepage put: 65001 {CP_UTF8};
+.end
 	Mulk at: #Mulk.newline put: #lf;
 
 	Mulk at: #Mulk.caseInsensitiveFileName? put:
@@ -9026,7 +9012,7 @@ Quit the system.
 
 	self initFiles;
 .if windows
-	self codepage: (Mulk at: #Mulk.codepage ifAbsent: [65001]);
+	self codepage: (Mulk at: #Mulk.codepage);
 .end
 	
 	args at: 2,

@@ -1,6 +1,6 @@
-copy and manage mulk packages
-$Id: mulk package.m 1130 2023-11-09 Thu 06:18:33 kt $
-#ja mulkパッケージのコピー及び管理
+copy and manage Mulk packages
+$Id: mulk package.m 1212 2024-04-14 Sun 20:49:24 kt $
+#ja Mulkパッケージのコピー及び管理
 
 *[man]
 **#en

@@ -1,5 +1,5 @@
 count characters
-$Id: mulk charc.m 1145 2023-12-09 Sat 21:39:51 kt $
+$Id: mulk charc.m 1208 2024-04-08 Mon 20:32:13 kt $
 #ja 文字を数える
 
 *[man]
@@ -9,8 +9,7 @@ $Id: mulk charc.m 1145 2023-12-09 Sat 21:39:51 kt $
 .caption DESCRIPTION
 Print the number of characters on standard input.
 
-Wide character count as one character.
-CR/LF is count as one character in total.
+Characters represented by multibytes and CR/LF are counted together as one character.
 .caption OPTION
 	f -- Read file name and count for each file.
 	w WIDTH -- Specifies the numeric width. If omitted, 7 is used.
@@ -20,8 +19,7 @@ CR/LF is count as one character in total.
 .caption 説明
 標準入力の文字数を出力する。
 
-ワイド文字は1文字と数える。
-CR/LFは合わせて1文字と数える。
+マルチバイトで表される文字、CR/LFは合わせて一文字と数える。
 .caption オプション
 	f -- ファイル名を読み込み、それぞれのファイルに対して数える。
 	w WIDTH -- 数値の幅を指定する。省略時は7とする。

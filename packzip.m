@@ -1,6 +1,6 @@
-create a zipped mulk package
-$Id: mulk packzip.m 460 2020-07-05 Sun 16:29:31 kt $
-#ja zip形式のmulkパッケージの作成
+create a zipped Mulk package
+$Id: mulk packzip.m 1212 2024-04-14 Sun 20:49:24 kt $
+#ja zip形式のMulkパッケージの作成
 
 *[man]
 **#en
