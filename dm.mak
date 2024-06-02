@@ -1,6 +1,6 @@
 #
-#	Makefile for Digital Mars C (SJIS)
-#	$Id: mulk dm.mak 1198 2024-04-01 Mon 21:37:17 kt $
+#	Makefile for Digital Mars C
+#	$Id: mulk dm.mak 1231 2024-05-11 Sat 22:18:14 kt $
 #
 #	copy /y dm.mak+make.d make.wk
 #	make -fmake.wk [setup=setup.m]
@@ -36,12 +36,12 @@ primlist.exe: primlist.obj xc.lib
 	$(link)
 
 mulkprim.wk: $(mulkprimsrc) primlist.exe
-	cmd /c "primlist $(mulkprimsrc) >$@"
+	cmd /c ".\primlist $(mulkprimsrc) >$@"
 mulk.exe: mulk.obj mulkprim.obj xc.lib
 	$(link)
 
 ibprim.wk: $(ibprimsrc) primlist.exe
-	cmd /c "primlist $(ibprimsrc) >$@"
+	cmd /c ".\primlist $(ibprimsrc) >$@"
 ib.exe: ib.obj ibprim.obj intrs.obj xc.lib
 	$(link)
 pp.exe: pp.obj xc.lib
@@ -49,19 +49,19 @@ pp.exe: pp.obj xc.lib
 mtoib.exe: mtoib.obj xc.lib
 	$(link)
 ib.wk: mtoib.exe pp.exe base.m
-	cmd /c "pp ib $(ppflags) <base.m | mtoib 1.wk >2.wk"
+	cmd /c ".\pp ib $(ppflags) <base.m | .\mtoib 1.wk >2.wk"
 	copy 1.wk+2.wk $@
 base.wk: pp.exe base.m
-	cmd /c "pp $(ppflags) <base.m >$@"
+	cmd /c ".\pp $(ppflags) <base.m >$@"
 base.mi: ib.exe ib.wk base.wk mulkprim.wk
-	ib "Mulk load: \"base.wk\", save: \"$@\""
+	.\ib "Mulk load: \"base.wk\", save: \"$@\""
 mulk.mi: mulk.exe base.mi $(setup)
-	mulk -ibase.mi "Mulk load: \"$(setup)\", save: \"$@\""
+	.\mulk -ibase.mi "Mulk load: \"$(setup)\", save: \"$@\""
 
 icmd.mi: mulk.exe base.mi setup.m
-	mulk -ibase.mi "Mulk load: \"setup.m\", save: \"$@\""
+	.\mulk -ibase.mi "Mulk load: \"setup.m\", save: \"$@\""
 test: mulk.exe icmd.mi unittest.m
-	mulk -iicmd.mi unittest base.m
+	.\mulk -iicmd.mi unittest base.m
 
 clean:
 	del *.obj *.exe *.lib *.wk *.mi *.exe *.map

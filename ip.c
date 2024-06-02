@@ -1,6 +1,6 @@
 /*
 	interpreter.
-	$Id: mulk ip.c 1220 2024-04-22 Mon 21:26:36 kt $
+	$Id: mulk ip.c 1249 2024-06-02 Sun 06:54:40 kt $
 */
 
 #include "std.h"
@@ -14,20 +14,18 @@
 #include "prim.h"
 #include "intr.h"
 
-#define STACK_GAP 200
+#define STACK_GAP 300
 
 static object cur_process;
 static object cur_method;
-static object cur_context; /* nil to frame mode */
+static object cur_context; /* nil to frame on stack */
+static object cur_stack;
 
 static int ip;
 static int sp;
 static int sp_used; /* after last gc */
 static int sp_max;
 static int fp;
-static int cp;
-static int cp_used;
-static int cp_max;
 #if U64_P
 static uint32_t cycle;
 #else
@@ -48,19 +46,14 @@ static void error_mark(char *msg)
 
 /* process */
 
-static object process_new(int fs_size,int cs_size)
+static object process_new(int stack_size)
 {
 	object process;
 	
 	process=gc_object_new(om_Process,0);
 
-	process->process.frame_stack
-		=gc_object_new(om_FixedArray,fs_size+STACK_GAP);
+	process->process.stack=gc_object_new(om_FixedArray,stack_size+STACK_GAP);
 	process->process.sp=sint(0);
-
-	process->process.context_stack=
-		gc_object_new(om_FixedArray,cs_size+STACK_GAP);
-	process->process.cp=sint(0);
 
 	return process;
 }
@@ -72,17 +65,12 @@ static void process_sync(void)
 	cur_process->process.method=cur_method;
 	gc_refer(cur_process,cur_method);
 	cur_process->process.ip=sint(ip);
-
-	gc_regist_refnew(cur_process->process.frame_stack);
+	gc_regist_refnew(cur_stack);
 	cur_process->process.sp=sint(sp);
 	cur_process->process.sp_used=sint(sp_used);
 	cur_process->process.sp_max=sint(sp_max);
 	cur_process->process.fp=sint(fp);
-
-	gc_regist_refnew(cur_process->process.context_stack);
-	cur_process->process.cp=sint(cp);
-	cur_process->process.cp_used=sint(cp_used);
-	cur_process->process.cp_max=sint(cp_max);
+	
 }
 
 #ifdef IP_PROFILE
@@ -193,17 +181,16 @@ static void switch_method(object m)
 #endif
 }
 
-/* frame stack */
+/* stack */
 
-static void fs_push(object o)
+#define STACK(pos) (cur_stack->farray.elt[pos])
+
+static void push(object o)
 {
-	object fs;
-
-	fs=cur_process->process.frame_stack;
-	if(sp==fs->farray.size-STACK_GAP) error_mark("frame stack overflow.");
-	else if(sp>=fs->farray.size) xerror("out of spare space in frame stack");
+	if(sp==cur_stack->farray.size-STACK_GAP) error_mark("stack overflow.");
+	else if(sp>=cur_stack->farray.size) xerror("out of spare space in stack");
 	
-	fs->farray.elt[sp++]=o;
+	STACK(sp++)=o;
 	if(sp>sp_used) {
 		sp_used=sp;
 		if(sp_used>sp_max) sp_max=sp_used;
@@ -211,87 +198,43 @@ static void fs_push(object o)
 	/* fs is always refnew -- see ip_mark_object */
 }
 
-static object *fs_nth(int pos)
-{
-	xassert(0<=pos&&pos<sp);
-	return &cur_process->process.frame_stack->farray.elt[pos];
-}
+/* execution context */
 
-static void fs_ndrop(int n)
-{
-	/* note: do not erase dropped items in stack. see i_send */
-	sp-=n;
-	xassert(sp>=0);
-}
-
-static object fs_top(void)
-{
-	return *fs_nth(sp-1);
-}
-
-static object fs_pop(void)
-{
-	object result;
-
-	result=fs_top();
-	fs_ndrop(1);
-	return result;
-}
-
-/* context stack */
-
-static void cs_push(object o)
-{
-	object cs;
-
-	cs=cur_process->process.context_stack;
-	if(cp==cs->farray.size-STACK_GAP) error_mark("context stack overflow.");
-	else if(cp>=cs->farray.size) {
-		xerror("out of spare space in context stack.");
-	}
-		
-	cs->farray.elt[cp++]=o;
-	if(cp>cp_used) {
-		cp_used=cp;
-		if(cp_used>cp_max) cp_max=cp_used;
-	}
-	/* cs is always refnew -- see ip_mark_object */
-}
-
-static object cs_pop(void)
-{
-	xassert(cp>=1);
-	return cur_process->process.context_stack->farray.elt[--cp];
-}
-
-static void cs_save(void)
+static void save(void)
 {
 	if(ip==-1) return;
 
-	if(cur_context!=om_nil) cs_push(cur_context);
-	else cs_push(cur_method);
 /*
 	{
 		char cn[MAX_STR_LEN],mn[MAX_STR_LEN];
 		om_describe(cn,cur_method->method.belong_class->xclass.name);
 		om_describe(mn,cur_method->method.selector);
-		printf("cs_save %s %s\n",cn,mn);
+		printf("save %s %s\n",cn,mn);
 	}
 */
-	cs_push(sint(fp));
-	cs_push(sint(ip));
+	if(cur_context!=om_nil) push(cur_context);
+	else push(cur_method);
+	push(sint(fp));
+	push(sint(ip));
 }
 
-static void cs_resume(void)
+static void restore(void)
 {
-	if(cp==0) {
+	if(sp<=1) {
 		ip=-1;
 		return;
 	}
-
-	ip=sint_val(cs_pop());
-	fp=sint_val(cs_pop());
-	cur_context=cs_pop();
+	ip=sint_val(STACK(--sp));
+	fp=sint_val(STACK(--sp));
+	cur_context=STACK(--sp);
+/*
+	{
+		char cn[MAX_STR_LEN],mn[MAX_STR_LEN];
+		om_describe(cn,cur_method->method.belong_class->xclass.name);
+		om_describe(mn,cur_method->method.selector);
+		printf("restore %s %s\n",cn,mn);
+	}
+*/
 	if(cur_context->gobject.xclass==om_Context) {
 		switch_method(cur_context->context.method);
 	} else {
@@ -450,7 +393,7 @@ static int fetch(void)
 
 static object temp_var(int no)
 {
-	return *fs_nth(fp+no);
+	return STACK(fp+no);
 }
 
 static object cur_self(void)
@@ -471,19 +414,19 @@ static void i_push_instance_var(int no)
 		xassert(0<=no&&no<size);
 	}
 #endif
-	fs_push(self->gobject.elt[no]);
+	push(self->gobject.elt[no]);
 }
 
 static void i_push_context_var(int no)
 {
 	xassert(cur_context!=om_nil);
 	xassert(0<=no&&no<om_size(cur_context)-SIZE_CONTEXT);
-	fs_push(cur_context->context.vars[no]);
+	push(cur_context->context.vars[no]);
 }
 
 static void i_push_temp_var(int no)
 {
-	fs_push(temp_var(no));
+	push(temp_var(no));
 }
 
 static object literal(int no)
@@ -493,7 +436,7 @@ static object literal(int no)
 
 static void i_push_literal(int no)
 {
-	fs_push(literal(no));
+	push(literal(no));
 }
 
 static void i_set_instance_var(int no)
@@ -509,7 +452,7 @@ static void i_set_instance_var(int no)
 		xassert(0<=no&&no<size);
 	}
 #endif
-	o=fs_pop();
+	o=STACK(--sp);
 	self->gobject.elt[no]=o;
 	gc_refer(self,o);
 }
@@ -520,72 +463,68 @@ static void i_set_context_var(int no)
 	
 	xassert(cur_context!=om_nil);
 	xassert(0<=no&&no<om_size(cur_context)-SIZE_CONTEXT);
-	val=fs_pop();
+	val=STACK(--sp);
 	cur_context->context.vars[no]=val;
 	gc_refer(cur_context,val);
 }
 
 static void i_set_temp_var(int no)
 {
-	*fs_nth(fp+no)=fs_pop();
+	STACK(fp+no)=STACK(--sp);
 }
 
-static void i_end(void)
+static void i_exit(void)
 {
 	object retval;
-	
-	retval=fs_pop();
+	retval=STACK(--sp);
 	sp=fp;
-	fs_push(retval);
-	cs_resume();
+	restore();
+	push(retval);
 }
 
 static void i_return(void)
 {
 	object retval;
-	int retsp,retcp;
+	int retsp;
 
 	if(cur_context==om_nil) {
-		i_end();
+		i_exit();
 		return;
 	}
 	
-	retval=fs_pop();
+	retval=STACK(--sp);
 	retsp=sint_val(cur_context->context.sp);
-	retcp=sint_val(cur_context->context.cp);
 	
-	if(retsp>sp||retcp>cp||
-		cur_process->process.context_stack->farray.elt[retcp-1]!=cur_context) {
+	if(retsp>sp||STACK(retsp-1)!=cur_context) {
 		error_mark("i_return/illegal context.");
 		return;
 	}
 	sp=retsp;
-	cp=retcp;
-	cs_pop(); /* context mark. */
-	fs_push(retval);
-	cs_resume();
+	--sp; /* context mark */
+	restore();
+	push(retval);
 }
 
 static int perform(object self,object sel,int narg,object *args,
 	object *result);
 
-static void send_error(object rec,object err,object sel,int narg)
+static void send_error(object rec,object err,object sel,int narg,object *args)
 {
 	object fa;
-	
+	int i;
+		
 	fa=gc_object_new(om_FixedArray,narg+1);
 	fa->farray.elt[0]=sel;
-	if(narg>0) memcpy(&fa->farray.elt[1],fs_nth(sp-narg),sizeof(object)*narg);
-	fs_ndrop(narg+1);
+	for(i=0;i<narg;i++) fa->farray.elt[i+1]=args[i];
 	perform(rec,err,1,&fa,NULL);
 }
 
 extern int (*prim_table[])(object self,object *args,object *result);
 static int prim_last_error;
 
-static object perform_method(object rec,object m,int narg)
+static object perform_method(object rec,object m,int narg,object *args)
 {
-	object result,*args;
+	object result;
 	int prim,ets,i,cs,st;
 	
 #ifdef IP_PROFILE
@@ -598,48 +537,46 @@ static object perform_method(object rec,object m,int narg)
 		/* every primitive counts as one cycle */
 		if(profile_fn!=NULL) profile_get(m)->cycle_count++;
 #endif
-		if(narg==0) args=NULL;
-		else args=fs_nth(sp-narg);
-		fs_ndrop(narg+1);
-		/* note: after sp accession */
 		if((st=(*prim_table[prim])(rec,args,&result))==PRIM_SUCCESS) {
 			return result;
 		}
 		prim_last_error=st;
-		sp+=narg+1;
 		if(METHOD_BYTECODE_SIZE(m)==0) {
-			send_error(rec,om_primitiveFailed,m->method.selector,narg);
+			send_error(rec,om_primitiveFailed,m->method.selector,narg,args);
 			return NULL;
 		}
 	}
 
-	cs_save();
+	save();
 	switch_method(m);
-	fp=sp-narg-1;
-	ets=METHOD_EXT_TEMP_SIZE(m);
-	for(i=0;i<ets;i++) fs_push(om_nil);
 	cs=METHOD_CONTEXT_SIZE(m);
-	if(cs!=0) {
+	if(cs==0) {
+		fp=sp;
+		push(rec);
+		for(i=0;i<narg;i++) push(args[i]);
+		ets=METHOD_EXT_TEMP_SIZE(m);
+		for(i=0;i<ets;i++) push(om_nil);
+		cur_context=om_nil;
+	} else {
 		cur_context=gc_object_new(om_Context,cs);
-		cs_push(cur_context);
+		push(cur_context); /* marker */
 		cur_context->context.method=m;
-		cur_context->context.sp=sint(fp);
-		cur_context->context.cp=sint(cp);
-	} else cur_context=om_nil;
+		cur_context->context.sp=sint(sp);
+		cur_context->context.vars[0]=rec;
+		for(i=0;i<narg;i++) cur_context->context.vars[i+1]=args[i];
+		fp=sp;
+	}
 	ip=METHOD_BYTECODE_START(m);
 	return NULL;
 }
 
 static int perform(object rec,object sel,int narg,object *args,object *resultp)
 {
-	int i;
 	object m,result;
 
 	m=find_method(om_class(rec),sel);
 	if(m==NULL||narg!=METHOD_ARGC(m)) return FALSE;	
-	fs_push(rec);
-	for(i=0;i<narg;i++) fs_push(args[i]);
-	result=perform_method(rec,m,narg);
+	result=perform_method(rec,m,narg,args);
 	if(resultp==NULL) {
 		xassert(result==NULL);
 	} else *resultp=result;
@@ -648,25 +585,27 @@ static int perform(object rec,object sel,int narg,object *args,object *resultp)
 
 static void xsend(int super_p,object sel,int narg)
 {
-	object rec,cl,m,result;
-	
-	rec=*fs_nth(sp-1-narg);
+	object rec,cl,m,result,args[METHOD_MAX_ARG];
+	int i;
+
+	for(i=0;i<narg;i++) args[narg-1-i]=STACK(--sp);
+	rec=STACK(--sp);
 	if(super_p) {
 		cl=cur_method->method.belong_class->xclass.superclass;
 		if(cl==om_nil) {
-			send_error(rec,om_doesNotUnderstand,sel,narg);
+			send_error(rec,om_doesNotUnderstand,sel,narg,args);
 			return;
 		}
 	} else cl=om_class(rec);
 
 	m=find_method(cl,sel);
 	if(m==NULL) {
-		send_error(rec,om_doesNotUnderstand,sel,narg);
+		send_error(rec,om_doesNotUnderstand,sel,narg,args);
 		return;
 	}
-	result=perform_method(rec,m,narg);
+	result=perform_method(rec,m,narg,args);
 	if(result!=NULL) {
-		fs_push(result);
+		push(result);
 	}
 }
 
@@ -685,7 +624,7 @@ static void i_block(int narg,int size)
 	block->block.context=cur_context;
 	block->block.narg=sint(narg);
 	block->block.start=sint(ip);
-	fs_push(block);
+	push(block);
 	ip+=size;
 }
 
@@ -697,27 +636,27 @@ static void i_branch(int off)
 static void i_branch_cond(int cond,int off)
 {
 	object o;
-	o=fs_top();
+	o=STACK(sp-1);
 	if(!(o==om_true||o==om_false)) {
 		error_mark("i_branch_cond/reciever is not Boolean.");
 	}
 	if(o==om_boolean(cond)) i_branch(off);
-	else fs_ndrop(1);
+	else --sp;
 }
 
 static void i_send_equal(void)
 {
 	object self,arg;
 	int selfsz;
-	self=*fs_nth(sp-2);
-	arg=*fs_nth(sp-1);
+	self=STACK(sp-2);
+	arg=STACK(sp-1);
 	selfsz=om_size(self);
 	if((selfsz==SIZE_SINT&&sint_p(arg))
 		||selfsz==SIZE_SYMBOL
 		||self==om_true||self==om_false
 		||(selfsz<SIZE_LAST&&self->gobject.xclass==om_Char)) {
-		fs_ndrop(2);
-		fs_push(om_boolean(self==arg));
+		sp-=2;
+		push(om_boolean(self==arg));
 		return;
 	}
 
@@ -728,13 +667,13 @@ static void i_send_plus(void)
 {
 	object self,arg;
 	int ans;
-	self=*fs_nth(sp-2);
-	arg=*fs_nth(sp-1);
+	self=STACK(sp-2);
+	arg=STACK(sp-1);
 	if(sint_p(self)&&sint_p(arg)) {
 		ans=sint_val(self)+sint_val(arg);
 		if(sint_range_p(ans)) {
-			fs_ndrop(2);
-			fs_push(sint(ans));
+			sp-=2;
+			push(sint(ans));
 			return;
 		}
 	}
@@ -744,11 +683,11 @@ static void i_send_plus(void)
 static void i_send_lt(void)
 {
 	object self,arg;
-	self=*fs_nth(sp-2);
-	arg=*fs_nth(sp-1);
+	self=STACK(sp-2);
+	arg=STACK(sp-1);
 	if(sint_p(self)&&sint_p(arg)) {
-		fs_ndrop(2);
-		fs_push(om_boolean(sint_val(self)<sint_val(arg)));
+		sp-=2;
+		push(om_boolean(sint_val(self)<sint_val(arg)));
 		return;
 	}
 	xsend(FALSE,om_lt,1);
@@ -756,28 +695,37 @@ static void i_send_lt(void)
 
 static void i_start_times_do(void)
 {
-	if(!sint_p(fs_top())) {
+	if(!sint_p(STACK(sp-1))) {
 		error_mark("i_start_times_do/reciever is not ShortInteger");
 		return;
 	}
-	fs_push(sint(0));
+	push(sint(0));
 }
 
 static void i_times_do(int vn,int off)
 {
 	int end,cur;
-	end=sint_val(*fs_nth(sp-2));
-	cur=sint_val(fs_top());
+	end=sint_val(STACK(sp-2));
+	cur=sint_val(STACK(sp-1));
 	if(cur<end) {
 		if(vn!=0) {
-			if(cur_context==om_nil) *fs_nth(fp+vn)=sint(cur);
+			if(cur_context==om_nil) STACK(fp+vn)=sint(cur);
 			else cur_context->context.vars[vn]=sint(cur);
 		}
-		*fs_nth(sp-1)=sint(cur+1);
+		STACK(sp-1)=sint(cur+1);
 	} else {
-		fs_ndrop(1);
+		--sp;
 		i_branch(off);
 	}		
+}
+
+static void i_break(void)
+{
+	object args[1];
+	save();
+	args[0]=sint(sp);
+	ip=-1;
+	perform(cur_process,om_breaksp,1,args,NULL);	
 }
 
 static void i_send_inc(void)
@@ -785,11 +733,11 @@ static void i_send_inc(void)
 	object self;
 	int ans;
 	
-	self=fs_top();
+	self=STACK(sp-1);
 	if(sint_p(self)) {
 		ans=sint_val(self)+1;
 		if(ans<=SINT_MAX) {
-			*fs_nth(sp-1)=sint(ans);
+			STACK(sp-1)=sint(ans);
 			return;
 		}
 	}
@@ -803,12 +751,12 @@ static void i_send_at(void)
 	object self,result;
 	int selfsz;
 	
-	self=*fs_nth(sp-2);
+	self=STACK(sp-2);
 	selfsz=om_size(self);
 	if(selfsz==SIZE_FBARRAY||selfsz==SIZE_FARRAY) {
-		if(prim_object_basicAt(self,fs_nth(sp-1),&result)==PRIM_SUCCESS) {
-			fs_ndrop(2);
-			fs_push(result);
+		if(prim_object_basicAt(self,&STACK(sp-1),&result)==PRIM_SUCCESS) {
+			sp-=2;
+			push(result);
 			return;
 		}
 	}
@@ -819,14 +767,13 @@ extern int prim_block_value1(object self,object *args,object *result);
 
 static void i_send_value1(void)
 {
-	object self,result,*args;
+	object self,result,value;
 	
-	self=*fs_nth(sp-2);
+	self=STACK(sp-2);
 	if(om_class(self)==om_Block) {
-		/* after sp accession. see perform method */
-		args=fs_nth(sp-1);
-		fs_ndrop(2);
-		if(prim_block_value1(self,args,&result)==PRIM_SUCCESS) {
+		value=STACK(sp-1);
+		sp-=2;
+		if(prim_block_value1(self,&value,&result)==PRIM_SUCCESS) {
 			return;
 		}
 		sp+=2;
@@ -841,13 +788,13 @@ static void i_send_at_put(void)
 	object self,result;
 	int selfsz;
 	
-	self=*fs_nth(sp-3);
+	self=STACK(sp-3);
 	selfsz=om_size(self);
 	result=self;
 	if(selfsz==SIZE_FBARRAY||selfsz==SIZE_FARRAY) {
-		if(prim_object_basicAt_put(self,fs_nth(sp-2),&result)==PRIM_SUCCESS) {
-			fs_ndrop(3);
-			fs_push(result);
+		if(prim_object_basicAt_put(self,&STACK(sp-2),&result)==PRIM_SUCCESS) {
+			sp-=3;
+			push(result);
 			return;
 		}
 	}
@@ -859,13 +806,13 @@ static void i_send_byteAt(void)
 	object self,result;
 	int selfsz;
 	
-	self=*fs_nth(sp-2);
+	self=STACK(sp-2);
 	selfsz=om_size(self);
 	if(selfsz==SIZE_FBARRAY||selfsz==SIZE_STRING||selfsz==SIZE_SYMBOL
 			||selfsz==SIZE_FARRAY) {
-		if(prim_object_basicAt(self,fs_nth(sp-1),&result)==PRIM_SUCCESS) {
-			fs_ndrop(2);
-			fs_push(result);
+		if(prim_object_basicAt(self,&STACK(sp-1),&result)==PRIM_SUCCESS) {
+			sp-=2;
+			push(result);
 			return;
 		}
 	}
@@ -874,17 +821,16 @@ static void i_send_byteAt(void)
 
 static void trap(void)
 {
-	object args[3];
+	object args[2];
 	if(ip_trap_code==TRAP_ERROR) {
 		args[0]=gc_string(error_message);
 		perform(cur_process,om_error,1,args,NULL);
 	} else {
-		cs_save();
+		save();
 		args[0]=sint(ip_trap_code);
-		args[1]=sint(cp);
-		args[2]=sint(sp);
+		args[1]=sint(sp);
 		ip=-1;
-		perform(cur_process,om_trap_cp_sp,3,args,NULL);
+		perform(cur_process,om_trap_sp,2,args,NULL);
 	}
 	ip_trap_code=TRAP_NONE;
 }
@@ -927,11 +873,11 @@ static void ip_main(void)
 			case SET_INSTANCE_VAR_INST: i_set_instance_var(fetch()); break;
 			case SET_CONTEXT_VAR_INST: i_set_context_var(fetch()); break;
 			case SET_TEMP_VAR_INST: i_set_temp_var(fetch()); break;
-			case DROP_INST: fs_ndrop(1); break;
-			case END_INST: i_end(); break;
+			case DROP_INST: --sp; break;
+			case EXIT_INST: i_exit(); break;
 			case RETURN_INST: i_return(); break;
 			case BRANCH_BACKWARD_INST: i_branch(-fetch()); break;
-			case DUP_INST: fs_push(fs_top()); break;
+			case DUP_INST: push(STACK(sp-1)); break;
 			default: xassert(FALSE);
 			}
 			break;
@@ -947,6 +893,9 @@ static void ip_main(void)
 			case TIMES_DO_INST:
 				opr=fetch();
 				i_times_do(opr,fetch());
+				break;
+			case BREAK_INST:
+				i_break();
 				break;
 			default: xassert(FALSE);
 			}
@@ -965,8 +914,8 @@ static void ip_main(void)
 			case 0: i_send_equal(); break;
 			case 1: i_send_plus(); break;
 			case 2: i_send_lt(); break;
-			case 3: *fs_nth(sp-1)=om_boolean(fs_top()==om_nil); break;
-			case 4: *fs_nth(sp-1)=om_boolean(fs_top()!=om_nil); break;
+			case 3: STACK(sp-1)=om_boolean(STACK(sp-1)==om_nil); break;
+			case 4: STACK(sp-1)=om_boolean(STACK(sp-1)!=om_nil); break;
 			case 5: i_send_inc(); break;
 			case 6: i_send_at(); break;
 			case 7: i_send_value1(); break;
@@ -975,13 +924,19 @@ static void ip_main(void)
 			default: xassert(FALSE);
 			}
 			break;
-		case PUSH_COMMON_LITERAL_INST: fs_push(common_literal[lo]); break;
+		case PUSH_COMMON_LITERAL_INST: push(common_literal[lo]); break;
 		default: xassert(FALSE);
 		}
 	}
 }
 
-void ip_start(object arg,int fs_size,int cs_size)
+static void switch_process(object process)
+{
+	cur_process=process;
+	cur_stack=process->process.stack;
+}
+
+void ip_start(object arg,int fs_size)
 {
 	cache_init();
 	
@@ -989,16 +944,13 @@ void ip_start(object arg,int fs_size,int cs_size)
 	profile_init();
 #endif
 
-	cur_process=process_new(fs_size,cs_size);
+	switch_process(process_new(fs_size));
 
 	ip=-1; /* not in execution */
 	sp=0;
 	sp_used=0;
 	sp_max=0;
 	fp=0;
-	cp=0;
-	cp_used=0;
-	cp_max=0;
 	ip_trap_code=TRAP_NONE;
 	cycle=0;
 
@@ -1018,25 +970,14 @@ void ip_start(object arg,int fs_size,int cs_size)
 
 void ip_mark_object(int full_gc_p)
 {
-	object fs,cs;
 	int i;
 	
-	fs=cur_process->process.frame_stack;
 	if(sp_used>sp) {
-		for(i=sp;i<sp_used;i++) fs->farray.elt[i]=om_nil;
+		for(i=sp;i<sp_used;i++) cur_stack->farray.elt[i]=om_nil;
 		sp_used=sp;
 	}
 
-	cs=cur_process->process.context_stack;
-	if(cp_used>cp) {
-		for(i=cp;i<cp_used;i++) cs->farray.elt[i]=om_nil;
-		cp_used=cp;
-	}
-	
-	if(!full_gc_p) {
-		gc_regist_refnew(fs);
-		gc_regist_refnew(cs);
-	}
+	if(!full_gc_p) gc_regist_refnew(cur_stack);
 	
 	gc_mark(cur_process);
 	gc_mark(cur_context);
@@ -1195,14 +1136,12 @@ DEFPRIM(object_perform_args)
 DEFPRIM(object_performMethod_args)
 {
 	object *argv,m;
-	int i,narg;
+	int narg;
 
 	m=args[0];
 	if(!p_farray_to_array(args[1],&narg,&argv)) return PRIM_ERROR;
 	if(narg!=METHOD_ARGC(m)) return PRIM_ERROR;
-	fs_push(self);
-	for(i=0;i<narg;i++) fs_push(argv[i]);
-	*result=perform_method(self,m,narg);
+	*result=perform_method(self,m,narg,argv);
 	return PRIM_SUCCESS;
 }
 
@@ -1275,12 +1214,11 @@ static int eval_block(object b,int narg,object *args)
 	if(sint_val(b->block.narg)!=narg) return PRIM_ERROR;
 	cx=b->block.context;
 
-	for(i=0;i<narg;i++) fs_push(args[i]);
-	
-	cs_save();
+	save();
+	fp=sp;
+	for(i=0;i<narg;i++) push(args[i]);
 	switch_method(cx->context.method);
-	fp=sp-narg;
-	cur_context=cx;
+	cur_context=cx; 
 	ip=sint_val(b->block.start);
 	return PRIM_SUCCESS;
 }
@@ -1314,11 +1252,10 @@ DEFPRIM(block_value2)
 
 /** Process */
 
-DEFPRIM(process_resumeCp_sp)
+DEFPRIM(process_resumesp)
 {
-	GET_SINT_ARG(0,cp);
-	GET_SINT_ARG(1,sp);
-	cs_resume();
+	GET_SINT_ARG(0,sp);
+	restore();
 	*result=NULL;
 	return PRIM_SUCCESS;
 }
@@ -1334,15 +1271,12 @@ DEFPRIM(process_basicStart)
 	
 	process_sync();
 	parent=cur_process;
-	cur_process=self;
+	switch_process(self);
 	ip=-1;
 	sp=0;
 	sp_used=0;
 	sp_max=0;
 	fp=0;
-	cp=0;
-	cp_used=0;
-	cp_max=0;
 	perform(self,args[0],1,&parent,NULL);
 	*result=NULL;
 	return PRIM_SUCCESS;
@@ -1351,7 +1285,7 @@ DEFPRIM(process_basicStart)
 DEFPRIM(process_basicSwitch)
 {
 	process_sync();
-	cur_process=self;
+	switch_process(self);
 	cur_context=cur_process->process.context;
 	cur_method=cur_process->process.method;
 	ip=sint_val(cur_process->process.ip);
@@ -1359,9 +1293,6 @@ DEFPRIM(process_basicSwitch)
 	sp_used=sint_val(cur_process->process.sp_used);
 	sp_max=sint_val(cur_process->process.sp_max);
 	fp=sint_val(cur_process->process.fp);
-	cp=sint_val(cur_process->process.cp);
-	cp_used=sint_val(cur_process->process.cp_used);
-	cp_max=sint_val(cur_process->process.cp_max);
 	return PRIM_SUCCESS;
 }
 

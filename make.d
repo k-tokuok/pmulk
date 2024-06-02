@@ -1,6 +1,6 @@
 #
 #	c source dependency.
-#	$Id: mulk make.d 1197 2024-03-31 Sun 21:48:00 kt $
+#	$Id: mulk make.d 1246 2024-05-30 Thu 06:23:15 kt $
 #
 # following rules are generated automatically.
 # !ls ?*.c | cdep $(objsuf)
@@ -23,7 +23,6 @@ intrs.$(objsuf): intrs.c std.h config.h u64.h intr.h
 intru.$(objsuf): intru.c std.h config.h u64.h intr.h om.h xarray.h ip.h
 intrw.$(objsuf): intrw.c std.h config.h u64.h intr.h om.h xarray.h ip.h
 ip.$(objsuf): ip.c std.h config.h u64.h mem.h om.h xarray.h ip.h gc.h inst.h prim.h xbarray.h intr.h heap.h splay.h csplit.h
-ip1.$(objsuf): ip1.c std.h config.h u64.h mem.h om.h xarray.h ip.h gc.h inst.h prim.h xbarray.h intr.h heap.h splay.h
 iqueue.$(objsuf): iqueue.c std.h config.h u64.h iqueue.h
 ir.$(objsuf): ir.c std.h config.h u64.h mem.h heap.h pf.h xbarray.h om.h xarray.h ir.h
 kidec.$(objsuf): kidec.c std.h config.h u64.h xbarray.h xarray.h csplit.h ki.h kidec.h heap.h pf.h

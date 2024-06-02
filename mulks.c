@@ -1,6 +1,6 @@
 /*
 	mulk for standalone.
-	$Id: mulk mulks.c 1093 2023-07-16 Sun 21:45:01 kt $
+	$Id: mulk mulks.c 1243 2024-05-26 Sun 11:40:56 kt $
 */
 
 #include "std.h"
@@ -56,6 +56,6 @@ int main(int argc,char *argv[])
 	boot_args->farray.elt[2]=gc_string(exepath.elt);
 	xbarray_free(&exepath);
 
-	ip_start(boot_args,DEFAULT_FRAME_STACK_SIZE*K,DEFAULT_CONTEXT_STACK_SIZE*K);
+	ip_start(boot_args,DEFAULT_STACK_SIZE*K);
 	return 0;
 }

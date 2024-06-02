@@ -1,6 +1,6 @@
 /*
 	mulk main routine.
-	$Id: mulk mulk.c 1093 2023-07-16 Sun 21:45:01 kt $
+	$Id: mulk mulk.c 1244 2024-05-27 Mon 22:03:35 kt $
 */
 
 #include "std.h"
@@ -28,8 +28,7 @@
 
 static char *main_class;
 static char *image_pn;
-static int frame_stack_size;
-static int context_stack_size;
+static int stack_size;
 
 static void option(int argc,char *argv[])
 {
@@ -37,20 +36,17 @@ static void option(int argc,char *argv[])
 	
 	main_class=NULL;
 	image_pn=NULL;
-	frame_stack_size=DEFAULT_FRAME_STACK_SIZE;
-	context_stack_size=DEFAULT_CONTEXT_STACK_SIZE;
+	stack_size=DEFAULT_STACK_SIZE;
 	
 	while((ch=xgetopt(argc,argv,"m:i:f:c:"))!=EOF) switch(ch) {
 	case 'm': main_class=xoptarg; break;
 	case 'i': image_pn=xoptarg; break;
-	case 'f': frame_stack_size=atoi(xoptarg); break;
-	case 'c': context_stack_size=atoi(xoptarg); break;
+	case 's': stack_size=atoi(xoptarg); break;
 	default:
 		fputs("\
 -m CLASS as main class.\n\
 -i FN as image file.\n\
--f KSIZE as frame stack size.\n\
--c KSIZE as context stack size.\n\
+-s KSIZE as stack size.\n\
 ",stderr);
 		exit(1);
 	}
@@ -114,7 +110,7 @@ int main(int argc,char *argv[])
 	boot_args=make_boot_args(argc-xoptind,&argv[xoptind]);
 	xbarray_free(&path);
 	
-	ip_start(boot_args,frame_stack_size*K,context_stack_size*K);
+	ip_start(boot_args,stack_size*K);
 
 	om_finish();
 	gc_finish();

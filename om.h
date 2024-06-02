@@ -1,6 +1,6 @@
 /*
 	object memory.
-	$Id: mulk om.h 850 2022-03-05 Sat 11:10:45 kt $
+	$Id: mulk om.h 1244 2024-05-27 Mon 22:03:35 kt $
 */
 
 typedef union om *object;
@@ -78,6 +78,7 @@ union om {
 		OHEADER;
 		object belong_class;
 		object selector;
+#define METHOD_MAX_ARG 15
 #define METHOD_ARGC_MASK 0xf
 #define METHOD_ARGC(m) (sint_val(m->method.attr)&METHOD_ARGC_MASK)
 #define METHOD_EXT_TEMP_SIZE_MASK 0xff0
@@ -124,27 +125,21 @@ union om {
 		object method;
 		object ip;
 
-		object frame_stack;
+		object stack;
 		object sp;
 		object sp_used;
 		object sp_max;
 		object fp;
 		
-		object context_stack;
-		object cp;
-		object cp_used;
-		object cp_max;
-
 		object exception_handlers;
 		object interrupt_block;
 	} process;
 	
-#define SIZE_CONTEXT 3
+#define SIZE_CONTEXT 2
 	struct context {
 		OHEADER;
 		object method;
 		object sp;
-		object cp;
 		object vars[1];
 	} context;
 
@@ -254,7 +249,7 @@ extern object om_boot;
 extern object om_doesNotUnderstand;
 extern object om_primitiveFailed;
 extern object om_error;
-extern object om_trap_cp_sp;
+extern object om_trap_sp;
 extern object om_equal;
 extern object om_plus;
 extern object om_lt;
@@ -263,6 +258,7 @@ extern object om_at;
 extern object om_value;
 extern object om_at_put;
 extern object om_byteAt;
+extern object om_breaksp;
 
 /* utility */
 extern void om_init_array(object *table,int size);

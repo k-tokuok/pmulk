@@ -1,6 +1,6 @@
 /*
 	instruction.
-	$Id: mulk inst.h 406 2020-04-19 Sun 11:29:54 kt $
+	$Id: mulk inst.h 1246 2024-05-30 Thu 06:23:15 kt $
 */
 
 /* basic instructions */
@@ -14,7 +14,7 @@
 #define		SET_TEMP_VAR_INST 6 /* n */
 #define 	BRANCH_BACKWARD_INST 7 /* off */
 #define 	DROP_INST 8
-#define 	END_INST 9
+#define 	EXIT_INST 9
 #define 	RETURN_INST 10
 #define		DUP_INST 11
 
@@ -29,6 +29,7 @@
 #define 	BRANCH_FALSE_FORWARD_INST 2 /* off */
 #define		START_TIMES_DO_INST 3
 #define		TIMES_DO_INST 4 /* vn off */
+#define 	BREAK_INST 5
 
 #define PUSH_INSTANCE_VAR_SHORT_INST 5 /* 5_n */
 #define PUSH_CONTEXT_VAR_SHORT_INST 6 /* 6_n */

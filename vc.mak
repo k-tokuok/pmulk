@@ -1,6 +1,6 @@
 #
 #	Makefile for Visual-C
-#	$Id: mulk vc.mak 1198 2024-04-01 Mon 21:37:17 kt $
+#	$Id: mulk vc.mak 1231 2024-05-11 Sat 22:18:14 kt $
 #
 #	nmake /fvc.mak [setup=setup.m]
 #
@@ -56,19 +56,19 @@ pp.exe: pp.obj xc.lib
 mtoib.exe: mtoib.obj xc.lib
 	$(link)
 ib.wk: mtoib.exe pp.exe base.m
-	pp ib $(ppflags) <base.m | mtoib 1.wk >2.wk
+	.\pp ib $(ppflags) <base.m | .\mtoib 1.wk >2.wk
 	copy 1.wk+2.wk $@
 base.wk: pp.exe base.m
-	pp $(ppflags) <base.m >$@
+	.\pp $(ppflags) <base.m >$@
 base.mi: ib.exe ib.wk base.wk mulkprim.wk
-	ib "Mulk load: \"base.wk\", save: \"$@\""
+	.\ib "Mulk load: \"base.wk\", save: \"$@\""
 mulk.mi: mulk.exe base.mi $(setup)
-	mulk -ibase.mi "Mulk load: \"$(setup)\", save: \"$@\""
+	.\mulk -ibase.mi "Mulk load: \"$(setup)\", save: \"$@\""
 	
 icmd.mi: mulk.exe base.mi setup.m
-	mulk -ibase.mi "Mulk load: \"setup.m\", save: \"$@\""
+	.\mulk -ibase.mi "Mulk load: \"setup.m\", save: \"$@\""
 test: mulk.exe icmd.mi unittest.m
-	mulk -iicmd.mi unittest base.m
+	.\mulk -iicmd.mi unittest base.m
 
 clean:
 	del *.obj *.lib *.wk *.mi *.exe

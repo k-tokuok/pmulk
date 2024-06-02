@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1218 2024-04-20 Sat 06:51:50 kt $
+$Id: mulk wb.m 1248 2024-06-01 Sat 09:44:42 kt $
 #ja テキストエディタ
 
 *[man]
@@ -1050,9 +1050,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		+ " parent parentConsole parentIO"
 		+ " childConsole childIO"
 ***Wb.Subprocess >> init: wbArg
-	200 ->:gap;
-	FixedArray basicNew: 1024 + gap ->frameStack;
-	FixedArray basicNew: 1024 + gap ->contextStack;
+	300 ->:gap;
+	FixedArray basicNew: 2048 + gap ->stack;
 	false ->running?;
 	false ->waitInput?;
 	Console ->parentConsole;
@@ -2359,7 +2358,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 			ifTrue: [self backup]];
 	Console gotoX: 0 Y: height - 1, imAscii;
 	Out putLn;
-	self run: false
+	self run: false;
+	Mulk at: #Wb.onQuitCmd ifAbsent: [self!], runCmd
 
 **subcommands.
 ***wb.d.
@@ -2372,7 +2372,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	cons cdr = fh offset ifTrue: ['='!];
 	'*'!
 ****Wb.class >> main.d: args
-	self focusAllDocsDo:
+	[self focusAllDocsDo:
 		[self docHeader ->:hd;
 		hd = "" ifTrue: ["(noname)" ->hd];
 		self docFile ->:wbfile;
@@ -2399,6 +2399,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 					put: ' ',
 					put: cons2 cdr,
 					putLn]]
+	] pipe: "cat" to: Out -- note: do not modify buffer while focusAllDocDo:
 
 ***Wb.class >> main.h: args
 	OptionParser new init: "f" ->:op, parse: args ->args;

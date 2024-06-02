@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1221 2024-04-27 Sat 21:39:35 kt $
+$Id: mulk base.m 1250 2024-06-02 Sun 10:23:49 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -234,7 +234,6 @@ Returns true if the receiver is an instance of classArg.
 
 ***printings.
 ****Object >> printOn: writerArg
-	--ToDo: if class name starts [aiueo], print "an"+classname
 	writerArg put: 'a', put: self class
 *****[test.m]
 	a printOn: (StringWriter new ->:w);
@@ -277,6 +276,9 @@ asStringよりは詳しい内容となる。
 *****[test.m] overrun
 	self assert: (FixedArray basicNew: 1000) describe size = 259
 
+****Object >> describeWithPrintOn: writerArg
+	writerArg put: 'a', put: self class, put: '(', put: self, put: ')'
+	
 ***inspects.
 ****Object >> basicInspect
 	Out putLn: self describe;
@@ -569,7 +571,7 @@ Instances are initialized by the init method after construction.
 		ifFalse: [methods selectAsArray: [:m m notNil?]]!
 ******[test.m]
 	self assert: Test.A methods asString
-		= "aMethod(Test.A >> a:) aMethod(Test.A >> a)"
+		= "Test.A >> a: Test.A >> a"
 		
 *****Class >> methodIndexOf: selectorArg
 	methods findFirst:
@@ -1223,11 +1225,18 @@ Close all file streams.
 	self assert: m selector = #a:
 	
 ***Method >> printOn: writerArg
-	super printOn: writerArg;
-	writerArg put: '(', put: belongClass, put: " >> ", put: selector, put: ')'
+	writerArg put: belongClass, put: " >> ", put: selector
 ****[test.m]
-	self assert: m asString = "aMethod(Test.A >> a:)"
+	self assert: m asString = "Test.A >> a:"
 
+***Method >> describeWithPrintOn: writerArg
+	writerArg put: 'a', put: self class, put: '(', put: self, put: ')'
+	
+***Method >> describeOn: writerArg
+	self describeWithPrintOn: writerArg
+****[test.m]
+	self assert: m describe = "aMethod(Test.A >> a:)"
+	
 ***Method >> nargs
 	attr & 0xf!
 	
@@ -1237,8 +1246,6 @@ Close all file streams.
 	--Context refers process and has variable field
 	self assertFailed
 ***AbstractContext >> printOn: writerArg
-	super printOn: writerArg;
-	writerArg put: '(';
 	self varAt: 0, describeOn: writerArg;
 	writerArg put: " >>";
 	method selector asString ->:selector;
@@ -1254,22 +1261,22 @@ Close all file streams.
 			[writerArg put: ' ', put: selector;
 			method nargs = 1, ifTrue:
 				[writerArg put: ' ';
-				self varAt: 1, describeOn: writerArg]];
-	writerArg put: ')'
+				self varAt: 1, describeOn: writerArg]]
+***AbstractContext >> describeOn: writerArg
+	self describeWithPrintOn: writerArg
 	
 **Context class.#
-	class Context AbstractContext : sp cp {localVars};
+	class Context AbstractContext : sp {localVars};
 ***Context >> varAt: ixArg
-	self basicAt: ixArg + 3!
+	self basicAt: ixArg + 2!
 
 **StackContext class.#
-	class StackContext AbstractContext : fp frameStack;
-***StackContext >> initMethod: methodArg frameStack: stackArg fp: fpArg
+	class StackContext AbstractContext : fp;
+***StackContext >> initMethod: methodArg fp: fpArg
 	methodArg ->method;
-	stackArg ->frameStack;
 	fpArg ->fp
 ***StackContext >> varAt: ixArg
-	frameStack at: fp + ixArg!
+	Kernel currentProcess stack at: fp + ixArg!
 		
 **Block class.#
 	class Block Object :
@@ -1548,11 +1555,10 @@ In principle, this exception is not caught and terminates the Mulk system itself
 **Process class.#
 	class Process Object :
 		context method ip
-		frameStack sp spUsed spMax fp
-		contextStack cp cpUsed cpMax
+		stack sp spUsed spMax fp
 		exceptionHandlers interruptBlock;
-***Process >> resumeCp: cpArg sp: spArg
-	$process_resumeCp_sp
+***Process >> resumesp: spArg
+	$process_resumesp
 ***Process >> basicStart: selectorArg
 	$process_basicStart
 ***Process >> basicSwitch
@@ -1572,27 +1578,25 @@ In principle, this exception is not caught and terminates the Mulk system itself
 		exceptionHandlers removeLast;
 		exceptionArg kindOf?: tuple car, 
 			ifTrue: [tuple cdr value: exceptionArg]]
+***Process >> stack
+	stack!
 ***Process >> topOfStack
 	context nil?
-		ifTrue: 
-			[StackContext new initMethod: method frameStack: frameStack fp: fp]
+		ifTrue: [StackContext new initMethod: method fp: fp]
 		ifFalse: [context]!
 ***Process >> stackTrace
 	--get stacktrace immdiately after "currentProcess"
 	Array new ->:result;
 	result addLast: self topOfStack;
-	cp ->:p;
-	contextStack at: p - 1, = context ifTrue: [p - 1 ->p];
-	[p > 0] whileTrue:
-		[p - 3 ->p;
-		contextStack at: p ->:cx, memberOf?: Context,
-			ifTrue:
-				[result addLast: cx;
-				p > 0 and: [contextStack at: p - 1, = cx],
-					ifTrue: [p - 1 ->p]]
+	fp ->:p;
+	[p >= 3] whileTrue:
+		[stack at: p - 1, memberOf?: Context, ifTrue: [p - 1 ->p];
+		stack at: p - 2 ->:np;
+		stack at: p - 3 ->:cx, memberOf?: Context,
+			ifTrue: [result addLast: cx]
 			ifFalse:
-				[result addLast: (StackContext new initMethod: cx
-					frameStack: frameStack fp: (contextStack at: p + 1))]];
+				[result addLast: (StackContext new initMethod: cx fp: np)];
+		np ->p];
 	result!
 ***Process >> printCall
 	Out putLn: self topOfStack
@@ -1602,11 +1606,11 @@ In principle, this exception is not caught and terminates the Mulk system itself
 	interruptBlock!
 ***Process >> interrupt
 	interruptBlock notNil? ifTrue: [interruptBlock value]
-***Process >> trap: codeArg cp: curCpArg sp: curSpArg
+***Process >> trap: codeArg sp: curSpArg
 	-- code = ip_trap_code : see ip.h
 	codeArg = 2 ifTrue: [self interrupt];
 	codeArg = 3 ifTrue: [Mulk quit];
-	self resumeCp: curCpArg sp: curSpArg
+	self resumesp: curSpArg
 
 **Global variables.
 ***GlobalVar class.#
@@ -3283,6 +3287,7 @@ Wide characters are treated as printable characters that are neither blank nor a
 		0x2260 0x2261 -- NOT EQUAL TO..IDENTICAL TO
 		0x2264 0x2267 -- LESS-THAN OR EQUAL TO..GREATER-THAN OVER EQUAL TO
 		0x22ef 0x22ef -- MIDLINE HORIZONTAL ELLIPSIS
+		0x2460 0x24e9 -- CIRCLED DIGIT ONE..CIRCLED LATIN SMALL LETTER Z
 		0x2500 0x257f 
 		-- BOX DRAWINGS LIGHT HORIZONTAL..BOX DRAWINGS HEAVY UP AND LIGHT DOWN
 		0x25a0 0x25a1 -- BLACK SQUARE..WHITE SQUARE
@@ -3295,6 +3300,7 @@ Wide characters are treated as printable characters that are neither blank nor a
 		0x25cb 0x25cb -- WHITE CIRCLE
 		0x25ce 0x25d1 -- BULLSEYE..CIRCLE WITH RIGHT HALF BLACK
 		0x2605 0x2606 -- BLACK STAR..WHITE STAR
+		0x2610 0x2613 -- BALLOT BOX..SALTIRE
 		0x2640 0x2642 -- FEMALE SIGN..MALE SIGN
 		0x2660 0x266a -- BLACK SPADE SUIT..EIGHTH NOTE
 		0x2e80 0x4bdf 
@@ -3589,8 +3595,7 @@ Initialize the receiver to year yearArg year monthArg month dayArg day 00:00:00.
 	self assert: d asString = "2014-08-11 Mon 06:18:09"
 	
 ***DateAndTime >> describeOn: writerArg
-	super printOn: writerArg;
-	writerArg put: '(', put: self, put: ')'
+	self describeWithPrintOn: writerArg
 ****[test.m]
 	self assert: d describe = "aDateAndTime(2014-08-11 Mon 06:18:09)"
 	
@@ -6986,10 +6991,11 @@ Make the receiver directory the current directory.
 	"." asFile ->:f2;
 	self assert: f = f2;
 	saveDir chdir
-	
+
 ***File >> printOn: writerArg
-	super printOn: writerArg;
-	writerArg put: "(" + path + ')'
+	path printOn: writerArg
+***File >> describeOn: writerArg
+	self describeWithPrintOn: writerArg
 
 ***File >> unmatchIndexWith: fileArg
 	4096 ->:bufSize;
@@ -8256,7 +8262,7 @@ Skip '*' in the outline line from the beginning of the block.
 		#setTempVar 6
 		#branchBackward 7
 		#drop 8
-		#end 9
+		#exit 9
 		#return 10
 		#dup 11
 		#send 16 -- 1 * 16
@@ -8435,7 +8441,7 @@ Skip '*' in the outline line from the beginning of the block.
 		
 	tr cdddar ->:stmt;
 	self generateStatement: stmt;
-	stmt car <> '!' ifTrue: [self genInst: #end];
+	stmt car <> '!' ifTrue: [self genInst: #exit];
 	bytecode at: st - 1 put: bytecode size - st
 *****MethodCompiler.CG >> generateValueExpression: tr
 	tr car ->:code, = #literal ifTrue: [self genPushLiteral: tr cdar!];
@@ -8484,9 +8490,6 @@ Skip '*' in the outline line from the beginning of the block.
 ****public.
 *****MethodCompiler.CG >> generateBody: tr
 	tr nil? ifTrue: [self!];
-
-	blockExist? ifTrue:
-		[argCount + 1 timesDo: [:i self genSetContextVar: argCount - i]];
 
 	tr car = '!'
 		ifTrue: [self generateStatement: tr]
@@ -8669,7 +8672,7 @@ Skip '*' in the outline line from the beginning of the block.
 		#doesNotUnderstand:
 		#primitiveFailed:
 		#error:
-		#trap:cp:sp:
+		#trap:sp:
 		#=
 		#+
 		#<
@@ -8678,6 +8681,7 @@ Skip '*' in the outline line from the beginning of the block.
 		#value:
 		#at:put:
 		#byteAt:
+		#breaksp:
 	) do: [:o self objectRefCode: o];
 	self writeQueue;
 	self putByte: 255; --SIZE_SINT (is not om)

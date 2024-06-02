@@ -1,5 +1,5 @@
 copy and manage Mulk packages
-$Id: mulk package.m 1212 2024-04-14 Sun 20:49:24 kt $
+$Id: mulk package.m 1250 2024-06-02 Sun 10:23:49 kt $
 #ja Mulkパッケージのコピー及び管理
 
 *[man]
@@ -208,15 +208,7 @@ The package expression specifies the copy target and conversion, and is defined 
 	self setupSysDir: op;
 	self setupFiles: args first;
 	args at: 1, asFile ->:destDir;
-	files do: [:f self copy: f to: destDir];
-	files allSatisfy?: [:f2 f2 file name <> "package.d"], ifTrue:
-		[self copyText:
-			[
-				Out putLn: "Mulk package " + expr 
-					+ " (" + self packageRevision + ')';
-				"date" runCmd
-			] pipe
-			to: destDir + "package.txt"]
+	files do: [:f self copy: f to: destDir]
 
 **subcommands.
 ***Cmd.package >> main.list: args

@@ -1,6 +1,6 @@
 #
 #	makefile for MinGW-w64 tool chain.
-#	$Id: mulk mingw.mak 1198 2024-04-01 Mon 21:37:17 kt $
+#	$Id: mulk mingw.mak 1231 2024-05-11 Sat 22:18:14 kt $
 #	MinGW-w64:
 #		https://www.mingw-w64.org/
 #	binary releases:
@@ -42,13 +42,13 @@ primlist.exe: primlist.o xc.a
 	$(dolink)
 	
 mulkprim.wk: $(mulkprim) primlist.exe
-	primlist $(mulkprim) >$@
+	.\primlist $(mulkprim) >$@
 mulk.exe: mulk.o mulkprim.o xc.a
 	$(dolink) -lgdi32
 	$(dostrip)
 	
 ibprim.wk: $(ibprim) primlist.exe
-	primlist $(ibprim) >$@
+	.\primlist $(ibprim) >$@
 ib.exe: ib.o ibprim.o intrs.o xc.a
 	$(dolink)
 pp.exe: pp.o xc.a
@@ -56,20 +56,20 @@ pp.exe: pp.o xc.a
 mtoib.exe: mtoib.o xc.a
 	$(dolink)
 ib.wk: mtoib.exe pp.exe base.m
-	pp ib $(ppflags) <base.m >1.wk
-	mtoib 2.wk <1.wk >3.wk
+	.\pp ib $(ppflags) <base.m >1.wk
+	.\mtoib 2.wk <1.wk >3.wk
 	copy 2.wk+3.wk ib.wk
 base.wk: pp.exe base.m
-	pp $(ppflags) <base.m >base.wk
+	.\pp $(ppflags) <base.m >base.wk
 base.mi: ib.exe ib.wk base.wk mulkprim.wk
-	ib 'Mulk load: "base.wk", save: "base.mi"'
+	.\ib 'Mulk load: "base.wk", save: "base.mi"'
 mulk.mi: mulk.exe base.mi $(setup)
-	mulk -ibase.mi 'Mulk load: "$(setup)", save: "mulk.mi"'
+	.\mulk -ibase.mi 'Mulk load: "$(setup)", save: "mulk.mi"'
 
 icmd.mi: mulk.exe base.mi setup.m
-	mulk -ibase.mi 'Mulk load: "setup.m", save: "$@"'
+	.\mulk -ibase.mi 'Mulk load: "setup.m", save: "$@"'
 test: mulk.exe icmd.mi unittest.m
-	mulk -iicmd.mi unittest base.m
+	.\mulk -iicmd.mi unittest base.m
 
 clean:
 	-del *.o

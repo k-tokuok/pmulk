@@ -1,6 +1,6 @@
 /*
 	image reader.
-	$Id: mulk ir.c 949 2022-10-06 Thu 21:53:44 kt $
+	$Id: mulk ir.c 1242 2024-05-26 Sun 09:33:41 kt $
 */
 
 #include "std.h"
@@ -232,7 +232,7 @@ void ir(char *mem_arg)
 	om_doesNotUnderstand=om_table.elt[18];
 	om_primitiveFailed=om_table.elt[19];
 	om_error=om_table.elt[20];
-	om_trap_cp_sp=om_table.elt[21];
+	om_trap_sp=om_table.elt[21];
 	om_equal=om_table.elt[22];
 	om_plus=om_table.elt[23];
 	om_lt=om_table.elt[24];
@@ -241,6 +241,7 @@ void ir(char *mem_arg)
 	om_value=om_table.elt[27];
 	om_at_put=om_table.elt[28];
 	om_byteAt=om_table.elt[29];
+	om_breaksp=om_table.elt[30];
 	
 	heap_free(&reloc_heap);
 	xassert(om_table.size==last_id);		

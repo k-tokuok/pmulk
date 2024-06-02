@@ -1,6 +1,6 @@
 /*
 	object memory.
-	$Id: mulk om.c 406 2020-04-19 Sun 11:29:54 kt $
+	$Id: mulk om.c 1242 2024-05-26 Sun 09:33:41 kt $
 */
 
 #include "std.h"
@@ -224,7 +224,7 @@ object om_boot;
 object om_doesNotUnderstand;
 object om_primitiveFailed;
 object om_error;
-object om_trap_cp_sp;
+object om_trap_sp;
 object om_equal;
 object om_plus;
 object om_lt;
@@ -233,6 +233,7 @@ object om_at;
 object om_value;
 object om_at_put;
 object om_byteAt;
+object om_breaksp;
 
 /**/
 

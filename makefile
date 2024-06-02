@@ -1,6 +1,6 @@
 #
 #	makefile for gnu toolchain.
-#	$Id: mulk makefile 1208 2024-04-08 Mon 20:32:13 kt $
+#	$Id: mulk makefile 1231 2024-05-11 Sat 22:18:14 kt $
 #
 #	make hostos={cygwin,linux,macosx,minix,freebsd,netbsd,illumos,windows}
 #		[dl=on|off] [term=on|off] [view=on|off|sdl] [xft=on|off] 
@@ -230,7 +230,7 @@ ib.wk: $(pp) $(mtoib) base.m
 base.wk: $(pp) base.m
 	$(wine) ./$(pp) $(ppflags) <base.m >$@
 base.mi: $(ib) ib.wk base.wk mulkprim.wk
-	$(wine) ./$(ib) $(ibflags) 'Mulk load: "base.wk", save: "$@"'
+	$(wine) ./$(ib) 'Mulk load: "base.wk", save: "$@"'
 mulk.mi: $(mulk) base.mi $(setup)
 	$(wine) ./$(mulk) -ibase.mi 'Mulk load: "$(setup)", save: "$@"'
 

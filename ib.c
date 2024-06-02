@@ -1,6 +1,6 @@
 /*
 	image builder.
-	$Id: mulk ib.c 1220 2024-04-22 Mon 21:26:36 kt $
+	$Id: mulk ib.c 1247 2024-05-31 Fri 21:38:50 kt $
 */
 
 #include "std.h"
@@ -442,7 +442,7 @@ static void regist_builtin_command(void)
 	om_doesNotUnderstand=symbol_new("doesNotUnderstand:");
 	om_primitiveFailed=symbol_new("primitiveFailed:");
 	om_error=symbol_new("error:");
-	om_trap_cp_sp=symbol_new("trap:cp:sp:");
+	om_trap_sp=symbol_new("trap:sp:");
 	om_equal=symbol_new("=");
 	om_plus=symbol_new("+");
 	om_lt=symbol_new("<");
@@ -451,7 +451,8 @@ static void regist_builtin_command(void)
 	om_value=symbol_new("value:");
 	om_at_put=symbol_new("at:put:");
 	om_byteAt=symbol_new("byteAt:");
-
+	om_breaksp=symbol_new("breaksp:");
+	
 	/* ib internal */
 	char_table=farray_new(256);
 	for(ch=0;ch<=0xff;ch++) char_table->farray.elt[ch]=char_new(ch);
@@ -558,7 +559,7 @@ static void geni(int hi,int lo)
 
 static void gen0(int opcode)
 {
-	xassert(opcode==DROP_INST||opcode==END_INST||opcode==RETURN_INST
+	xassert(opcode==DROP_INST||opcode==EXIT_INST||opcode==RETURN_INST
 		||opcode==DUP_INST);
 	geni(BASIC_INST,opcode);
 }
@@ -715,7 +716,7 @@ static int parse_factor(void)
 			gen1(SET_CONTEXT_VAR_INST,argpos+i);
 		}
 		if(parse_statement()) gen0(RETURN_INST);
-		else gen0(END_INST);
+		else gen0(EXIT_INST);
 		block_len=bytecode.size-block_start;
 		xassert(block_len<256);
 		bytecode.elt[block_start-1]=block_len;
@@ -878,7 +879,7 @@ static char *basic_inst_table[]={
 	"set-temp-var",
 	"branch-backward",
 	"drop",
-	"end",
+	"exit",
 	"return",
 	"dup"
 };
@@ -955,7 +956,7 @@ static void method_command(void)
 	object selector,method;
 	struct xbarray keyword;
 	char buf[MAX_STR_LEN];
-	int statement_exist_p,prim,i,narg,size;
+	int statement_exist_p,prim,narg,size;
 	
 	heap_init(&heap);
 	xarray_init(&local_vars);
@@ -1006,10 +1007,6 @@ static void method_command(void)
 	}
 
 	if(statement_exist_p) {
-		for(i=0;i<local_vars.size;i++) {
-			gen1(PUSH_TEMP_VAR_INST,i);
-			gen1(SET_CONTEXT_VAR_INST,i);
-		}
 		if(!parse_statement()) {
 			gen0(DROP_INST);
 			gen1(PUSH_CONTEXT_VAR_INST,0);
@@ -1134,8 +1131,7 @@ int main(int argc,char *argv[])
 		boot_args=make_boot_args(argc-xoptind,&argv[xoptind]);
 		gc_init();
 		
-		ip_start(boot_args,DEFAULT_FRAME_STACK_SIZE*K,
-			DEFAULT_CONTEXT_STACK_SIZE*K);
+		ip_start(boot_args,DEFAULT_STACK_SIZE*K);
 
 		gc_full();
 	}

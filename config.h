@@ -1,6 +1,6 @@
 /*
 	configure.
-	$Id: mulk config.h 1185 2024-03-23 Sat 22:04:42 kt $
+	$Id: mulk config.h 1243 2024-05-26 Sun 11:40:56 kt $
 */
 
 /* archtecture and compiler */
@@ -178,8 +178,7 @@
 /* options for mulk */
 
 #define K 1024
-#define DEFAULT_FRAME_STACK_SIZE 1 /* * K CELL */
-#define DEFAULT_CONTEXT_STACK_SIZE 1 /* * K CELL */
+#define DEFAULT_STACK_SIZE 2 /* * K CELL */
 
 #define IP_POLLING_INTERVAL 16384 /* for gc/interrupt check */
 

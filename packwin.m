@@ -1,5 +1,5 @@
 create Mulk/Windows binary package
-$Id: mulk packwin.m 1218 2024-04-20 Sat 06:51:50 kt $
+$Id: mulk packwin.m 1230 2024-05-10 Fri 22:33:40 kt $
 #ja Mulk/Windowsバイナリパッケージを作成する
 
 *[man]
@@ -151,14 +151,15 @@ installer for Windows binary kit.
 	dll? ifTrue: [Out putLn: "os.path " + "dll" asFile quotedPath];
 	Out putLn: "ld -s h.m",
 		putLn: "ld -s clipw.m"
-***Installer >> make_vmulk_mc
+***Installer >> make_mulkv_mc
 	Out putLn: "cmd " + "work/icmd.mc" asFile quotedPath,
 		putLn: "cset view";
 	inputMethod notNil? ifTrue: [Out putLn: inputMethod];
 	Out putLn: "hidecnsl",
 		putLn: "icmd.next wb"
-***Installer >> make_vmulk_bat
-	Out putLn: "start mulk -- -s " + "work/vmulk.mc" asFile quotedPath
+***Installer >> make_mulkv_bat
+	Out putLn: "start \"\" " + "bin/mulk.exe" asFile quotedHostPath 
+		+ " -- -s " + "work/mulkv.mc" asFile quotedPath
 ***Installer >> lang: langArg
 	langArg ->lang
 ***Installer >> charset: charsetArg
@@ -181,5 +182,5 @@ installer for Windows binary kit.
 	"cp install/mulk.exe bin" runCmd;
 	[self make_mulk_mi] pipe: "os -i install\\mulk -i install/base.mi";
 	[self make_icmd_mc] pipeTo: (self customFile: "work/icmd.mc" asFile);
-	[self make_vmulk_mc] pipeTo: (self customFile: "work/vmulk.mc" asFile);
-	[self make_vmulk_bat] pipeTo: (self customFile: "bin/vmulk.bat" asFile)
+	[self make_mulkv_mc] pipeTo: (self customFile: "work/mulkv.mc" asFile);
+	[self make_mulkv_bat] pipeTo: (self customFile: "bin/mulkv.bat" asFile)
