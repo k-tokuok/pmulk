@@ -1,5 +1,5 @@
 skkユーティリティ
-$Id: mulk skkut.m 1212 2024-04-14 Sun 20:49:24 kt $
+$Id: mulk skkut.m 1260 2024-06-16 Sun 21:32:59 kt $
 
 *[man]
 .caption 書式
@@ -10,6 +10,7 @@ $Id: mulk skkut.m 1212 2024-04-14 Sun 20:49:24 kt $
 	skkut.merge [DICT]
 	skkut.exist [-n] DICT
 	skkut.exclude EXCLUDELIST
+	skkut.dump
 
 .caption 説明
 skkutはskkの使用を支援するユーティリティプログラムである。
@@ -48,6 +49,11 @@ DICTが存在しない場合頻度情報のみから辞書を生成する。
 
 **skkut.exclude EXCLUDELIST
 標準入力から頻度情報を読み込み、EXCLUDELISTにあるエントリを削除する。
+
+**skkut.dump
+現在の個人辞書(skk.mpi)の内容を出力する。
+
+これを入力としてskkut.mergeを行うと、頻度を反映させた形で変換辞書に追記出来る。
 
 *skkut tool.@
 	Mulk import: #("wcarray" "csvrd" "csvwr" "mtr" "pi" "oldchars");
@@ -248,3 +254,11 @@ DICTが存在しない場合頻度情報のみから辞書を生成する。
 	self csvs: In, do:
 		[:ar
 		exc includes?: (ar at: 1), ifFalse: [wr put: ar]]
+		
+**Cmd.skkut >> main.dump: args
+	"skk.mpi" asWorkFile readObject ->:dict;
+	dict keysAndValuesDo:
+		[:k :v
+		v reverse do: 
+			[:e
+			Out put: k, put: ',', put: e, putLn]]

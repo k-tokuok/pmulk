@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1250 2024-06-02 Sun 10:23:49 kt $
+$Id: mulk base.m 1262 2024-06-18 Tue 21:48:55 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -1271,12 +1271,13 @@ Close all file streams.
 	self basicAt: ixArg + 2!
 
 **StackContext class.#
-	class StackContext AbstractContext : fp;
-***StackContext >> initMethod: methodArg fp: fpArg
+	class StackContext AbstractContext : process fp;
+***StackContext >> initMethod: methodArg process: processArg fp: fpArg
 	methodArg ->method;
+	processArg ->process;
 	fpArg ->fp
 ***StackContext >> varAt: ixArg
-	Kernel currentProcess stack at: fp + ixArg!
+	process stack at: fp + ixArg!
 		
 **Block class.#
 	class Block Object :
@@ -1538,7 +1539,8 @@ replやCmdの実行中に発生すると処理を打ち切ってプロンプト�
 ****Error >> stackTrace
 	stackTrace!
 ****Error >> printStackTrace
-	stackTrace reverse do: [:m Out putLn: m]
+	[stackTrace reverse do: [:m Out putLn: m]] on: Error do:
+		[:e Out putLn: "\nError >> printStackTrace failed"]
 
 ***QuitException class.#
 	class QuitException Exception;
@@ -1582,7 +1584,7 @@ In principle, this exception is not caught and terminates the Mulk system itself
 	stack!
 ***Process >> topOfStack
 	context nil?
-		ifTrue: [StackContext new initMethod: method fp: fp]
+		ifTrue: [StackContext new initMethod: method process: self fp: fp]
 		ifFalse: [context]!
 ***Process >> stackTrace
 	--get stacktrace immdiately after "currentProcess"
@@ -1595,7 +1597,8 @@ In principle, this exception is not caught and terminates the Mulk system itself
 		stack at: p - 3 ->:cx, memberOf?: Context,
 			ifTrue: [result addLast: cx]
 			ifFalse:
-				[result addLast: (StackContext new initMethod: cx fp: np)];
+				[result addLast: 
+					(StackContext new initMethod: cx process: self fp: np)];
 		np ->p];
 	result!
 ***Process >> printCall
@@ -2285,10 +2288,7 @@ In case of -1 it returns nil.
 
 ****Integer >> asWideChar
 	self >= 256
-		ifTrue:
-			[WideChar.dictionary at: self ifAbsentPut:
-				[WideChar new initCode: self,
-					hash: self & 0xfffff {OM_HASH_MASH}]]
+		ifTrue: [WideChar new initCode: self]
 		ifFalse: [self asChar]!
 *****[man.m]
 ******#en
@@ -3236,8 +3236,7 @@ Returns the number of trail bytes if the receiver is the lead byte of a multibyt
 	self assert: '\x00' width = 0
 
 ***WideChar class.#
-	class WideChar AbstractChar : width;
-	--WideChar.dictionary.
+	class WideChar AbstractChar;
 ****[man.c]
 *****#en
 Wide character.
@@ -3254,7 +3253,21 @@ Wide characters are treated as printable characters that are neither blank nor a
 
 ワイド文字は全て空白でも英数字でもない印字可能文字として扱う。
 
-****WideChar >> solveWidth
+****WideChar >> initCode: codeArg
+	codeArg ->code;
+	self hash: code & 0xfffff
+****WideChar >> = arg
+	self hash = arg hash and: [arg hash memberOf?: WideChar, not],
+		and: [code = arg code]!
+****WideChar >> width
+	code >= 0xe2ba80 ifTrue:
+		[code <= 0xe4af9f
+			or: [code between: 0xe4b880 and: 0xe9bfbf],
+			or: [code between: 0xefa480 and: 0xefabbf],
+			or: [code between: 0xefbc81 and: 0xefbda0],
+			or: [code between: 0xefbfa0 and: 0xefbfa6],
+			ifTrue: [2] ifFalse: [0]!];
+
 	--ref: http://ftp.unicode.org/Public/UNIDATA/EastAsianWidth.txt
 	code <= 0xffff
 		ifTrue: [code & 0x1f00 >> 2 + (code & 0x3f)]
@@ -3303,6 +3316,7 @@ Wide characters are treated as printable characters that are neither blank nor a
 		0x2610 0x2613 -- BALLOT BOX..SALTIRE
 		0x2640 0x2642 -- FEMALE SIGN..MALE SIGN
 		0x2660 0x266a -- BLACK SPADE SUIT..EIGHTH NOTE
+{		Japanese character, process first.
 		0x2e80 0x4bdf 
 			-- CJK RADICAL REPEAT..CJK Unified Ideographs Extension A
 		0x4e00 0x9fff -- CJK Unified Ideographs
@@ -3310,6 +3324,7 @@ Wide characters are treated as printable characters that are neither blank nor a
 		0xff01 0xff60 
 			-- FULLWIDTH EXCLAMATION MARK..FULLWIDTH RIGHT WHITE PARENTHESIS
 		0xffe0 0xffe6 -- FULLWIDTH CENT SIGN..FULLWIDTH WON SIGN
+}
 		) ->:table;
 	0 until: table size by: 2, do:
 		[:pos
@@ -3318,12 +3333,6 @@ Wide characters are treated as printable characters that are neither blank nor a
 		uc < lo ifTrue: [1!];
 		uc between: lo and: hi, ifTrue: [2!]];
 	1!
-****WideChar >> initCode: codeArg
-	codeArg ->code;
-	self solveWidth ->width
-
-****WideChar >> width
-	width!
 *****#ja
 ******[test.m]
 	self assert: 'ｧ' width = 1;
@@ -8699,7 +8708,6 @@ Skip '*' in the outline line from the beginning of the block.
 *Mulk.class class.#
 	class Mulk.class Dictionary : imageFile imported;
 	singleton Mulk.class Mulk;
-	singleton Dictionary WideChar.dictionary;
 	
 	singleton GlobalVar Mulk.defaultMainClass;
 	singleton GlobalVar Mulk.systemDirectory;
@@ -8934,8 +8942,6 @@ Quit the system.
 
 	SymbolTable init;
 	args at: 1, do: [:symbol SymbolTable add: symbol];
-
-	WideChar.dictionary init;
 
 	self initFiles;
 

@@ -1,6 +1,6 @@
 /*
 	interpreter.
-	$Id: mulk ip.c 1249 2024-06-02 Sun 06:54:40 kt $
+	$Id: mulk ip.c 1254 2024-06-09 Sun 21:26:15 kt $
 */
 
 #include "std.h"
@@ -52,7 +52,7 @@ static object process_new(int stack_size)
 	
 	process=gc_object_new(om_Process,0);
 
-	process->process.stack=gc_object_new(om_FixedArray,stack_size+STACK_GAP);
+	process->process.stack=gc_object_new(om_FixedArray,stack_size);
 	process->process.sp=sint(0);
 
 	return process;

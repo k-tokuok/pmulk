@@ -1,5 +1,5 @@
 unit test utility
-$Id: mulk unittest.m 932 2022-09-18 Sun 17:45:15 kt $
+$Id: mulk unittest.m 1259 2024-06-15 Sat 21:38:52 kt $
 #ja ユニットテストユーティリティ
 
 *[man]
@@ -145,7 +145,7 @@ If this file exists after test method execution, it is automatically deleted.
 		false ->result];
 	self teardown;
 	tempFiles notNil? ifTrue:
-		[[tempFiles do: [:f Out putLn: f path]] pipe: "rm -n"];
+		[[tempFiles do: [:f Out putLn: f]] pipe: "rm -n"];
 	result!
 
 *UnitTest.Loader class.@

@@ -1,5 +1,5 @@
 differential backup
-$Id: mulk backup.m 1054 2023-05-13 Sat 21:50:56 kt $
+$Id: mulk backup.m 1259 2024-06-15 Sat 21:38:52 kt $
 #ja 差分バックアップ
 
 *[man]
@@ -89,7 +89,7 @@ restoreサブコマンドでは復元リストの一部を渡す事で、一部�
 			ifTrue: [block value: f]
 			ifFalse:
 				[f directory?
-					ifTrue: [Out putLn: f path]
+					ifTrue: [Out putLn: f]
 					ifFalse: [self error: "illegal file: " + f]]]
 
 **backup.

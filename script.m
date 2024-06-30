@@ -1,5 +1,5 @@
 create a carbon copy of the command session
-$Id: mulk script.m 1209 2024-04-13 Sat 16:11:11 kt $
+$Id: mulk script.m 1259 2024-06-15 Sat 21:38:52 kt $
 #ja コマンドセッションの写しを作成する
 
 *[man]
@@ -44,7 +44,7 @@ It is not possible to switch consoles while executing commands.
 	
 	self ->In0 ->In ->Out0 ->Out;
 	Out putLn: "--script start: " + DateAndTime new initNow;
-	Out putLn: "--cmd: " + cmd + " dir: " + ("." asFile path);
+	Out putLn: "--cmd: " + cmd + " dir: " + "." asFile;
 	[cmd runCmd] finally:
 		[Out putLn: "\n--script end: " + DateAndTime new initNow;
 		fs close;

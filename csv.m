@@ -1,5 +1,5 @@
 csv field processing
-$Id: mulk csv.m 730 2021-07-17 Sat 16:39:10 kt $
+$Id: mulk csv.m 1266 2024-06-23 Sun 20:41:26 kt $
 #ja csvフィールド処理
 
 *[man]
@@ -7,28 +7,30 @@ $Id: mulk csv.m 730 2021-07-17 Sat 16:39:10 kt $
 .caption SYNOPSIS
 	csv [OPTION] FIELDNO...
 .caption DESCRIPTION
-Reads the standard input csv file and outputs only the contents of the specified field.
-Field numbers start at 0. 
-Rows with less than the specified number of fields are ignored.
+Reads a standard input csv file and outputs only the contents of specified fields in csv format.
+Field numbers are counted from 0.
+Lines with less than the specified number of fields are ignored.
 .caption OPTION
-	a NUMBER -- If there is a field after the specified NUMBER, add it to the end.
-	l NUMBER -- For records with fields greater than or equal to the specified NUMBER.
+	a NUMBER -- Add to the end of the record any fields after the specified NUMBER.
+	l NUMBER -- Target records with fields above the specified NUMBER.
+	t -- Output as text.
 **#ja
 .caption 書式
 	csv [option] フィールド番号...
 .caption 説明
-標準入力のcsvファイルを読み取って、指定フィールドの内容のみを出力する。
+標準入力のcsvファイルを読み取って、指定フィールドの内容のみをcsv形式で出力する。
 フィールド番号は0から数える。
 指定フィールド数に満たない行は無視される。
 .caption オプション
 	a 番号 -- 指定番号以降のフィールドがあれば、末尾に追加する。
 	l 番号 -- 指定番号以上のフィールドのあるレコードを対象とする。
+	t -- テキストとして出力する。
 
 *csv tool.@
 	Mulk import: #("csvrd" "csvwr" "optparse");
 	Object addSubclass: #Cmd.csv
 **Cmd.csv >> main: args
-	OptionParser new init: "a:l:" ->:op, parse: args ->args;
+	OptionParser new init: "a:l:t" ->:op, parse: args ->args;
 	op at: 'a' ->:oa, notNil? ifTrue: [oa asNumber ->:tailNo];
 		
 	Array new ->:fieldNo;
@@ -43,11 +45,15 @@ Rows with less than the specified number of fields are ignored.
 		[oa asNumber max: leastFieldNo ->leastFieldNo];
 
 	CsvReader new init: In ->:rd;
-	CsvWriter new init: Out ->:wr;
+	op at: 't', ifFalse: [CsvWriter new init: Out ->:wr];
 
 	[rd get ->:in, notNil?] whileTrue:
 		[in size > leastFieldNo ifTrue:
 			[fieldNo collectAsArray: [:n in at: n] ->:out;
 			tailNo notNil? ifTrue:
 				[tailNo until: in size, do: [:i out addLast: (in at: i)]];
-			wr put: out]]
+			wr notNil?
+				ifTrue: [wr put: out]
+				ifFalse: 
+					[out do: [:f2 Out put: f2] separatedBy: [Out put: ','];
+					Out putLn]]]

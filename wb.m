@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1248 2024-06-01 Sat 09:44:42 kt $
+$Id: mulk wb.m 1254 2024-06-09 Sun 21:26:15 kt $
 #ja テキストエディタ
 
 *[man]
@@ -1050,8 +1050,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		+ " parent parentConsole parentIO"
 		+ " childConsole childIO"
 ***Wb.Subprocess >> init: wbArg
-	300 ->:gap;
-	FixedArray basicNew: 2048 + gap ->stack;
+	FixedArray basicNew: 2048 ->stack;
 	false ->running?;
 	false ->waitInput?;
 	Console ->parentConsole;

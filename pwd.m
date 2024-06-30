@@ -1,5 +1,5 @@
 print working directory
-$Id: mulk pwd.m 440 2020-06-09 Tue 22:21:55 kt $
+$Id: mulk pwd.m 1258 2024-06-14 Fri 22:10:08 kt $
 #ja カレントディレクトリ名を表示する
 
 *[man]
@@ -18,4 +18,4 @@ Print the full path name of the current working directory.
 *pwd tool.@
 	Object addSubclass: #Cmd.pwd
 **Cmd.pwd >> main: args
-	Out putLn: "." asFile path
+	Out putLn: "." asFile

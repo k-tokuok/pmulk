@@ -1,5 +1,5 @@
 disk usage
-$Id: mulk du.m 1145 2023-12-09 Sat 21:39:51 kt $
+$Id: mulk du.m 1259 2024-06-15 Sat 21:38:52 kt $
 #ja ディスク使用量
 
 *[man]
@@ -48,7 +48,7 @@ If the directory is omitted, the usage below the current directory is displayed.
 			ifFalse:
 				[f size ->size;
 				size nil? ifTrue:
-					[Out putLn: "illegal file " + f path;
+					[Out putLn: "illegal file " + f;
 					0 ->size];
 				kilo? ifTrue: [size + 1023 // 1024 ->size];
 				all? ->print?];

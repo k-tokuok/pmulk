@@ -1,5 +1,5 @@
 list directory contents
-$Id: mulk ls.m 1054 2023-05-13 Sat 21:50:56 kt $
+$Id: mulk ls.m 1259 2024-06-15 Sat 21:38:52 kt $
 #ja ディレクトリの内容を一覧表示する
 
 *[man]
@@ -133,7 +133,7 @@ PATTERNを省略した場合は指定ディレクトリの全てのファイル�
 			put: ' ',
 			put: f mtime,
 			put: ' '];
-	Out putLn: (fullPath? ifTrue: [f path] ifFalse: [f pathFrom: baseDir])
+	Out putLn: (fullPath? ifTrue: [f] ifFalse: [f pathFrom: baseDir])
 **Cmd.ls >> printFiles: file
 	file directory?
 		ifTrue:

@@ -1,5 +1,5 @@
 codepage 932
-$Id: mulk cp932.m 1198 2024-04-01 Mon 21:37:17 kt $
+$Id: mulk cp932.m 1261 2024-06-17 Mon 21:10:05 kt $
 #ja
 
 *[man]
@@ -30,7 +30,7 @@ Windows CP932にコードページを切替える。
 		(0x80 <= c2) & (c2 <= 0xfc) ifTrue: [attr | 0x40 ->attr];
 		c2 asChar basicAt: 1 put: attr]
 		
-*WideChar >> solveWidth
+*WideChar >> width
 	2!
 	
 *String >> lowerDo: blockArg
