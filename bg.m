@@ -1,5 +1,5 @@
 background execution
-$Id: mulk bg.m 1212 2024-04-14 Sun 20:49:24 kt $
+$Id: mulk bg.m 1272 2024-07-15 Mon 20:56:21 kt $
 #ja バックグラウンド実行
 
 *[man]
@@ -34,24 +34,32 @@ The host OS must be able to execute Mulk as a child process in the background, a
 *bg tool.@
 	Mulk import: #("pi" "lock" "tempfile" "prompt" "cmdstr");
 	Object addSubclass: #Cmd.bg instanceVars: "queue"
+
 	
+**Cmd.bg >> lockDo: block
+	"bg.lck" asWorkFile lockDo: block
+**Cmd.bg >> log: arg
+	DateAndTime new initNow asString + ' ' + arg ->arg;
+	Out putLn: arg;
+	self lockDo:
+		["bg.log" asWorkFile appendDo:
+			[:str
+			str putLn: arg]]
+				
 **Cmd.bg >> createAction: cmdStr
 	Cons new car: "." asFile cdr: cmdStr!
 **Cmd.bg >> doAction: action
 	[
 		action car chdir;
 		action cdr ->:s;
-		Out putLn: "--cmd: " + s describe + " dir: " + action car;
+		self log: "run " + s + " at: " + action car;
 		s runCmd
 	] on: Error do:
 		[:e
-		Out putLn: "--";
-		Out putLn: e message;
+		self log: "error " + e message;
 		In getLn]
 		
 **queueing.
-***Cmd.bg >> lockDo: block
-	"bg.lck" asWorkFile lockDo: block
 ***Cmd.bg >> queueFile
 	"bg.mpi" asWorkFile!
 ***Cmd.bg >> readQueue
@@ -73,7 +81,9 @@ The host OS must be able to execute Mulk as a child process in the background, a
 	result!
 	
 **Cmd.bg >> main.run: args
-	[self dequeue ->:action, notNil?] whileTrue: [self doAction: action]
+	self log: "start";
+	[self dequeue ->:action, notNil?] whileTrue: [self doAction: action];
+	self log: "end"
 **Cmd.bg >> main.runnow: args
 	args first asWorkFile ->:file, readObject ->:action;
 	self doAction: action;

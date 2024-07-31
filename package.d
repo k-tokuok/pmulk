@@ -1,7 +1,7 @@
-;Mulk package std+vm (1267)
-;2024-06-30 Sun 19:39:54
+;Mulk package std+skk (1274)
+;2024-07-31 Wed 21:05:26
 k-us.d,1182,lib
-bg.m,1212,tool
+bg.m,1272,tool
 pwd.m,1258,tool
 fgrep.m,932,tool
 intconv.m,990,lib
@@ -12,6 +12,7 @@ iqueue.c,406,vm
 dtrans.m,1197,tool
 traitc.m,1145,lib
 iqueue.h,406,vm
+mtrhk.d,406,skk,ja
 prim.c,1091,vm
 table.m,1164,tool
 touch.m,475,tool
@@ -47,6 +48,7 @@ gsync.m,1197,tool
 coord.m,406,lib
 xorshift.m,418,lib
 jsonrd.m,1103,lib
+skkut.m,1260,skk
 os.m,956,tool
 cliplib.m,956,lib
 config.h,1243,vm
@@ -79,6 +81,7 @@ xconsole.h,1085,vm
 xwchar.h,1188,vm
 random.m,418,lib
 primlist.c,406,vm
+mtr.m,960,skk,ja
 fbdatab.m,990,npw,lib
 csvwr.m,413,lib
 cset.m,406,tool
@@ -135,6 +138,7 @@ omd.h,406,vm
 ir.h,406,vm
 crlf.m,1193,lib
 ctrlib.m,1203,lib
+skkchunk.d,1274,skk
 tempfile.m,937,lib
 xbarray.c,406,vm
 viewx.c,1011,vm
@@ -159,7 +163,7 @@ csv.m,1266,tool
 icmd.m,1216,tool
 cmp.m,1145,tool
 xctype.c,1193,vm
-base.m,1262,lib
+base.m,1268,lib
 xctype.h,1191,vm
 numlnwr.m,1145,lib
 delang.m,932,tool
@@ -188,6 +192,7 @@ splay.h,406,vm
 cmd.m,1179,tool
 clipw.m,1179,lib
 repeatc.m,1148,tool
+skkrk.d,1039,skk
 mingw.mak,1231,vm
 pipe.m,967,lib
 quit.m,406,tool
@@ -212,6 +217,7 @@ dup.m,1148,tool
 mv.m,1056,tool
 tee.m,417,tool
 sconsole.m,1082,lib
+azik.mm,953,skk
 backup.m,1259,tool
 oldchars.m,1141,ja,lib
 icd.m,919,tool
@@ -234,13 +240,13 @@ ki.h,837,vm
 hidecnsl.m,1212,tool
 cp932.m,1261,lib
 tail.m,932,tool
-package.d,1267,tool
+package.d,1274,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,1259,tool
 std.c,850,vm
 ib.c,1247,vm
-package.m,1250,tool
+package.m,1269,tool
 std.h,1073,vm
 date.m,415,tool
 wordc.m,1145,tool
@@ -256,5 +262,6 @@ print.m,1179,tool
 hrc.m,787,lib
 optparse.m,1179,lib
 mulk.c,1244,vm
+skk.m,1161,skk
 fmv.m,932,tool
 prompt.m,981,lib

@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1262 2024-06-18 Tue 21:48:55 kt $
+$Id: mulk base.m 1268 2024-07-05 Fri 20:56:26 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -3260,15 +3260,22 @@ Wide characters are treated as printable characters that are neither blank nor a
 	self hash = arg hash and: [arg hash memberOf?: WideChar, not],
 		and: [code = arg code]!
 ****WideChar >> width
-	code >= 0xe2ba80 ifTrue:
-		[code <= 0xe4af9f
-			or: [code between: 0xe4b880 and: 0xe9bfbf],
-			or: [code between: 0xefa480 and: 0xefabbf],
-			or: [code between: 0xefbc81 and: 0xefbda0],
-			or: [code between: 0xefbfa0 and: 0xefbfa6],
-			ifTrue: [2] ifFalse: [0]!];
-
 	--ref: http://ftp.unicode.org/Public/UNIDATA/EastAsianWidth.txt
+	code >= 0xe2ba80 ifTrue:
+		[ 
+	--0x2e80 - 0x4bdf CJK RADICAL REPEAT..CJK Unified Ideographs Extension A
+		code <= 0xe4af9f 
+	--0x4e00 - 0x9fff0x4e00 0x9fff -- CJK Unified Ideographs
+			or: [code between: 0xe4b880 and: 0xe9bfbf],
+	--0xf900 - 0xfaff -- CJK Compatibility Ideographs
+			or: [code between: 0xefa480 and: 0xefabbf],
+	--0xff01 -- 0xff60 
+	--	FULLWIDTH EXCLAMATION MARK..FULLWIDTH RIGHT WHITE PARENTHESIS
+			or: [code between: 0xefbc81 and: 0xefbda0],
+	--0xffe0 - 0xffe6 FULLWIDTH CENT SIGN..FULLWIDTH WON SIGN
+			or: [code between: 0xefbfa0 and: 0xefbfa6],
+			ifTrue: [2] ifFalse: [1]!];
+
 	code <= 0xffff
 		ifTrue: [code & 0x1f00 >> 2 + (code & 0x3f)]
 		ifFalse:
@@ -3316,16 +3323,8 @@ Wide characters are treated as printable characters that are neither blank nor a
 		0x2610 0x2613 -- BALLOT BOX..SALTIRE
 		0x2640 0x2642 -- FEMALE SIGN..MALE SIGN
 		0x2660 0x266a -- BLACK SPADE SUIT..EIGHTH NOTE
-{		Japanese character, process first.
-		0x2e80 0x4bdf 
-			-- CJK RADICAL REPEAT..CJK Unified Ideographs Extension A
-		0x4e00 0x9fff -- CJK Unified Ideographs
-		0xf900 0xfaff -- CJK Compatibility Ideographs
-		0xff01 0xff60 
-			-- FULLWIDTH EXCLAMATION MARK..FULLWIDTH RIGHT WHITE PARENTHESIS
-		0xffe0 0xffe6 -- FULLWIDTH CENT SIGN..FULLWIDTH WON SIGN
-}
-		) ->:table;
+		-- 0x2e80 -- Japanese character, process first.
+	) ->:table;
 	0 until: table size by: 2, do:
 		[:pos
 		table at: pos ->:lo;

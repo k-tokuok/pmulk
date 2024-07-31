@@ -1,5 +1,5 @@
 copy and manage Mulk packages
-$Id: mulk package.m 1250 2024-06-02 Sun 10:23:49 kt $
+$Id: mulk package.m 1269 2024-07-07 Sun 20:57:16 kt $
 #ja Mulkパッケージのコピー及び管理
 
 *[man]
@@ -7,9 +7,9 @@ $Id: mulk package.m 1250 2024-06-02 Sun 10:23:49 kt $
 .caption SYNOPSIS
 	package [OPTION] EXPR DIR
 	package.list [OPTION] EXPR -- Outputs the file structure of the package expression.
-	package.sysfiles -- Outputs the current system directory structure.
-	package.diff -- Compare current system directory structure with package.d structure.
-	package.sysclean -- Remove extra files in the current system directory.
+	package.sysfiles [OPTION] -- Outputs the current system directory structure.
+	package.diff [OPTION] -- Compare current system directory structure with package.d structure.
+	package.sysclean [OPTION] -- Remove extra files in the current system directory.
 .caption DESCRIPTION
 Select and convert the files in the system directory according to the purpose and copy them.
 
@@ -41,9 +41,9 @@ The package expression specifies the copy target and conversion, and is defined 
 .caption 書式
 	package [OPTION] EXPR DIR
 	package.list [OPTION] EXPR -- パッケージ式のファイル構成を出力する。
-	package.sysfiles -- 現在のシステムディレクトリの構成を出力する。
-	package.diff -- 現在のシステムディレクトリの構成とpackage.dの構成を比較する。
-	package.sysclean -- 現在のシステムディレクトリの余分なファイルを削除する。
+	package.sysfiles [OPTION] -- 現在のシステムディレクトリの構成を出力する。
+	package.diff [OPTION] -- 現在のシステムディレクトリの構成とpackage.dの構成を比較する。
+	package.sysclean [OPTION] -- 現在のシステムディレクトリの余分なファイルを削除する。
 	
 .caption 説明
 システムディレクトリ中のファイルを用途に応じて選択・変換してコピーする。
@@ -222,25 +222,35 @@ The package expression specifies the copy target and conversion, and is defined 
 		[:f 
 		rev? ifTrue: [Out put: f revision width: 7, put: ' '];
 		Out putLn: f file name]] pipe: filter to: Out
-***Cmd.package >> main.sysfiles: args
-	OptionParser new init: "s:" ->:op, parse: args ->args;
-	self setupSysDir: op;
+***Cmd.package >> sysfiles
 	"ls " + (sysDir 
 		+ "(?*.([chmdlr]|txt|mak|el|m[cm]|ott|dotx|mpw|make)|makefile)")
 			quotedPath,
-		runCmd
+		runCmd	
+***Cmd.package >> main.sysfiles: args
+	OptionParser new init: "s:" ->:op, parse: args ->args;
+	self setupSysDir: op;
+	self sysfiles
+
+***Cmd.package >> allList
+	self setupFiles: "*";
+	[files do: [:f Out putLn: f file name]] pipe: "sort" to: Out
 ***Cmd.package >> main.diff: args
+	OptionParser new init: "s:" ->:op, parse: args ->args;
+	self setupSysDir: op;
 	TempFile create ->:f1;
-	"package.list *" pipeTo: f1;
+	[self allList] pipeTo: f1;
 	TempFile create ->:f2;
-	"package.sysfiles" pipeTo: f2;
+	[self sysfiles] pipeTo: f2;
 	"diff " + f1 quotedPath + ' ' + f2 quotedPath, runCmd;
 	f1 remove;
 	f2 remove
 ***Cmd.package >> main.sysclean: args
-	"package.list *" contentLines asArray ->:pfiles;
-	"package.sysfiles" contentLinesDo:
+	OptionParser new init: "s:" ->:op, parse: args ->args;
+	self setupSysDir: op;
+	[self allList] contentLines asArray ->:pfiles;
+	[self sysfiles] contentLinesDo:
 		[:f
-		pfiles includes?: f, ifFalse: 
+		pfiles includes?: f, ifFalse:
 			[Out putLn: f;
-			Mulk.systemDirectory + f, remove]]
+			self sysFile: f, remove]]
