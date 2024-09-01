@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1268 2024-07-05 Fri 20:56:26 kt $
+$Id: mulk base.m 1279 2024-08-21 Wed 23:36:35 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -3306,6 +3306,7 @@ Wide characters are treated as printable characters that are neither blank nor a
 		0x2234 0x2237 -- THEREFORE..PROPORTION
 		0x2260 0x2261 -- NOT EQUAL TO..IDENTICAL TO
 		0x2264 0x2267 -- LESS-THAN OR EQUAL TO..GREATER-THAN OVER EQUAL TO
+		0x226a 0x226b -- MUCH LESS-THAN..MUCH GREATER-THAN
 		0x22ef 0x22ef -- MIDLINE HORIZONTAL ELLIPSIS
 		0x2460 0x24e9 -- CIRCLED DIGIT ONE..CIRCLED LATIN SMALL LETTER Z
 		0x2500 0x257f 

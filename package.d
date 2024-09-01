@@ -1,5 +1,5 @@
-;Mulk package std+skk (1274)
-;2024-07-31 Wed 21:05:26
+;Mulk package std+skk (1282)
+;2024-09-01 Sun 22:12:57
 k-us.d,1182,lib
 bg.m,1272,tool
 pwd.m,1258,tool
@@ -138,7 +138,7 @@ omd.h,406,vm
 ir.h,406,vm
 crlf.m,1193,lib
 ctrlib.m,1203,lib
-skkchunk.d,1274,skk
+skkchunk.d,1282,skk
 tempfile.m,937,lib
 xbarray.c,406,vm
 viewx.c,1011,vm
@@ -163,7 +163,7 @@ csv.m,1266,tool
 icmd.m,1216,tool
 cmp.m,1145,tool
 xctype.c,1193,vm
-base.m,1268,lib
+base.m,1279,lib
 xctype.h,1191,vm
 numlnwr.m,1145,lib
 delang.m,932,tool
@@ -240,7 +240,7 @@ ki.h,837,vm
 hidecnsl.m,1212,tool
 cp932.m,1261,lib
 tail.m,932,tool
-package.d,1274,tool
+package.d,1282,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,1259,tool
