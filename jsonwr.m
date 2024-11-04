@@ -1,5 +1,5 @@
 JsonWriter class
-$Id: mulk jsonwr.m 920 2022-09-04 Sun 20:39:46 kt $
+$Id: mulk jsonwr.m 1289 2024-10-06 Sun 20:37:22 kt $
 #ja
 
 *[man]
@@ -24,14 +24,6 @@ Numerical and character expressions are not completely compatible.
 
 *JsonWriter class.@
 	Object addSubclass: #JsonWriter instanceVars: "stream"
-
-**JsonWriter >> init: streamArg
-	streamArg ->stream
-***[man.m]
-****#en
-Initialize the output destination with Writer streamArg.
-****#ja
-出力先をWriter streamArgで初期化する。
 
 **JsonWriter >> putIndent: indent
 	stream put: '\n';
@@ -65,11 +57,12 @@ Initialize the output destination with Writer streamArg.
 		stream put: '}'!];
 	self assertFailed
 
-**JsonWriter >> put: arg
-	self put: arg indent: 0;
+**JsonWriter >> write: objArg to: streamArg
+	streamArg ->stream;
+	self put: objArg indent: 0;
 	stream put: '\n'
 ***[man.m]
 ****#en
-Write Object arg.
+Write objArg to streamArg.
 ****#ja
-Object argを出力する。
+objArgをstreamArgへ書き出す。

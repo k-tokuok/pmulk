@@ -1,5 +1,5 @@
-;Mulk package std+skk (1288)
-;2024-09-30 Mon 21:56:41
+;Mulk package std+skk (1297)
+;2024-11-04 Mon 17:38:52
 k-us.d,1182,lib
 bg.m,1272,tool
 pwd.m,1258,tool
@@ -9,7 +9,7 @@ eval.mm,406,tool
 charc.m,1208,tool
 c-view.m,1083,lib
 iqueue.c,406,vm
-dtrans.m,1197,tool
+dtrans.m,1289,tool
 traitc.m,1145,lib
 iqueue.h,406,vm
 mtrhk.d,406,skk,ja
@@ -47,7 +47,7 @@ coord.h,644,vm
 gsync.m,1197,tool
 coord.m,406,lib
 xorshift.m,418,lib
-jsonrd.m,1103,lib
+jsonrd.m,1292,lib
 skkut.m,1260,skk
 os.m,956,tool
 cliplib.m,956,lib
@@ -75,7 +75,7 @@ mkdir.m,406,tool
 xconsole.c,628,vm
 addxc.c,406,vm
 xwchar.c,850,vm
-jsonwr.m,920,lib
+jsonwr.m,1289,lib
 viewp.m,1200,lib
 xconsole.h,1085,vm
 xwchar.h,1188,vm
@@ -93,7 +93,7 @@ col.m,932,tool
 c-term.m,824,lib
 foreach.m,932,tool
 log.c,661,vm
-ctrw.m,1204,lib
+ctrw.m,1289,lib
 entab.m,417,tool
 man.m,1177,tool
 log.h,406,vm
@@ -137,8 +137,8 @@ cmpb.m,1145,tool
 omd.h,406,vm
 ir.h,406,vm
 crlf.m,1193,lib
-ctrlib.m,1203,lib
-skkchunk.d,1288,skk
+ctrlib.m,1289,lib
+skkchunk.d,1293,skk
 tempfile.m,937,lib
 xbarray.c,406,vm
 viewx.c,1011,vm
@@ -148,7 +148,7 @@ gtrans.m,1197,tool
 updateid.m,932,tool
 clipc.m,935,npw,lib
 xsleep.h,406,vm
-ctriconv.m,1203,npw,lib
+ctriconv.m,1289,npw,lib
 head.m,417,tool
 mulks.c,1243,vm
 pfw.c,1191,vm
@@ -163,7 +163,7 @@ csv.m,1266,tool
 icmd.m,1216,tool
 cmp.m,1145,tool
 xctype.c,1193,vm
-base.m,1279,lib
+base.m,1296,lib
 xctype.h,1191,vm
 numlnwr.m,1145,lib
 delang.m,932,tool
@@ -183,7 +183,7 @@ dl.m,1179,lib
 multicol.m,932,tool
 csplit.c,859,vm
 sleeplib.m,623,lib
-gdrive.m,1212,tool
+gdrive.m,1289,tool
 diff.m,1163,tool
 csplit.h,859,vm
 console.m,986,lib
@@ -237,10 +237,11 @@ mtoib.c,406,vm
 packzip.m,1212,tool
 pause.m,425,tool
 ki.h,837,vm
+trz.m,1141,tool,ja
 hidecnsl.m,1212,tool
 cp932.m,1261,lib
 tail.m,932,tool
-package.d,1288,tool
+package.d,1297,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,1259,tool
@@ -262,6 +263,6 @@ print.m,1179,tool
 hrc.m,787,lib
 optparse.m,1179,lib
 mulk.c,1244,vm
-skk.m,1161,skk
+skk.m,1290,skk
 fmv.m,932,tool
 prompt.m,981,lib

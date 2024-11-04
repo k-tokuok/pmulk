@@ -1,5 +1,5 @@
 CodeTranslator.iconv class
-$Id: mulk ctriconv.m 1203 2024-04-05 Fri 22:00:56 kt $
+$Id: mulk ctriconv.m 1289 2024-10-06 Sun 20:37:22 kt $
 #ja
 
 *[man]
@@ -40,6 +40,7 @@ CodeTranslator classのiconv共有ライブラリ実装。
 	ch = 'u' ifTrue: ["UTF-8"!];
 	ch = 's' ifTrue: ["CP932"!];
 	ch = 'e' ifTrue: ["EUC-JP"!];
+	ch = 'U' ifTrue: ["UTF-16LE"!];
 	self error: "illegal code char " + ch
 **CodeTranslator.iconv >> init: fromTo
 	DL call: open with: (self codeString: (fromTo at: 1))

@@ -1,5 +1,5 @@
 CodeTranslator.w class
-$Id: mulk ctrw.m 1204 2024-04-06 Sat 07:05:30 kt $
+$Id: mulk ctrw.m 1289 2024-10-06 Sun 20:37:22 kt $
 #ja
 *[man]
 **#en
@@ -29,12 +29,18 @@ CodeTranslator classのWindows実装。
 	ch = 's' ifTrue: [932!]; --Windows-31J
 	ch = 'e' ifTrue: [20932!]; --EUC-JP
 	ch = 'u' ifTrue: [65001!]; --CP_UTF8
+	ch = 'U' ifTrue: [65536!]; --UTF16 little endian
 	self error: "illegal char code " + ch
 **CodeTranslator.w >> init: fromTo
 	self codeNumber: fromTo first ->fromCode;
 	self codeNumber: (fromTo at: 1) ->toCode
 **CodeTranslator.w >> translate: bufArg from: fromArg size: sizeArg
 	self reserve: sizeArg;
+	fromCode = 65536 ifTrue:
+		[DL call: #WideCharToMultiByte
+			with: toCode with: 0
+			with: bufArg address + fromArg with: sizeArg // 2
+			with: resultBuf with: resultBuf size with: #(0 0) ->:result!];
 	DL call: #MultiByteToWideChar
 		with: fromCode with: 0
 		with: bufArg address + fromArg with: sizeArg
@@ -42,5 +48,5 @@ CodeTranslator classのWindows実装。
 	DL call: #WideCharToMultiByte
 		with: toCode with: 0
 		with: wcBuf with: wcCount
-		with: resultBuf with: resultBuf size with: #(0 0) ->:result;
+		with: resultBuf with: resultBuf size with: #(0 0) ->result;
 	result!

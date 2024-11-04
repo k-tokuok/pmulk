@@ -1,5 +1,5 @@
 DeepL Translate
-$Id: mulk dtrans.m 1197 2024-03-31 Sun 21:48:00 kt $
+$Id: mulk dtrans.m 1289 2024-10-06 Sun 20:37:22 kt $
 #ja DeepL翻訳
 
 *[man]
@@ -35,7 +35,7 @@ DeepL翻訳APIを使用して入力した文書を翻訳する。
 	TempFile create ->:outFile;
 	hr outFile: outFile;
 	hr run;
-	outFile readDo: [:fs JsonReader new init: fs, read ->:json];
+	outFile readDo: [:fs JsonReader new read: fs ->:json];
 	Out put: (json at: "translations", first at: "text");
 	outFile remove
 **Cmd.dtrans >> main: args

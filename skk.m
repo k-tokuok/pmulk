@@ -1,5 +1,5 @@
 かな漢字変換日本語インプットメソッド
-$Id: mulk skk.m 1161 2024-02-08 Thu 22:09:47 kt $
+$Id: mulk skk.m 1290 2024-10-07 Mon 21:55:32 kt $
 
 *[man]
 .caption 書式
@@ -229,6 +229,7 @@ wb上であれば続けて漢字を入力し'!'以降を実行することで辞
 		cadetPrompts addLast: (Cons new car: buf asString, cdr: cpos - i)!]]
 		loop
 **Skk.class >> henkanEnd: posArg key: keyArg
+	self reset;
 	posArg = cadets size ifTrue:
 		[self addQueue: "\cg!skk.regist " + keyArg + ' '!];
 	cadets at: posArg ->:cadet;
@@ -260,16 +261,19 @@ wb上であれば続けて漢字を入力し'!'以降を実行することで辞
 			self showInterm!];
 		pos - 1 ->pos;
 		nil ->ch];
+	ch = '\cj' ifTrue: [self reset!];
 	ch notNil? ifTrue:
-		[self reset;
-		ch = '\cj' ifTrue: [self!];
-		pos >= singleHenkan ifTrue: 
-			["asdfghjkl;" indexOf: ch ->:off, nil? ifTrue: 
-				[ungetQueue addLast: ch!];
-			cons cdr + off ->pos, > cadets size ifTrue: [self!];
-			self henkanEnd: pos key: key!];
-		self henkanEnd: pos key: key;
-		ch <> '\cm' ifTrue: [ungetQueue addLast: ch]!]] loop
+		[pos < singleHenkan
+			ifTrue:
+				[self henkanEnd: pos key: key;
+				ch <> '\cm' ifTrue: [ungetQueue addLast: ch]!]
+			ifFalse:
+				[ch = '\ck' | (ch = '\cl') ifTrue:
+					[self reset;
+					ungetQueue addLast: ch!];
+				"asdfghjkl;" indexOf: ch ->: off, notNil?
+					and: [cons cdr + off ->pos, <= cadets size],
+					ifTrue: [self henkanEnd: pos key: key!]]]] loop
 
 **Skk.class >> modeChar: ch
 	ch = '\cj' | (ch = '\ck') | (ch = '\cl') ifFalse: [false!];

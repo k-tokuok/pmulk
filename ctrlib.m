@@ -1,5 +1,5 @@
 character code translation library
-$Id: mulk ctrlib.m 1203 2024-04-05 Fri 22:00:56 kt $
+$Id: mulk ctrlib.m 1289 2024-10-06 Sun 20:37:22 kt $
 #ja 文字コード変換ライブラリ
 
 *[man]
@@ -97,6 +97,7 @@ fromTo specifies the code type to be translate with the following two alphabets.
 	u -- UTF-8
 	s -- SJIS
 	e -- EUC-JP
+	U -- UTF-16LE
 ****#ja
 指定文字列fromToに対応する変換器を構築して返す。
 
@@ -104,6 +105,7 @@ fromToは変換するコード種別を以下のアルファベット二文字�
 	u -- UTF-8
 	s -- SJIS
 	e -- EUC-JP
+	U -- UTF-16LE
 	
 *register.@
 	"iconv" ->:name;

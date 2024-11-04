@@ -1,5 +1,5 @@
 Google Drive
-$Id: mulk gdrive.m 1212 2024-04-14 Sun 20:49:24 kt $
+$Id: mulk gdrive.m 1289 2024-10-06 Sun 20:37:22 kt $
 #ja Googleドライブ
 
 *[man]
@@ -98,7 +98,7 @@ Googleドライブをマウントする。
 	TempFile create ->:outFile;
 	hr outFile: outFile;
 	hr run = 0 ifTrue: [nil!];
-	outFile readDo: [:fs JsonReader new init: fs, read ->:result];
+	outFile readDo: [:fs JsonReader new read: fs ->:result];
 	outFile remove;
 	result!
 	
@@ -206,7 +206,7 @@ Googleドライブをマウントする。
 	metadata at: "name" put: nameArg;
 	metadata at: "mimeType" put: "application/vnd.google-apps.folder";
 	metadata at: "parents" put: (Array new addLast: idArg);
-	JsonWriter new init: hr data, put: metadata;
+	JsonWriter new write: metadata to: hr data;
 	self runJson!
 **GDrive.class >> files: idArg
 	self prepareAccessToken;
@@ -270,7 +270,7 @@ Googleドライブをマウントする。
 	metadata at: "name" put: fileArg name;
 	metadata at: "mimeType" put: mimeType;
 	metadata at: "parents" put: (Array new addLast: fileArg parent id);
-	JsonWriter new init: hr data, put: metadata;
+	JsonWriter new write: metadata to: hr data;
 	hr putLn;
 	
 	hr putBoundary;
