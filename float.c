@@ -1,6 +1,6 @@
 /*
 	Float class.
-	$Id: mulk float.c 850 2022-03-05 Sat 11:10:45 kt $
+	$Id: mulk float.c 1318 2024-12-01 Sun 14:28:50 kt $
 */
 
 #include "std.h"
@@ -12,10 +12,6 @@
 #ifdef __BORLANDC__
 #include <float.h>
 #define isfinite _finite
-#endif
-
-#if CM_P
-#define isfinite __isfinite
 #endif
 
 #if INTER_ISFINITE_P
@@ -95,12 +91,6 @@ DEFPRIM(float_asInteger)
 	double x;
 	x=self->xfloat.val;
 	if(SINT_MIN<=x&&x<=SINT_MAX) {
-#if CM_P
-		if(x==SINT_MIN) {
-			*result=sint(SINT_MIN);
-			return PRIM_SUCCESS;
-		}
-#endif
 		*result=sint((int)x);
 		return PRIM_SUCCESS;
 	}

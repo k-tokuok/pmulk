@@ -1,5 +1,5 @@
 dynamic link library interface
-$Id: mulk dl.m 1179 2024-03-17 Sun 21:14:15 kt $
+$Id: mulk dl.m 1301 2024-11-16 Sat 15:42:00 kt $
 #ja 動的リンクライブラリのインターフェイス
 
 *[man]
@@ -15,8 +15,8 @@ If the image is saved with the library linked, the library will be re-linked whe
 ライブラリをリンクした状態でイメージを保存すると、再起動時に改めて再リンクを行う。
 
 *import.@
-	Mulk at: #DL.ptrByteSize put: (OS propertyAt: 4);
-	Mulk at: #DL.littleEndian? put: (OS propertyAt: 5);
+	Mulk at: #DL.ptrByteSize put: Kernel ptrByteSize;
+	Mulk at: #DL.littleEndian? put: Kernel littleEndian?;
 	Mulk import: "fbdata"
 	
 *overwrite.

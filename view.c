@@ -1,14 +1,18 @@
 /*
-	View.p class.
-	$Id: mulk viewp.c 1091 2023-07-16 Sun 07:11:27 kt $
+	View (primitive implemented/View.p)
+	$Id: mulk view.c 1320 2024-12-01 Sun 17:22:18 kt $
 */
 
 #include "std.h"
-#include "viewp.h"
-#include "xwchar.h"
-#include "om.h"
 
-int view_update_interval=0;
+#include "om.h"
+#include "xwchar.h"
+
+#include "view.h"
+
+int view_update_interval;
+int view_shift_mode;
+int view_event_filter;
 
 #include "prim.h"
 
@@ -18,24 +22,6 @@ DEFPRIM(view_open)
 	GET_SINT_ARG(0,width);
 	GET_SINT_ARG(1,height);
 	view_open(width,height);
-	return PRIM_SUCCESS;
-}
-
-DEFPRIM(view_move)
-{
-	int x,y;
-	GET_SINT_ARG(0,x);
-	GET_SINT_ARG(0,y);
-	view_move(x,y);
-	return PRIM_SUCCESS;
-}
-
-DEFPRIM(view_resize)
-{
-	int width,height;
-	GET_SINT_ARG(0,width);
-	GET_SINT_ARG(1,height);
-	view_resize(width,height);
 	return PRIM_SUCCESS;
 }
 
@@ -143,32 +129,6 @@ DEFPRIM(view_put_monochrome_image)
 	return PRIM_SUCCESS;
 }
 
-DEFPRIM(view_load_keymap)
-{
-	char *fn;
-	struct xbarray xba;
-	if((fn=p_string_val(args[0],&xba))==NULL) return PRIM_ERROR;
-	view_load_keymap(fn);
-	xbarray_free(&xba);
-	return PRIM_SUCCESS;
-}
-
-DEFPRIM(view_set_shift_mode)
-{
-	int mode;
-	GET_SINT_ARG(0,mode);
-	if(!view_set_shift_mode(mode)) return PRIM_ERROR;
-	return PRIM_SUCCESS;
-}
-
-DEFPRIM(view_set_event_filter)
-{
-	int mode;
-	GET_SINT_ARG(0,mode);
-	view_set_event_filter(mode);
-	return PRIM_SUCCESS;
-}
-
 DEFPRIM(view_get_event)
 {
 	*result=sint(view_get_event());
@@ -181,9 +141,48 @@ DEFPRIM(view_event_empty_p)
 	return PRIM_SUCCESS;
 }
 
-DEFPRIM(view_set_update_interval)
+DEFPROPERTY(view)
 {
-	*result=sint(view_update_interval);
-	GET_SINT_ARG(0,view_update_interval);
+	struct xbarray xba;
+	char *fn;
+	int v,w,h;
+	
+	switch(key) {
+	case 200:
+		*result=sint(view_update_interval);
+		if(sint_p(value)) view_update_interval=sint_val(value);
+		break;
+	case 201:
+		*result=sint(view_event_filter);
+		if(sint_p(value)) view_event_filter=sint_val(value);
+		break;
+	case 202:
+		if((fn=p_string_val(value,&xba))==NULL) return PRIM_ERROR;
+		view_load_keymap(fn);
+		xbarray_free(&xba);
+		break;
+	case 203:
+		*result=sint(view_shift_mode);
+		if(sint_p(value)) view_shift_mode=sint_val(value);
+		break;
+	case 204:
+		if(sint_p(value)) {
+			v=sint_val(value);
+			view_move(COORD_X(v),COORD_Y(v));
+		} 
+		break;
+	case 205:
+		if(sint_p(value)) {
+			v=sint_val(value);
+			view_resize(COORD_X(v),COORD_Y(v));
+		}
+		break;
+	case 206:
+		view_get_screen_size(&w,&h);
+		*result=sint(coord(w,h));
+		break;
+	default:
+		return PRIM_ANOTHER_PROPERTY;
+	}
 	return PRIM_SUCCESS;
 }

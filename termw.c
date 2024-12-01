@@ -1,14 +1,11 @@
 /*
 	terminal for windows.
-	$Id: mulk termw.c 1091 2023-07-16 Sun 07:11:27 kt $
+	$Id: mulk termw.c 1299 2024-11-10 Sun 15:32:06 kt $
 */
 
 #include "std.h"
 #include "cqueue.h"
 #include "term.h"
-#include "ki.h"
-#include "kidec.h"
-#include "kidecw.h"
 #include "om.h"
 #include "ip.h"
 
@@ -22,8 +19,6 @@ static DWORD saved_mode;
 static struct cqueue cq;
 static int more_char_p;
 
-static struct kidec kidec;
-
 static void init(void)
 {
 	console_in=GetStdHandle(STD_INPUT_HANDLE);
@@ -31,9 +26,6 @@ static void init(void)
 	if(!GetConsoleMode(console_in,&saved_mode)) {
 		xerror("GetConsoleMode failed.");
 	}
-	kidec.press_check=kidecw_press_check;
-	kidec.mode=KI_GENERIC;
-	
 	init_p=TRUE;
 }
 
@@ -81,22 +73,11 @@ static void fetch(void)
 
 	ReadConsoleInput(console_in,&input,1,&nread);
 	if(input.EventType!=KEY_EVENT) return;
-	
-	if(input.Event.KeyEvent.bKeyDown) {
-		ch=(unsigned char)(input.Event.KeyEvent.uChar.AsciiChar);
-		if(more_char_p) more_char_p=FALSE;
-		else if(IsDBCSLeadByte(ch)) more_char_p=TRUE;
-		else {
-			if(kidec.mode==KI_GENERIC) {
-				if(ch==0) ch=-1;
-			} else {
-				ch=kidec_down(&kidec,input.Event.KeyEvent.wVirtualKeyCode);
-			}
-		} 
-	} else {
-		if(kidec.mode==KI_GENERIC) ch=-1;
-		else ch=kidec_up(&kidec,input.Event.KeyEvent.wVirtualKeyCode);
-	}
+	if(!input.Event.KeyEvent.bKeyDown) return;
+	ch=(unsigned char)(input.Event.KeyEvent.uChar.AsciiChar);
+	if(more_char_p) more_char_p=FALSE;
+	else if(IsDBCSLeadByte(ch)) more_char_p=TRUE;
+	else if(ch==0) ch=-1;
 	if(ch!=-1) cqueue_put(&cq,ch);
 }
 
@@ -151,22 +132,4 @@ void term_clear(void)
 	c.X=bx; c.Y=by;
 	FillConsoleOutputCharacter(console_out,' ',w*h,c,&nwrite);
 	term_goto_xy(0,0);
-}
-
-#include "prim.h"
-DEFPRIM(term_load_keymap)
-{
-	char *fn;
-	struct xbarray xba;
-	if((fn=p_string_val(args[0],&xba))==NULL) return PRIM_ERROR;
-	kidec_load_keymap(&kidec,fn,KI_WINDOWS);
-	xbarray_free(&xba);
-	return PRIM_SUCCESS;
-}
-
-DEFPRIM(term_set_shift_mode)
-{
-	if(!kidec_keymap_loaded_p(&kidec)) return PRIM_ERROR;
-	GET_SINT_ARG(0,kidec.mode);
-	return PRIM_SUCCESS;
 }

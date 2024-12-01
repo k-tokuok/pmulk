@@ -1,5 +1,5 @@
 sleep for a specified number of seconds
-$Id: mulk sleep.m 623 2020-12-30 Wed 21:59:53 kt $
+$Id: mulk sleep.m 1318 2024-12-01 Sun 14:28:50 kt $
 #ja 指定秒数の間スリープする
 
 *[man]
@@ -19,7 +19,6 @@ Sleep by Number >> sleep for the specified number of seconds.
 .summary sleeplib
 
 *sleep tool.@
-	Mulk import: "sleeplib";
 	Object addSubclass: #Cmd.sleep
 **Cmd.sleep >> main: args
 	args first asNumber sleep

@@ -1,5 +1,5 @@
 coordinate and size on screen
-$Id: mulk coord.m 406 2020-04-19 Sun 11:29:54 kt $
+$Id: mulk coord.m 1299 2024-11-10 Sun 15:32:06 kt $
 #ja 画面上の座標・サイズ
 
 *[man]
@@ -16,3 +16,5 @@ Integerを二次元の座標や矩形のサイズとして用いる。
 	self >> 14 & 0x3fff!
 *Integer >> coordY
 	self & 0x3fff!
+*Integer >> coordY: y
+	self & 0x3fff << 14 | (y & 0x3fff)!

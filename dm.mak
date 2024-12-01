@@ -1,6 +1,6 @@
 #
 #	Makefile for Digital Mars C
-#	$Id: mulk dm.mak 1231 2024-05-11 Sat 22:18:14 kt $
+#	$Id: mulk dm.mak 1318 2024-12-01 Sun 14:28:50 kt $
 #
 #	copy /y dm.mak+make.d make.wk
 #	make -fmake.wk [setup=setup.m]
@@ -22,14 +22,14 @@ setup=setup.m
 all: mulk.exe mulk.mi
 
 ibprimsrc=ip.c sint.c lpint.c os.c float.c fbarray.c
-mulkprimsrc=$(ibprimsrc) codepage.c lock.c sleep.c term.c termw.c dl.c viewp.c
+mulkprimsrc=$(ibprimsrc) codepage.c term.c dl.c view.c
 
 xc.lib: std.obj heap.obj xbarray.obj xctype.obj splay.obj xgetopt.obj log.obj \
-	xarray.obj pfw.obj cqueue.obj iqueue.obj xsleepw.obj xwchar.obj coord.obj \
-	csplit.obj kidec.obj kidecw.obj termw.obj vieww.obj \
+	xarray.obj pfw.obj cqueue.obj iqueue.obj xwchar.obj coord.obj \
+	csplit.obj termw.obj vieww.obj \
 	om.obj omd.obj gc.obj prim.obj ir.obj lex.obj \
 	ip.obj sint.obj lpint.obj os.obj float.obj fbarray.obj \
-	codepage.obj lock.obj sleep.obj term.obj dl.obj viewp.obj intrw.obj
+	codepage.obj term.obj dl.obj view.obj vkey.obj
 	lib -c $@ $**
 
 primlist.exe: primlist.obj xc.lib
@@ -42,7 +42,7 @@ mulk.exe: mulk.obj mulkprim.obj xc.lib
 
 ibprim.wk: $(ibprimsrc) primlist.exe
 	cmd /c ".\primlist $(ibprimsrc) >$@"
-ib.exe: ib.obj ibprim.obj intrs.obj xc.lib
+ib.exe: ib.obj ibprim.obj xc.lib
 	$(link)
 pp.exe: pp.obj xc.lib
 	$(link)

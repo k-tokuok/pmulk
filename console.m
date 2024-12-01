@@ -1,5 +1,5 @@
 console
-$Id: mulk console.m 986 2022-12-26 Mon 22:26:05 kt $
+$Id: mulk console.m 1299 2024-11-10 Sun 15:32:06 kt $
 #ja コンソール
 
 *[man]
@@ -138,9 +138,9 @@ Assume a standard screen size of 80x24.
 80x24の標準的な画面サイズを仮定する。
 
 **Console.std >> in
-	FileStream new init: (OS propertyAt: 0)!
+	FileStream new init: (Kernel propertyAt: 100)!
 **Console.std >> out
-	FileStream new init: (OS propertyAt: 1)!
+	FileStream new init: (Kernel propertyAt: 101)!
 **Console.std >> autoLineFeedIfLineFilled?
 	Mulk.hostOS ->:os, = #windows or: [os = #cygwin], or: [os = #dos]!
 **Console.std >> height

@@ -1,5 +1,5 @@
 console for character terminal (Console.term class)
-$Id: mulk c-term.m 824 2022-01-31 Mon 20:49:08 kt $
+$Id: mulk c-term.m 1301 2024-11-16 Sat 15:42:00 kt $
 #ja キャラクタ端末用コンソール (Console.term class)
 
 *[man]
@@ -72,5 +72,3 @@ Console that supports cursor motion on character terminals.
 	result!
 **Console.term >> hit?
 	term hit?!
-**Console.term >> rawShiftMode: modeArg
-	term shiftMode: modeArg

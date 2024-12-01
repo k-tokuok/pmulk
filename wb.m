@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1254 2024-06-09 Sun 21:26:15 kt $
+$Id: mulk wb.m 1311 2024-11-23 Sat 06:54:08 kt $
 #ja テキストエディタ
 
 *[man]
@@ -2472,6 +2472,18 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 
 ***Wb.class >> main.w: args
 	self putBytes: self yank
+	
+**api.
+***Wb.class >> inputText: defaultArg
+	Console kindOf?: Wb.SubprocessConsole, ifFalse: 
+		[self error: "not wb console"];
+	Out putLn: ">>";
+	defaultArg notNil? ifTrue: [Out put: defaultArg];
+	Out put: "<< apply (enter only):";
+	In getLn <> "" ifTrue: [nil!];
+	buffer find: (self bytes: "<<") before: cursor ->:en;
+	buffer find: (self bytes: "\n>>\n") before: en ->:st;
+	buffer stringFrom: st + buffer matchSize until: en!	
 	
 *wb tool.@
 	Object addSubclass: #Cmd.wb

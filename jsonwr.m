@@ -1,5 +1,5 @@
 JsonWriter class
-$Id: mulk jsonwr.m 1289 2024-10-06 Sun 20:37:22 kt $
+$Id: mulk jsonwr.m 1302 2024-11-16 Sat 22:05:45 kt $
 #ja
 
 *[man]
@@ -28,11 +28,20 @@ Numerical and character expressions are not completely compatible.
 **JsonWriter >> putIndent: indent
 	stream put: '\n';
 	indent * 2 timesRepeat: [stream put: ' ']
+**JsonWriter >> putStringChar: char
+	char = '\n' ifTrue: [stream put: "\\n"!];
+	char = '\t' ifTrue: [stream put: "\\t"!];
+	char = '"' ifTrue: [stream put: "\\\""!];
+	char = '\\' ifTrue: [stream put: "\\\\"!];
+	stream put: char
 **JsonWriter >> put: arg indent: indent
 	arg nil? ifTrue: [stream put: "null"!];
 	arg kindOf?: Boolean, or: [arg kindOf?: Number], ifTrue: [stream put: arg!];
-	--ToDo: escape.
-	arg kindOf?: String, ifTrue: [stream put: '"', put: arg, put: '"'!];
+	arg kindOf?: String, ifTrue: 
+		[stream put: '"';
+		AheadReader new init: arg ->:ar;
+		[ar nextChar notNil?] whileTrue: [self putStringChar: ar skipWideChar];
+		stream put: '"'!];
 	arg kindOf?: Array, ifTrue:
 		[stream put: '[';
 		arg 

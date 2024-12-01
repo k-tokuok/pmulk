@@ -1,6 +1,6 @@
 /*
 	configure.
-	$Id: mulk config.h 1243 2024-05-26 Sun 11:40:56 kt $
+	$Id: mulk config.h 1318 2024-12-01 Sun 14:28:50 kt $
 */
 
 /* archtecture and compiler */
@@ -102,17 +102,6 @@
 #define INTR_CHECK_P TRUE
 #endif
 
-/** classic mac 68k */
-#define OS_CM 3
-#if macintosh
-#define OS_CODE OS_CM
-#define U64_P TRUE
-#define XCONSOLE_P TRUE
-#define INCLUDE_INTTYPES_P FALSE
-#define INTR_CHECK_P TRUE
-#define VSPRINTF_P TRUE
-#endif
-
 /** gcc oriented */
 #ifdef __GNUC__
 #define GCC_NORETURN __attribute__((noreturn))
@@ -126,7 +115,6 @@
 #define UNIX_P (OS_CODE==OS_UNIX)
 #define WINDOWS_P (OS_CODE==OS_WINDOWS)
 #define DOS_P (OS_CODE==OS_DOS)
-#define CM_P (OS_CODE==OS_CM)
 
 #define PF_OPEN_P (!UNIX_P)
 
@@ -169,10 +157,6 @@
 #endif
 #if FPOS_TYPE==FPOS_OFFT
 #define _FILE_OFFSET_BITS 64
-#endif
-
-#ifndef WINDOWS_CP
-#define WINDOWS_CP 65001 /* CP_UTF8 */
 #endif
 
 /* options for mulk */

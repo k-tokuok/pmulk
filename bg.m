@@ -1,5 +1,5 @@
 background execution
-$Id: mulk bg.m 1272 2024-07-15 Mon 20:56:21 kt $
+$Id: mulk bg.m 1318 2024-12-01 Sun 14:28:50 kt $
 #ja バックグラウンド実行
 
 *[man]
@@ -32,9 +32,8 @@ The host OS must be able to execute Mulk as a child process in the background, a
 ホストOSがMulkを子プロセスとしてバックグラウンドで実行可能で、PATH環境変数等が適切に設定されていなくてはならない。
 
 *bg tool.@
-	Mulk import: #("pi" "lock" "tempfile" "prompt" "cmdstr");
+	Mulk import: #("pi" "tempfile" "prompt" "cmdstr");
 	Object addSubclass: #Cmd.bg instanceVars: "queue"
-
 	
 **Cmd.bg >> lockDo: block
 	"bg.lck" asWorkFile lockDo: block

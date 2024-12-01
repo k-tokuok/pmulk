@@ -1,5 +1,5 @@
 hide console
-$Id: mulk hidecnsl.m 1212 2024-04-14 Sun 20:49:24 kt $
+$Id: mulk hidecnsl.m 1318 2024-12-01 Sun 14:28:50 kt $
 #ja コンソールを非表示とする
 
 *[man]
@@ -30,7 +30,7 @@ Windowsでのみ動作可。
 https://learn.microsoft.com/ja-jp/troubleshoot/windows-server/performance/obtain-console-window-handle
 
 *@
-	Mulk import: #("dl" "sleeplib")
+	Mulk import: "dl"
 *@
 	DL import: "kernel32.dll" procs: 
 			#(#GetCurrentProcessId 0 #SetConsoleTitleA 101),

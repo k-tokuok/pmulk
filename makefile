@@ -1,6 +1,6 @@
 #
 #	makefile for gnu toolchain.
-#	$Id: mulk makefile 1231 2024-05-11 Sat 22:18:14 kt $
+#	$Id: mulk makefile 1318 2024-12-01 Sun 14:28:50 kt $
 #
 #	make hostos={cygwin,linux,macosx,minix,freebsd,netbsd,illumos,windows}
 #		[dl=on|off] [term=on|off] [view=on|off|sdl] [xft=on|off] 
@@ -75,7 +75,7 @@ toolprefix=x86_64-w64-mingw32-
 endif
 ppflags+=caseInsensitiveFileName
 mulkprims+=codepage.c
-xcobjs+=pfw.o xsleepw.o intrw.o kidecw.o
+xcobjs+=pfw.o
 exe=.exe
 termobjs+=termw.o
 termprims+=termw.c
@@ -86,7 +86,7 @@ endif
 
 ifneq ($(filter $(unixen),$(hostos)),)
 ppflags+=unix
-xcobjs+=pfu.o xsleepu.o intru.o
+xcobjs+=pfu.o
 termobjs+=termu.o
 endif
 
@@ -156,7 +156,7 @@ endif
 ifeq ($(view),on)
 cflags+=$(viewcflags)
 lflags+=$(viewlflags)
-mulkprims+=viewp.c
+mulkprims+=view.c
 intrCheck=on
 
 ifneq ($(filter $(unixen),$(hostos)),)
@@ -178,14 +178,13 @@ endif
 
 ifeq ($(view),sdl)
 xcobjs+=views.o
-mulkprims+=viewp.c
+mulkprims+=view.c
 libs+=-lSDL2 -lSDL2_ttf
 intrCheck=on
 endif
 
 ifeq ($(intrCheck),on)
 cflags+=-DINTR_CHECK_P=1
-ibobjs+=intrs.o
 endif
 
 ifeq ($(disableSendCommon),on)
@@ -196,14 +195,14 @@ all: $(mulk) mulk.mi
 
 ibprims=ip.c sint.c lpint.c os.c float.c fbarray.c
 ibprim.wk: $(ibprims)
-	cat $+ | grep ^DEFPRIM >$@
+	cat $+ | grep ^DEFPR >$@
 
-mulkprims_all=$(ibprims) lock.c sleep.c $(mulkprims)
+mulkprims_all=$(ibprims) $(mulkprims)
 mulkprim.wk: $(mulkprims_all)
-	cat $+ | grep ^DEFPRIM >$@
+	cat $+ | grep ^DEFPR >$@
 
 xc.a: std.o heap.o xbarray.o xctype.o splay.o xgetopt.o log.o xarray.o \
-	cqueue.o iqueue.o xwchar.o coord.o csplit.o kidec.o \
+	cqueue.o iqueue.o xwchar.o coord.o csplit.o vkey.o \
 	om.o omd.o gc.o prim.o ir.o lex.o \
 	$(mulkprims_all:%.c=%.o) \
 	$(xcobjs)

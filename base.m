@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1296 2024-11-04 Mon 09:33:42 kt $
+$Id: mulk base.m 1318 2024-12-01 Sun 14:28:50 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -1045,23 +1045,30 @@ Kernel protocols define internal components.
 Kernel protocolsは内部的な構成要素を定義する。
 
 **Kernel.class class.#
-	class Kernel.class Object : cycle usedMemory maxUsedMemory
-		objectCount maxObjectCount
-		cacheSize cacheEntry cacheCall cacheHit cacheInvalidate;
+	class Kernel.class Object;
 		singleton Kernel.class Kernel;
 ***Kernel.class >> currentProcess
 	$kernel_currentProcess
 ***Kernel.class >> cacheReset: selectorArg
 	$kernel_cacheReset
-***Kernel.class >> sync
-	$kernel_sync
+***Kernel.class >> propertyAt: keyArg put: valueArg
+	$kernel_property
+***Kernel.class >> propertyAt: keyArg
+	self propertyAt: keyArg put: nil!
 ***Kernel.class >> cycle
-	self sync;
-	cycle!
+	self propertyAt: 0!
 ***Kernel.class >> inspect
-	self sync;
-	super inspect
-		
+	#(	"cycle" "usedMemory" "maxUsedMemory" "objectCount" "maxObjectCount"
+		"cacheSize" "cacheEntry" "cacheCall" "cacheHit" "cacheInvalidate")
+		->:ar;
+	ar size timesDo:
+		[:i
+		Out putLn: (ar at: i) + ": " + (self propertyAt: i)]
+***Kernel.class >> ptrByteSize
+	self propertyAt: 10!
+***Kernel.class >> littleEndian?
+	self propertyAt: 11!
+			
 **OS.class class.#
 	class OS.class Object : fps timediff;
 		singleton OS.class OS;
@@ -1081,7 +1088,7 @@ OSはグローバルオブジェクトであり、再構築してはならない
 
 ***OS.class >> init
 	Set new ->fps;
-	self propertyAt: 3 ->timediff
+	Kernel propertyAt: 103 ->timediff
 
 ***fopen.
 ****OS.class >> basicFopen: fnArg mode: modeArg
@@ -1106,6 +1113,9 @@ OSはグローバルオブジェクトであり、再構築してはならない
 ***OS.class >> ftell: fpArg
 	$os_ftell
 
+***OS.class >> lock: on? fp: fpArg
+	$os_lock
+	
 ***fclose.
 ****OS.class >> basicFclose: fpArg
 	$os_fclose
@@ -1125,9 +1135,12 @@ OSはグローバルオブジェクトであり、再構築してはならない
 	$os_remove
 ***OS.class >> mkdir: pathArg
 	$os_mkdir
-	
+
+***OS.class >> floattime
+	$os_floattime
+		
 ***OS.class >> time
-	$os_time
+	self floattime asInteger!
 ****[man.m]
 *****#en
 Returns the number of seconds since the Unix epoch (January 1, 1970, 00:00:00 UTC).
@@ -1138,6 +1151,10 @@ Returns the number of seconds since the Unix epoch (January 1, 1970, 00:00:00 UT
 	timediff!
 ***OS.class >> clock
 	$os_clock
+
+***OS.class >> sleep: floatArg
+	$os_sleep
+
 ***OS.class >> system: stringArg
 	$os_system
 	
@@ -1170,9 +1187,6 @@ envArgは"変数名=値"の文字列とする。
 	OS putenv: "mulktest=test";
 	self assert: (OS getenv: "mulktest") = "test"
 
-***OS.class >> propertyAt: ix
-	$os_propertyAt
-	
 ***OS.class >> fcloseAll
 	fps asArray do: [:fp self fclose: fp]
 ****[man.m]
@@ -2002,6 +2016,14 @@ Convert the receiver into an integer.
 ******#ja
 レシーバーを整数化する。
 
+****Number >> sleep
+	OS sleep: self asFloat
+*****[man.m]
+******#en
+Sleeps for the number of seconds specified by the receiver.
+******#ja
+レシーバーで指定された秒数の間スリープする。
+	
 ***Integer class.#
 	class Integer Number;
 
@@ -7213,7 +7235,27 @@ Compare the receiver file with the contents of fileArg and return true if they m
 		fs getLn;
 		fs getLn head?: '#' ->:result];
 	result!
-	
+
+***File >> lockDo: blockArg
+	self writeDo:
+		[:str
+		str fp ->:fp;
+		OS lock: true fp: fp;
+		[blockArg value] finally: [OS lock: false fp: fp]]!
+****[man.m]
+*****#en
+Evaluate block exclusively
+
+If a conflict occurs, wait until it is resolved.
+It is impossible to know in advance whether there is a conflict.
+Do not leave the block in any way other than the end or exception.
+*****#ja
+ブロックを排他的に評価する
+
+競合が発生した場合、解消されるまで待ちに入る。
+競合の有無を事前に知る事は出来ない。
+終端もしくは例外以外の形でblockから抜けてはならない。
+
 **FileStream class.#
 	class FileStream AbstractStream : fp;
 
@@ -9045,9 +9087,9 @@ Quit the system.
 
 **Mulk.class >> initFiles
 	OS init;
-	FileStream new init: (OS propertyAt: 0) ->In ->In0;
-	FileStream new init: (OS propertyAt: 1) ->Out ->Out0;
-	File new fileOfPath: (OS propertyAt: 2) ->File.current;
+	FileStream new init: (Kernel propertyAt: 100) ->In ->In0;
+	FileStream new init: (Kernel propertyAt: 101) ->Out ->Out0;
+	File new fileOfPath: (Kernel propertyAt: 102) ->File.current;
 	OS getenv: "HOME" ->:home, nil? ifFalse:
 .if windows|dos
 		[StringWriter new ->:w;
@@ -9090,9 +9132,11 @@ Quit the system.
 	0 ->:no;
 	"mulkprim.wk" asFile openRead ->:reader;
 	[reader getLn ->:s, notNil?] whileTrue:
-		[MethodCompiler.primitiveTable at: (s copyFrom: 8 until: s size - 1)
-			put: no;
-		no + 1 ->no];
+		[s heads?: "DEFPRIM", ifTrue:
+			[MethodCompiler.primitiveTable 
+				at: (s copyFrom: 8 until: s size - 1)
+				put: no;
+			no + 1 ->no]];
 	reader close;
 
 	Set new add: "base" ->imported;

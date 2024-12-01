@@ -1,5 +1,5 @@
 console for view (Console.view class)
-$Id: mulk c-view.m 1083 2023-06-25 Sun 21:01:33 kt $
+$Id: mulk c-view.m 1318 2024-12-01 Sun 14:28:50 kt $
 #ja view用コンソール (Console.view class)
 
 *[man]
@@ -23,7 +23,7 @@ View上で直接文字の入出力を行う為のコンソール。
 .summary view
 
 *import.@
-	Mulk import: #("sconsole" "view" "sleeplib")
+	Mulk import: #("sconsole" "view")
 
 *Console.view class.@
 	ScreenConsole addSubclass: #Console.view instanceVars:
@@ -196,4 +196,40 @@ Specifies the color of the cursor in non-ASCII mode in input methods.
 Specify true to underline the cursor in non-ASCII mode in the input method.
 *****#ja
 インプットメソッドで非ASCIIモード時にカーソルをアンダーラインにする場合はtrueを指定する。
+
+***Console.view >> crossShiftMode
+	view shiftMode: 0
+****[man.m]
+*****#en
+Switch to cross shift mode.
+
+A key that should be pressed with the left hand while pressing "Conversion" on a JIS keyboard functions as a shift key when a key that should be pressed with the right hand is pressed while pressing "No Conversion".
+Similarly, a key that should be pressed with the right hand while pressing "Conversion" and a key that should be pressed with the left hand while pressing "No Conversion" function as a control key.
+
+Not all terminals and implementations support it.
+*****#ja
+クロスシフトモードに切り替える。
+
+JISキーボードの"変換"を押しながら左手で打鍵すべきキーを、"無変換"を押しながら右手で打鍵すべきキーを入力するとシフトキーとして機能する。
+同様に"変換"を押しながら右手で打鍵すべきキーを、"無変換"を押しながら左手で打鍵すべきキーを入力するとコントロールキーとして機能する。
+
+全ての端末・実装で対応している訳ではない。
+
+***Console.view >> spaceShiftMode
+	view shiftMode: 1
+****[man.m]
+*****#en
+Switch to space shift mode.
+
+If you press another key while pressing the space bar, it functions as a shift key.
+If you release another key without typing, a blank is entered.
+
+Not all terminals and implementations support it.
+*****#ja
+スペースシフトモードに切り替える。
+
+スペースバーを押しながら他のキーを打鍵するとシフトキーとして機能する。
+他のキーを打鍵せずに離すと空白が入力される。
+
+全ての端末・実装で対応している訳ではない。
 

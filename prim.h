@@ -1,14 +1,17 @@
 /*
 	primitive support.
-	$Id: mulk prim.h 1091 2023-07-16 Sun 07:11:27 kt $
+	$Id: mulk prim.h 1299 2024-11-10 Sun 15:32:06 kt $
 */
 
 #define PRIM_SUCCESS 0
 #define PRIM_ERROR 1
 #define PRIM_ARG_ERROR 2
+#define PRIM_ANOTHER_PROPERTY 100
 
 #include "xbarray.h"
 #define DEFPRIM(name) int prim_##name(object self,object *args,object *result)
+#define DEFPROPERTY(name) int property_##name(int key,object value,\
+	object *result)
 
 #define GET_SINT_ARG(i,num) \
 { \

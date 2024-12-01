@@ -1,6 +1,6 @@
 /*
 	interpreter.
-	$Id: mulk ip.c 1254 2024-06-09 Sun 21:26:15 kt $
+	$Id: mulk ip.c 1318 2024-12-01 Sun 14:28:50 kt $
 */
 
 #include "std.h"
@@ -12,7 +12,6 @@
 #include "gc.h"
 #include "inst.h"
 #include "prim.h"
-#include "intr.h"
 
 #define STACK_GAP 300
 
@@ -856,7 +855,7 @@ static void ip_main(void)
 		if(cycle%IP_POLLING_INTERVAL==0) {
 			gc_chance();
 #if INTR_CHECK_P
-			intr_check();
+			ip_intr_check();
 #endif
 		}
 		if(ip_trap_code!=TRAP_NONE) trap();
@@ -934,6 +933,46 @@ static void switch_process(object process)
 {
 	cur_process=process;
 	cur_stack=process->process.stack;
+}
+
+/* interrupt */
+
+#if UNIX_P
+#include <signal.h>
+
+static void intr_handler(int signo)
+{
+	ip_trap_code=TRAP_INTERRUPT;
+}
+#endif
+
+#if WINDOWS_P
+#include <windows.h>
+
+static BOOL intr_handler(DWORD dwCtrlType)
+{
+	if(dwCtrlType==CTRL_C_EVENT) {
+		ip_trap_code=TRAP_INTERRUPT;
+		return TRUE;
+	}
+	return FALSE;
+}
+#endif
+
+static void intr_init(void)
+{
+#if UNIX_P
+	struct sigaction sa;
+	memset(&sa,0,sizeof(sa));
+	sa.sa_handler=intr_handler;
+	if(sigaction(SIGINT,&sa,NULL)==-1) xerror("sigaction failed.");
+#endif
+
+#if WINDOWS_P
+	if(SetConsoleCtrlHandler((PHANDLER_ROUTINE)intr_handler,TRUE)==0) {
+		xerror("SetConsoleCtrlHandler failed.");
+	}
+#endif
 }
 
 void ip_start(object arg,int fs_size)
@@ -1297,7 +1336,6 @@ DEFPRIM(process_basicSwitch)
 }
 
 /** Kernel */
-
 DEFPRIM(kernel_currentProcess)
 {
 	process_sync();
@@ -1311,27 +1349,59 @@ DEFPRIM(kernel_cacheReset)
 	return PRIM_SUCCESS;
 }
 
-DEFPRIM(kernel_sync)
+DEFPROPERTY(kernel)
 {
-	gc_regist_refnew(self);
+	switch(key) {
+	case 0:
 #if U64_P
-	self->kernel.cycle=p_uint32(cycle);
+		*result=p_uint32(cycle);
 #else
-	self->kernel.cycle=p_uint64(cycle);
+		*result=p_uint64(cycle);
 #endif
-	self->kernel.used_memory=sint(om_used_memory);
-	self->kernel.max_used_memory=sint(om_max_used_memory);
-	self->kernel.object_count=sint(om_table.size);
-	self->kernel.max_object_count=sint(om_max_object_count);
-	self->kernel.cache_size=sint(cache_size);
-	self->kernel.cache_entry=sint(cache_entry);
+		break;
+	case 1: *result=sint(om_used_memory); break;
+	case 2: *result=sint(om_max_used_memory); break;
+	case 3: *result=sint(om_table.size); break;
+	case 4: *result=sint(om_max_object_count); break;
+	case 5: *result=sint(cache_size); break;
+	case 6: *result=sint(cache_entry); break;
+	case 7:
 #if U64_P
-	self->kernel.cache_call=p_uint32(cache_call);
-	self->kernel.cache_hit=p_uint32(cache_hit);
+		*result=p_uint32(cache_call);
 #else
-	self->kernel.cache_call=p_uint64(cache_call);
-	self->kernel.cache_hit=p_uint64(cache_hit);
+		*result=p_uint64(cache_call);
 #endif
-	self->kernel.cache_invalidate=sint(cache_invalidate);
+		break;
+	case 8:
+#if U64_P
+		*result=p_uint32(cache_hit);
+#else
+		*result=p_uint64(cache_hit);
+#endif
+		break;
+	case 9: *result=sint(cache_invalidate); break;
+	case 10: *result=sint(sizeof(void*)); break;
+	case 11: 
+		{
+			int val=0x12345678;
+			*result=om_boolean(LC(&val)==0x78);
+		}
+		break;
+	default:
+		return PRIM_ANOTHER_PROPERTY;
+	}
 	return PRIM_SUCCESS;
+}
+
+extern int (*property_table[])(int key,object value,object *result);
+DEFPRIM(kernel_property)
+{
+	int key,(*func)(int key,object value,object *result),i,st;
+	
+	GET_SINT_ARG(0,key);
+	for(i=0;(func=property_table[i])!=NULL;i++) {
+		st=(*func)(key,args[1],result);
+		if(st!=PRIM_ANOTHER_PROPERTY) return st;
+	}
+	return PRIM_ERROR;	
 }

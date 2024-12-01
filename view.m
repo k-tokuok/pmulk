@@ -1,5 +1,5 @@
 graphic screen
-$Id: mulk view.m 1182 2024-03-20 Wed 22:06:05 kt $
+$Id: mulk view.m 1304 2024-11-17 Sun 20:24:29 kt $
 #ja グラフィック画面
 
 *[man]
@@ -177,8 +177,7 @@ Set the screen update interval and return the old value.
 画面の更新間隔を設定し、旧値を返す。
 	
 **View.class >> updateInterval
-	self updateInterval: 0 ->:result;
-	self updateInterval: result;
+	self shouldBeImplemented
 	result!
 ***[man.m]
 ****#en

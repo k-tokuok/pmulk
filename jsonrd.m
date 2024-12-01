@@ -1,5 +1,5 @@
 JsonReader class
-$Id: mulk jsonrd.m 1292 2024-10-13 Sun 22:14:41 kt $
+$Id: mulk jsonrd.m 1303 2024-11-17 Sun 14:09:03 kt $
 #ja
 
 *[man]
@@ -79,7 +79,7 @@ JSONの記述をMulkの自然な構造に変換する。
 	nextChar = '"' ifTrue:
 		[self skipChar;
 		[nextChar <> '"'] whileTrue: 
-			[self skipChar ->:ch, = '\\' 
+			[self skipWideChar ->:ch, = '\\' 
 				ifTrue:
 					[self skipChar ->ch, = 'u'
 						ifTrue: [self getRestStringWithEscapeU]

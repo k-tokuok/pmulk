@@ -1,5 +1,5 @@
 character terminal control (Terminal class)
-$Id: mulk term.m 906 2022-08-14 Sun 20:39:37 kt $
+$Id: mulk term.m 1299 2024-11-10 Sun 15:32:06 kt $
 #ja キャラクタ端末制御 (Terminal class)
 
 *[man]
@@ -37,18 +37,10 @@ Normally, screen control is performed via ScreenConsole, so it is not necessary 
 	$term_goto_xy
 ***Terminal >> clear
 	$term_clear
-***Mulk.hostOS = #windows >
-****Terminal >> loadKeymap: fn
-	$term_load_keymap
-****Terminal >> shiftMode: modeArg
-	$term_set_shift_mode
 
 **Terminal >> start
 	self basicStart ->:coord, coordX ->width;
-	coord coordY ->height;
-	Mulk.hostOS = #windows ifTrue:
-		[Mulk includesKey?: #ScreenConsole.keymap, ifTrue:
-			[self loadKeymap: (Mulk at: #ScreenConsole.keymap) path]]
+	coord coordY ->height
 **Terminal >> width
 	width!
 **Terminal >> height

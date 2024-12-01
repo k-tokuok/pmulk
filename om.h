@@ -1,6 +1,6 @@
 /*
 	object memory.
-	$Id: mulk om.h 1244 2024-05-27 Mon 22:03:35 kt $
+	$Id: mulk om.h 1299 2024-11-10 Sun 15:32:06 kt $
 */
 
 typedef union om *object;
@@ -105,20 +105,6 @@ union om {
 	} method;
 
 	/* executing */
-	struct kernel {
-		OHEADER;
-		object cycle;
-		object used_memory;
-		object max_used_memory;
-		object object_count;
-		object max_object_count;
-		object cache_size;
-		object cache_entry;
-		object cache_call;
-		object cache_hit;
-		object cache_invalidate;
-	} kernel;
-	
 	struct process {
 		OHEADER;
 		object context;

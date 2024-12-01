@@ -1,5 +1,5 @@
 console with screen control function (ScreenConsole class)
-$Id: mulk sconsole.m 1082 2023-06-24 Sat 22:48:26 kt $
+$Id: mulk sconsole.m 1301 2024-11-16 Sat 15:42:00 kt $
 #ja 画面制御機能付きコンソール (ScreenConsole class)
 
 *[man]
@@ -182,47 +182,6 @@ Returns #skip for the second half of a multibyte character.
 
 tabを表示した部位は空白に置換される。
 マルチバイト文字の後半部分では#skipを返す。
-
-***ScreenConsole >> crossShiftMode
-	self rawShiftMode: 0
-****[man.m]
-*****#en
-Switch to cross shift mode.
-
-A key that should be pressed with the left hand while pressing "Conversion" on a JIS keyboard functions as a shift key when a key that should be pressed with the right hand is pressed while pressing "No Conversion".
-Similarly, a key that should be pressed with the right hand while pressing "Conversion" and a key that should be pressed with the left hand while pressing "No Conversion" function as a control key.
-
-Not all terminals and implementations support it.
-
-When using special shift mode on Windows or when using SDL, it is necessary to specify the keymap file corresponding to the keyboard to be used in #ScreenConsole.keymap of the system dictionary.
-Keymap files are files starting with "k-" in the system directory.
-*****#ja
-クロスシフトモードに切り替える。
-
-JISキーボードの"変換"を押しながら左手で打鍵すべきキーを、"無変換"を押しながら右手で打鍵すべきキーを入力するとシフトキーとして機能する。
-同様に"変換"を押しながら右手で打鍵すべきキーを、"無変換"を押しながら左手で打鍵すべきキーを入力するとコントロールキーとして機能する。
-
-全ての端末・実装で対応している訳ではない。
-
-Windowsで特殊シフトモードを使用する場合や、SDLを使用する場合はシステム辞書の#ScreenConsole.keymapに使用するキーボードに応じたキーマップファイルを指定する必要がある。
-キーマップファイルはシステムディレクトリの"k-"で始まるファイルである。
-***ScreenConsole >> spaceShiftMode
-	self rawShiftMode: 1
-****[man.m]
-*****#en
-Switch to space shift mode.
-
-If you press another key while pressing the space bar, it functions as a shift key.
-If you release another key without typing, a blank is entered.
-
-Not all terminals and implementations support it.
-*****#ja
-スペースシフトモードに切り替える。
-
-スペースバーを押しながら他のキーを打鍵するとシフトキーとして機能する。
-他のキーを打鍵せずに離すと空白が入力される。
-
-全ての端末・実装で対応している訳ではない。
 
 **inputMethod i/f.
 ***ScreenConsole >> inputMethod: inputMethodArg

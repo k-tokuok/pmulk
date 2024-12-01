@@ -1,6 +1,6 @@
 /*
 	xc std.
-	$Id: mulk std.h 1073 2023-06-14 Wed 22:34:43 kt $
+	$Id: mulk std.h 1318 2024-12-01 Sun 14:28:50 kt $
 */
 
 #define TRUE 1
@@ -31,13 +31,6 @@ typedef int intptr_t;
 
 #ifdef __DJGPP__
 #include <stdint.h>
-#endif
-
-#if CM_P
-typedef unsigned short int uint16_t;
-typedef unsigned int uint32_t;
-typedef int intptr_t;
-typedef unsigned int uintptr_t;
 #endif
 
 #if U64_P

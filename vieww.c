@@ -1,6 +1,6 @@
 /*
 	view for windows.
-	$Id: mulk vieww.c 1191 2024-03-30 Sat 22:35:26 kt $
+	$Id: mulk vieww.c 1320 2024-12-01 Sun 17:22:18 kt $
 */
 
 #include "std.h"
@@ -14,12 +14,9 @@
 #include "om.h"
 #include "ip.h"
 
-#include "viewp.h"
-#include "ki.h"
-#include "kidec.h"
-#include "kidecw.h"
+#include "view.h"
+#include "vkey.h"
 #include "csplit.h"
-#include "intr.h"
 #include "codepage.h"
 
 static HWND window;
@@ -32,9 +29,7 @@ static HFONT font,jfont;
 static int view_width,view_height;
 
 static struct iqueue vevent_queue;
-static struct kidec kidec;
 static int more_char_p;
-static int vevent_filter;
 
 static int init_p=FALSE;
 
@@ -80,15 +75,15 @@ static LRESULT CALLBACK window_proc(HWND hWnd,UINT msg,WPARAM wParam,
 		if(more_char_p) more_char_p=FALSE;
 		else if(IsDBCSLeadByte(ch)) more_char_p=TRUE;
 		else {
-			if(kidec.mode==KI_GENERIC) {
+			if(view_shift_mode==VIEW_GENERIC_SHIFT) {
 				if(ch==3) ip_trap_code=TRAP_INTERRUPT;
 			} else ch=-1;
 		}
 		if(ch!=-1) key_queue_put(ch);
 		break;
 	case WM_KEYDOWN:
-		if(kidec.mode!=KI_GENERIC) {
-			ch=kidec_down(&kidec,(int)wParam);
+		if(view_shift_mode!=VIEW_GENERIC_SHIFT) {
+			ch=vkey_down((int)wParam);
 			if(ch!=-1) {
 				if(ch==3) ip_trap_code=TRAP_INTERRUPT;
 				key_queue_put(ch);
@@ -96,23 +91,23 @@ static LRESULT CALLBACK window_proc(HWND hWnd,UINT msg,WPARAM wParam,
 		}
 		break;
 	case WM_KEYUP:
-		if(kidec.mode!=KI_GENERIC) {
-			ch=kidec_up(&kidec,(int)wParam);
+		if(view_shift_mode!=VIEW_GENERIC_SHIFT) {
+			ch=vkey_up((int)wParam);
 			if(ch!=-1) key_queue_put(ch);
 		}
 		break;
 	case WM_LBUTTONDOWN:
 		SetCapture(hWnd);
-		if(vevent_filter) ptr_queue_put(VEVENT_PTRDOWN,lParam);
+		if(view_event_filter) ptr_queue_put(VEVENT_PTRDOWN,lParam);
 		break;
 	case WM_MOUSEMOVE:
-		if(vevent_filter) {
+		if(view_event_filter) {
 			if(wParam&MK_LBUTTON) ptr_queue_put(VEVENT_PTRDRAG,lParam);
 		}
 		break;
 	case WM_LBUTTONUP:
 		ReleaseCapture();
-		if(vevent_filter) ptr_queue_put(VEVENT_PTRUP,lParam);
+		if(view_event_filter) ptr_queue_put(VEVENT_PTRUP,lParam);
 		break;
 	default:
 		return DefWindowProc(hWnd,msg,wParam,lParam);
@@ -173,8 +168,7 @@ void view_open(int width,int height)
 		wc.hIconSm=NULL;
 		if(RegisterClassEx(&wc)==0) xerror("RegisterClass failed.");
 
-		kidec.mode=KI_GENERIC;
-		kidec.press_check=kidecw_press_check;
+		view_shift_mode=VIEW_GENERIC_SHIFT;
 		init_p=TRUE;
 	}
 
@@ -192,7 +186,7 @@ void view_open(int width,int height)
 	iqueue_reset(&vevent_queue);
 	
 	more_char_p=FALSE;
-	vevent_filter=0;
+	view_event_filter=0;
 	font=NULL;
 	jfont=NULL;
 	
@@ -494,19 +488,7 @@ void view_put_monochrome_image(int x,int y,char *bits,int w,int h,
 /** view event */
 void view_load_keymap(char *fn)
 {
-	kidec_load_keymap(&kidec,fn,KI_WINDOWS);
-}
-
-int view_set_shift_mode(int mode)
-{
-	if(!kidec_keymap_loaded_p(&kidec)) return FALSE;
-	kidec.mode=mode;
-	return TRUE;
-}
-
-void view_set_event_filter(int mode)
-{
-	vevent_filter=mode;
+	vkey_load_keymap(fn,VKEY_WINDOWS);
 }
 
 int view_get_event(void)
@@ -523,8 +505,35 @@ int view_event_empty_p(void)
 	return iqueue_empty_p(&vevent_queue);
 }
 
+void view_get_screen_size(int *w,int *h)
+{
+	*w=GetSystemMetrics(SM_CXSCREEN);
+	*h=GetSystemMetrics(SM_CYSCREEN);
+}
+
 /* intr */
-void intr_check(void)
+void ip_intr_check(void)
 {
 	if(window!=NULL) process_event(FALSE);
+}
+
+/* vkey */
+static int press_p(int code) {
+	return GetKeyState(code)&0x8000;
+}
+
+#ifdef __DMC__
+#define VK_NONCONVERT 0x1d
+#define VK_CONVERT 0x1c
+#endif
+
+int vkey_press_check(int key)
+{
+	switch(key) {
+	case VKEY_SHIFT: return press_p(VK_LSHIFT)||press_p(VK_RSHIFT);
+	case VKEY_CTRL: return press_p(VK_LCONTROL)||press_p(VK_RCONTROL);
+	case VKEY_CONVERT: return press_p(VK_CONVERT);
+	case VKEY_NONCONVERT: return press_p(VK_NONCONVERT);
+	default: return 0;
+	}
 }

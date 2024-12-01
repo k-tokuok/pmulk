@@ -1,6 +1,6 @@
 /*
 	view for sdl.
-	$Id: mulk views.c 1197 2024-03-31 Sun 21:48:00 kt $
+	$Id: mulk views.c 1320 2024-12-01 Sun 17:22:18 kt $
 */
 
 #include "std.h"
@@ -11,10 +11,8 @@
 
 #include "iqueue.h"
 #include "xwchar.h"
-#include "viewp.h"
-#include "intr.h"
-#include "ki.h"
-#include "kidec.h"
+#include "view.h"
+#include "vkey.h"
 #include "csplit.h"
 #include "om.h"
 #include "ip.h"
@@ -27,8 +25,6 @@ static int update_count;
 static TTF_Font *font;
 
 static struct iqueue queue;
-static int vevent_filter;
-static struct kidec kidec;
 
 static void put_queue(int val)
 {
@@ -59,28 +55,28 @@ void process_event(int wait_p)
 			put_queue_key(0);
 			break;
 		case SDL_KEYDOWN:
-			ch=kidec_down(&kidec,event.key.keysym.scancode);
+			ch=vkey_down(event.key.keysym.scancode);
 			if(ch!=-1) {
 				put_queue_key(ch);
 				if(ch==3) ip_trap_code=TRAP_INTERRUPT;
 			}
 			break;
 		case SDL_KEYUP:
-			ch=kidec_up(&kidec,event.key.keysym.scancode);
+			ch=vkey_up(event.key.keysym.scancode);
 			if(ch!=-1) put_queue_key(ch);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			if(vevent_filter&&event.button.button==SDL_BUTTON_LEFT) {
+			if(view_event_filter&&event.button.button==SDL_BUTTON_LEFT) {
 				put_queue_ptr(VEVENT_PTRDOWN,event.button.x,event.button.y);
 			}
 			break;
 		case SDL_MOUSEMOTION:
-			if(vevent_filter&&(event.motion.state&SDL_BUTTON_LMASK)) {
+			if(view_event_filter&&(event.motion.state&SDL_BUTTON_LMASK)) {
 				put_queue_ptr(VEVENT_PTRDRAG,event.motion.x,event.motion.y);
 			}
 			break;
 		case SDL_MOUSEBUTTONUP:
-			if(vevent_filter&&event.button.button==SDL_BUTTON_LEFT) {
+			if(view_event_filter&&event.button.button==SDL_BUTTON_LEFT) {
 				put_queue_ptr(VEVENT_PTRUP,event.button.x,event.button.y);
 			}
 			break;
@@ -91,7 +87,7 @@ void process_event(int wait_p)
 	}
 }
 
-void intr_check(void)
+void ip_intr_check(void)
 {
 	if(window!=NULL) process_event(FALSE);
 }
@@ -104,17 +100,17 @@ static void quit_all(void)
 	SDL_Quit();
 }
 
-static int press_check(int key)
+int vkey_press_check(int key)
 {
 	const Uint8 *keystates;
 	keystates=SDL_GetKeyboardState(NULL);
 	switch(key) {
-	case KI_SHIFT: 
+	case VKEY_SHIFT: 
 		return keystates[SDL_SCANCODE_LSHIFT]||keystates[SDL_SCANCODE_RSHIFT];
-	case KI_CTRL:
+	case VKEY_CTRL:
 		return keystates[SDL_SCANCODE_RCTRL]||keystates[SDL_SCANCODE_LCTRL];
-	case KI_CONVERT: return keystates[SDL_SCANCODE_INTERNATIONAL4];
-	case KI_NONCONVERT: return keystates[SDL_SCANCODE_INTERNATIONAL5];
+	case VKEY_CONVERT: return keystates[SDL_SCANCODE_INTERNATIONAL4];
+	case VKEY_NONCONVERT: return keystates[SDL_SCANCODE_INTERNATIONAL5];
 	default: return 0;
 	}
 }
@@ -125,8 +121,7 @@ void view_open(int width,int height)
 		SDL_Init(SDL_INIT_VIDEO);
 		TTF_Init();
 		atexit(quit_all);
-		kidec.mode=KI_CROSS_SHIFT;
-		kidec.press_check=press_check;
+		view_shift_mode=VIEW_CROSS_SHIFT;
 		init_p=TRUE;
 	}
 	
@@ -135,7 +130,7 @@ void view_open(int width,int height)
 	renderer=SDL_CreateRenderer(window,-1,SDL_RENDERER_SOFTWARE);
 	update_count=0;
 	iqueue_reset(&queue);
-	vevent_filter=0;
+	view_event_filter=0;
 }
 
 void view_move(int x,int y)
@@ -370,19 +365,7 @@ void view_put_monochrome_image(int x,int y,char *bits,int w,int h,int fg_code,
 
 void view_load_keymap(char *fn)
 {
-	kidec_load_keymap(&kidec,fn,KI_SDL);
-}
-
-int view_set_shift_mode(int mode)
-{
-	if(!kidec_keymap_loaded_p(&kidec)) return FALSE;
-	kidec.mode=mode;
-	return TRUE;
-}
-
-void view_set_event_filter(int mode)
-{
-	vevent_filter=mode;
+	vkey_load_keymap(fn,VKEY_SDL);
 }
 
 int view_get_event(void)
@@ -397,4 +380,12 @@ int view_event_empty_p(void)
 	present();
 	process_event(FALSE);
 	return iqueue_empty_p(&queue);
+}
+
+void view_get_screen_size(int *w,int *h)
+{
+	SDL_DisplayMode dm;
+	SDL_GetDesktopDisplayMode(0,&dm);
+	*w=dm.w;
+	*h=dm.h;
 }

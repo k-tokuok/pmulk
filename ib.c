@@ -1,6 +1,6 @@
 /*
 	image builder.
-	$Id: mulk ib.c 1247 2024-05-31 Fri 21:38:50 kt $
+	$Id: mulk ib.c 1318 2024-12-01 Sun 14:28:50 kt $
 */
 
 #include "std.h"
@@ -599,6 +599,7 @@ static void gen_send(int super_p,int narg,object selector)
 /**/
 
 static char *prim_name_table[]={
+#define DEFPROPERTY(n)
 #define DEFPRIM(n) #n,
 #include "ibprim.wk"
 #undef DEFPRIM
@@ -1108,6 +1109,13 @@ static object make_boot_args(int argc,char *argv[])
 	
 	return boot_args;
 }
+
+#if INTR_CHECK_P
+void ip_intr_check(void)
+{
+	/* do nothing */
+}
+#endif
 
 int main(int argc,char *argv[])
 {

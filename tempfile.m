@@ -1,5 +1,5 @@
 temporary file (TempFile.class class)
-$Id: mulk tempfile.m 937 2022-09-23 Fri 21:12:15 kt $
+$Id: mulk tempfile.m 1318 2024-12-01 Sun 14:28:50 kt $
 #ja 一時ファイル (TempFile.class class)
 
 *[man]
@@ -43,8 +43,6 @@ Mulkを複数並列実行しても正しく動作する。
 .summary clean
 
 *TempFile.class class.@
-	Mulk.hostOS = #dos | (Mulk.hostOS = #android) | (Mulk.hostOS = #cm)
-		ifFalse: [Mulk import: "lock"];
 	Object addSubclass: #TempFile.class
 
 **TempFile.class >> makeFile: suffix

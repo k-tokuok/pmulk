@@ -1,6 +1,6 @@
 /*
 	view for X.
-	$Id: mulk viewx.c 1011 2023-02-02 Thu 21:23:54 kt $
+	$Id: mulk viewx.c 1321 2024-12-01 Sun 20:34:54 kt $
 */
 #include "std.h"
 
@@ -18,10 +18,8 @@
 
 #include "mem.h"
 #include "iqueue.h"
-#include "viewp.h"
+#include "view.h"
 #include "xwchar.h"
-#include "intr.h"
-#include "ki.h"
 
 #include "om.h"
 #include "ip.h"
@@ -58,8 +56,6 @@ static XftDraw *draw;
 static int font_ascent;
 
 static struct iqueue queue;
-static int vevent_filter;
-static int shift_mode;
 static int left_mod_p,right_mod_p,space_mod_p,type_space_p;
 
 static void put_queue(int val)
@@ -82,7 +78,7 @@ static int mod_key_p(KeySym key)
 {
 	if(key==XK_Muhenkan) return TRUE;
 	if(key==XK_Henkan) return TRUE;
-	if(shift_mode==KI_SPACE_SHIFT&&key==XK_space) return TRUE;
+	if(view_shift_mode==VIEW_SPACE_SHIFT&&key==XK_space) return TRUE;
 	return FALSE;
 }
 
@@ -142,7 +138,7 @@ void process_event(int wait_p)
 					type_space_p=TRUE;
 				}
 			} else {
-				if(shift_mode==KI_CROSS_SHIFT) {
+				if(view_shift_mode==VIEW_CROSS_SHIFT) {
 					if(key==XK_space) {
 						if(left_mod_p||right_mod_p) {
 							event.xkey.state|=ControlMask;
@@ -212,15 +208,15 @@ void process_event(int wait_p)
 			}
 			break;
 		case ButtonPress:
-			if(vevent_filter&&event.xbutton.button==1) {
+			if(view_event_filter&&event.xbutton.button==1) {
 				put_queue_ptr(VEVENT_PTRDOWN,&event);
 			}
 			break;
 		case MotionNotify:
-			if(vevent_filter) put_queue_ptr(VEVENT_PTRDRAG,&event);
+			if(view_event_filter) put_queue_ptr(VEVENT_PTRDRAG,&event);
 			break;
 		case ButtonRelease:
-			if(vevent_filter&&event.xbutton.button==1) {
+			if(view_event_filter&&event.xbutton.button==1) {
 				put_queue_ptr(VEVENT_PTRUP,&event);
 			}
 			break;
@@ -272,7 +268,7 @@ static void update(int l,int t,int w,int h)
 
 /* intr */
 
-void intr_check(void)
+void ip_intr_check(void)
 {
 	if(display!=NULL) process_event(FALSE);
 }
@@ -344,8 +340,8 @@ void view_open(int width,int height)
 		|ButtonPressMask|Button1MotionMask|ButtonReleaseMask);
 	
 	iqueue_reset(&queue);
-	vevent_filter=0;
-	shift_mode=KI_CROSS_SHIFT;
+	view_event_filter=0;
+	view_shift_mode=VIEW_CROSS_SHIFT;
 	XMapRaised(display,window);
 }
 
@@ -595,17 +591,6 @@ void view_load_keymap(char *fn)
 	/* do nothing */
 }
 
-int view_set_shift_mode(int mode)
-{
-	shift_mode=mode;
-	return TRUE;
-}
-
-void view_set_event_filter(int mode)
-{
-	vevent_filter=mode;
-}
-
 int view_get_event(void)
 {
 	expose();
@@ -618,4 +603,12 @@ int view_event_empty_p(void)
 	expose();
 	process_event(FALSE);
 	return iqueue_empty_p(&queue);
+}
+
+void view_get_screen_size(int *w,int *h)
+{
+	int s;
+	s=DefaultScreen(display);
+	*w=DisplayWidth(display,s);
+	*h=DisplayHeight(display,s);
 }
