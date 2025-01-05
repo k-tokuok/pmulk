@@ -1,6 +1,6 @@
 /*
 	interpreter.
-	$Id: mulk ip.c 1318 2024-12-01 Sun 14:28:50 kt $
+	$Id: mulk ip.c 1327 2024-12-08 Sun 11:38:07 kt $
 */
 
 #include "std.h"
@@ -1349,6 +1349,13 @@ DEFPRIM(kernel_cacheReset)
 	return PRIM_SUCCESS;
 }
 
+char *vm_fn;
+char *image_fn;
+
+#if WINDOWS_P
+int codepage;
+#endif
+
 DEFPROPERTY(kernel)
 {
 	switch(key) {
@@ -1387,6 +1394,19 @@ DEFPROPERTY(kernel)
 			*result=om_boolean(LC(&val)==0x78);
 		}
 		break;
+	case 12:
+		if(image_fn==NULL) *result=om_nil;
+		else *result=gc_string(image_fn);
+		break;
+	case 13:
+		if(vm_fn==NULL) *result=om_nil;
+		else *result=gc_string(vm_fn);
+		break;
+#if WINDOWS_P
+	case 14:
+		if(sint_p(value)) codepage=sint_val(value);
+		break;
+#endif
 	default:
 		return PRIM_ANOTHER_PROPERTY;
 	}

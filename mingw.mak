@@ -1,6 +1,6 @@
 #
 #	makefile for MinGW-w64 tool chain.
-#	$Id: mulk mingw.mak 1318 2024-12-01 Sun 14:28:50 kt $
+#	$Id: mulk mingw.mak 1327 2024-12-08 Sun 11:38:07 kt $
 #	MinGW-w64:
 #		https://www.mingw-w64.org/
 #	binary releases:
@@ -28,7 +28,7 @@ ppflags=windows caseInsensitiveFileName
 all: mulk.exe mulk.mi 
 
 ibprim=ip.c sint.c lpint.c os.c float.c fbarray.c
-mulkprim=$(ibprim) codepage.c dl.c term.c view.c
+mulkprim=$(ibprim) dl.c term.c view.c
 
 xc.a: std.o heap.o xbarray.o xctype.o splay.o xgetopt.o log.o xarray.o \
 	cqueue.o iqueue.o xwchar.o coord.o \

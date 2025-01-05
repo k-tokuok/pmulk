@@ -1,12 +1,13 @@
 /*
 	path and files for windows/WIDECHAR API.
-	$Id: mulk pfw.c 1191 2024-03-30 Sat 22:35:26 kt $
+	$Id: mulk pfw.c 1327 2024-12-08 Sun 11:38:07 kt $
 */
 
 #include "std.h"
-#include "codepage.h"
 #include "pf.h"
 #include "mem.h"
+#include "om.h"
+#include "ip.h" /* codepage */
 
 #include <windows.h>
 
@@ -89,15 +90,12 @@ FILE *pf_open(char *pfn,char *mode)
 	return fp;
 }
 
-int pf_stat(char *pfn,struct pf_stat *statbuf)
+static int xstat(WCHAR *fn,struct pf_stat *statbuf) 
 {
-	struct xbarray xba;
+	int en,result;
 	WIN32_FILE_ATTRIBUTE_DATA attr;
-	int en,st,result;
 	
-	st=GetFileAttributesExW(to_mfn(pfn,&xba),GetFileExInfoStandard,&attr);
-	xbarray_free(&xba);
-	if(!st) {
+	if(!GetFileAttributesExW(fn,GetFileExInfoStandard,&attr)) {
 		en=GetLastError();
 		if(en==ERROR_FILE_NOT_FOUND||en==ERROR_PATH_NOT_FOUND
 			||en==ERROR_INVALID_NAME) return PF_NONE;
@@ -115,9 +113,19 @@ int pf_stat(char *pfn,struct pf_stat *statbuf)
 	return result;
 }
 
-static int check(char *fn,int mode)
+int pf_stat(char *pfn,struct pf_stat *statbuf)
 {
-	return (pf_stat(fn,NULL)&mode)==mode;
+	struct xbarray xba;
+	int result;
+	
+	result=xstat(to_mfn(pfn,&xba),statbuf);
+	xbarray_free(&xba);
+	return result;
+}
+
+static int check(WCHAR *fn,int mode)
+{
+	return (xstat(fn,NULL)&mode)==mode;
 }
 
 void pf_exepath(char *argv0,struct xbarray *path)
@@ -234,7 +242,7 @@ int pf_remove(char *pfn)
 	wchar_t *mfn;
 	int st;
 	mfn=to_mfn(pfn,&xba);
-	if(check(pfn,PF_DIR)) st=RemoveDirectoryW(mfn);
+	if(check(mfn,PF_DIR)) st=RemoveDirectoryW(mfn);
 	else st=DeleteFileW(mfn);
 	xbarray_free(&xba);
 	return st;

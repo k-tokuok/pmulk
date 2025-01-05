@@ -1,5 +1,5 @@
 console for view (Console.view class)
-$Id: mulk c-view.m 1318 2024-12-01 Sun 14:28:50 kt $
+$Id: mulk c-view.m 1330 2024-12-14 Sat 19:51:57 kt $
 #ja view用コンソール (Console.view class)
 
 *[man]
@@ -149,7 +149,7 @@ Let widthArg be the number of characters per line (if possible).
 一行当たりの文字数を(可能なら)widthArgとする。
 
 ***Console.view >> resizeViewWidth: widthArg
-	View width: widthArg * fw height: vh;
+	View size: (widthArg * fw coordY: vh);
 	self width: widthArg
 ****[man.m]
 *****#en

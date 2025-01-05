@@ -1,5 +1,5 @@
 mulk language specification
-$Id: mulk lang.mm 965 2022-11-10 Thu 21:37:46 kt $
+$Id: mulk lang.mm 1330 2024-12-14 Sat 19:51:57 kt $
 #ja Mulk言語仕様書
 
 *#en
@@ -634,7 +634,7 @@ An assignment expression has a value, and you can then write an assignment expre
 **factor
 ***#en
 	factor = variable | '(' expression ')' | block | literal
-	literal = global | fixedArray | '-'? number | char | string
+	literal = global | fixedArray | fixedByteArray | '-'? number | char | string
 	global = identifier
 
 <factor> consists of a variable reference, an expression with parentheses, block, and literal.
@@ -644,7 +644,7 @@ Parenthesized expressions are evaluated first.
 In <literal>, global object references, fixed arrays, positive and negative numbers, characters, and character strings can be described.
 ***#ja factor(項)
 	factor = variable | '(' expression ')' | block | literal
-	literal = global | fixedArray | '-'? number | char | string
+	literal = global | fixedArray | fixedByteArray | '-'? number | char | string
 	global = identifier
 
 factorは変数参照、括弧付きの式、block、literalからなる。
@@ -665,6 +665,25 @@ Note that if you change the contents of an array during program execution, the s
 	fixedArray = '#(' literal* ')'
 	
 固定配列は'()'内のliteralを要素とするFixedArrayのインスタンスである。
+
+この配列はコンパイル時に生成される。
+プログラム実行中に配列の内容を変更した場合、変更の副作用が次の参照に残る事に注意。
+
+***fixedByteArray
+****#en
+fixedByteArray = '#[' integer* ']'
+
+<fixedByteArray> is an instance of FixedByteArray whose elements are the values in '[]'.
+The value must be in the range 0..255.
+
+This array is generated at compile time.
+Note that if the contents of the array are changed during program execution, the side effects of the change will remain in the next reference.
+
+****#ja fixedByteArray(固定バイト配列)
+	fixedByteArray = '#[' integer* ']'
+
+固定バイト配列は'[]'内の値を要素とするFixedByteArrayのインスタンスである。
+数値は0..255の範囲でなくてはならない。
 
 この配列はコンパイル時に生成される。
 プログラム実行中に配列の内容を変更した場合、変更の副作用が次の参照に残る事に注意。

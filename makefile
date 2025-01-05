@@ -1,6 +1,6 @@
 #
 #	makefile for gnu toolchain.
-#	$Id: mulk makefile 1318 2024-12-01 Sun 14:28:50 kt $
+#	$Id: mulk makefile 1327 2024-12-08 Sun 11:38:07 kt $
 #
 #	make hostos={cygwin,linux,macosx,minix,freebsd,netbsd,illumos,windows}
 #		[dl=on|off] [term=on|off] [view=on|off|sdl] [xft=on|off] 
@@ -74,7 +74,6 @@ else
 toolprefix=x86_64-w64-mingw32-
 endif
 ppflags+=caseInsensitiveFileName
-mulkprims+=codepage.c
 xcobjs+=pfw.o
 exe=.exe
 termobjs+=termw.o

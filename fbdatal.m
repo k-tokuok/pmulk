@@ -1,5 +1,5 @@
 little endian representation of integer values
-$Id: mulk fbdatal.m 990 2023-01-01 Sun 21:12:27 kt $
+$Id: mulk fbdatal.m 1332 2024-12-15 Sun 08:18:07 kt $
 #ja 整数値のlittle endian表現
 
 *[man]
@@ -14,7 +14,7 @@ FixedByteArrayにLittle Endianの整数データを読み書きする機能を�
 	UnitTest addSubclass: #Test.FixedByteArray.fbdatal
 		instanceVars: "bytes" ->testClass
 **Test.FixedByteArray.fbdatal >> setup
-	#(1 2 3 4 5 6 7 8 0xf0 0xf1 0xf2 0xf3) asArray asFixedByteArray ->bytes
+	#[1 2 3 4 5 6 7 8 0xf0 0xf1 0xf2 0xf3] copy ->bytes
 	
 *import.@
 	Mulk import: "intconv"

@@ -1,6 +1,6 @@
 /*
 	view for sdl.
-	$Id: mulk views.c 1320 2024-12-01 Sun 17:22:18 kt $
+	$Id: mulk views.c 1331 2024-12-14 Sat 21:20:31 kt $
 */
 
 #include "std.h"
@@ -17,7 +17,6 @@
 #include "om.h"
 #include "ip.h"
 
-static int init_p=FALSE;
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static int update_count;
@@ -94,12 +93,6 @@ void ip_intr_check(void)
 
 /* api */
 
-static void quit_all(void)
-{
-	TTF_Quit();
-	SDL_Quit();
-}
-
 int vkey_press_check(int key)
 {
 	const Uint8 *keystates;
@@ -115,27 +108,21 @@ int vkey_press_check(int key)
 	}
 }
 
+void view_init(void)
+{
+	SDL_Init(SDL_INIT_VIDEO);
+	TTF_Init();
+}
+
 void view_open(int width,int height)
 {
-	if(!init_p) {
-		SDL_Init(SDL_INIT_VIDEO);
-		TTF_Init();
-		atexit(quit_all);
-		view_shift_mode=VIEW_CROSS_SHIFT;
-		init_p=TRUE;
-	}
-	
 	window=SDL_CreateWindow("mulkView",
 		SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,width,height,0);
 	renderer=SDL_CreateRenderer(window,-1,SDL_RENDERER_SOFTWARE);
+	view_shift_mode=VIEW_CROSS_SHIFT;
 	update_count=0;
 	iqueue_reset(&queue);
 	view_event_filter=0;
-}
-
-void view_move(int x,int y)
-{
-	SDL_SetWindowPosition(window,x,y);
 }
 
 static void close_font(void)
@@ -161,17 +148,18 @@ int view_set_font(char *font_name)
 	return coord(w,TTF_FontLineSkip(font));
 }
 
-void view_resize(int width,int height)
-{
-	SDL_SetWindowSize(window,width,height);
-}
-
 void view_close(void)
 {
 	close_font();
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	window=NULL;
+}
+
+void view_finish(void)
+{
+	TTF_Quit();
+	SDL_Quit();
 }
 
 static void set_draw_color(int color_code)
@@ -214,7 +202,6 @@ void view_fill_rectangle(int x,int y,int width,int height,int color_code)
 
 #if WINDOWS_P
 #include <windows.h>
-#include "codepage.h"
 
 static int wchar_to_utf8(uint64_t wc,char *buf)
 {
@@ -382,10 +369,27 @@ int view_event_empty_p(void)
 	return iqueue_empty_p(&queue);
 }
 
-void view_get_screen_size(int *w,int *h)
+void view_set_position(int coord)
+{
+	SDL_SetWindowPosition(window,COORD_X(coord),COORD_Y(coord));
+}
+
+void view_set_size(int coord)
+{
+	SDL_SetWindowSize(window,COORD_X(coord),COORD_Y(coord));
+}
+
+int view_get_screen_size(void)
 {
 	SDL_DisplayMode dm;
 	SDL_GetDesktopDisplayMode(0,&dm);
-	*w=dm.w;
-	*h=dm.h;
+	return coord(dm.w,dm.h);
+}
+
+int view_get_frame_size(void)
+{
+	int w,h,l,r,t,b;
+	SDL_GetWindowSize(window,&w,&h);
+	SDL_GetWindowBordersSize(window,&t,&l,&r,&b);
+	return coord(w+l+r,h+t+b);
 }

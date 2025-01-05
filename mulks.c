@@ -1,6 +1,6 @@
 /*
 	mulk for standalone.
-	$Id: mulk mulks.c 1243 2024-05-26 Sun 11:40:56 kt $
+	$Id: mulk mulks.c 1326 2024-12-07 Sat 21:46:37 kt $
 */
 
 #include "std.h"
@@ -45,15 +45,14 @@ int main(int argc,char *argv[])
 	ir(image);
 	gc_init();
 
-	boot_args=gc_object_new(om_FixedArray,3);
+	boot_args=gc_object_new(om_FixedArray,2);
 
 	main_args=gc_object_new(om_FixedArray,argc-1);
 	for(i=1;i<argc;i++) main_args->farray.elt[i-1]=gc_string(argv[i]);
 	boot_args->farray.elt[1]=main_args;
 
-	
 	pf_exepath(argv[0],&exepath);
-	boot_args->farray.elt[2]=gc_string(exepath.elt);
+	image_fn=xstrdup(exepath.elt);
 	xbarray_free(&exepath);
 
 	ip_start(boot_args,DEFAULT_STACK_SIZE*K);

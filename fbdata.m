@@ -1,14 +1,14 @@
 byte representation of integer values
-$Id: mulk fbdata.m 990 2023-01-01 Sun 21:12:27 kt $
+$Id: mulk fbdata.m 1339 2024-12-26 Thu 21:56:19 kt $
 #ja 整数値のバイト表現
 
 *[man]
 **#en
 .caption DESCRIPTION
-Provides a function to read and write numerical data in FixedByteArray in the endian of the host system.
+Provides a function to read and write numerical data in FixedByteArray in the endian of the host OS.
 **#ja
 .caption 説明
-FixedByteArrayにホストシステムのエンディアンで数値データを読み書きする機能を提供する。
+FixedByteArrayにホストOSのエンディアンで数値データを読み書きする機能を提供する。
 
 *import.@
 	Mulk import: (DL.littleEndian? ifTrue: ["fbdatal"] ifFalse: ["fbdatab"])

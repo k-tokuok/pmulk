@@ -1,5 +1,5 @@
 zip archiver
-$Id: mulk zip.m 1203 2024-04-05 Fri 22:00:56 kt $
+$Id: mulk zip.m 1339 2024-12-26 Thu 21:56:19 kt $
 #ja zipアーカイバ
 
 *[man]
@@ -13,7 +13,7 @@ $Id: mulk zip.m 1203 2024-04-05 Fri 22:00:56 kt $
 Create a ZIPFILE from the contents of the current directory, or extract the contents of the ZIPFILE to the current directory.
 
 You can specify the target directory as DIR and the target files as FILE.
-Filenames are handled in UTF-8 regardless of the character encoding of the host system.
+Filenames are handled in UTF-8 regardless of the character encoding of the host OS.
 .caption OPTION
 	f -- Include only files in the file list from standard input(c, e).
 	p PREFIX -- Create an entry to be expanded under the PREFIX directory (c).
@@ -31,7 +31,7 @@ Filenames are handled in UTF-8 regardless of the character encoding of the host 
 カレントディレクトリの内容からZIPFILEを作成したり、ZIPFILEの内容をカレントディレクトリに展開する。
 
 DIRとして対象のディレクトリを、FILEとして対象のファイルを指定することができる。
-ホストシステムの文字コードに関わらず、ファイル名はUTF-8で扱われる。
+ホストOSの文字コードに関わらず、ファイル名はUTF-8で扱われる。
 .caption オプション
 	f -- 標準入力からのファイルリストのファイルのみを対象とする(c, e)。
 	p PREFIX -- PREFIXディレクトリ下に展開されるようにエントリを作る(c)。

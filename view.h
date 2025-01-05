@@ -1,6 +1,6 @@
 /*
 	View (primitive implement)
-	$Id: mulk view.h 1320 2024-12-01 Sun 17:22:18 kt $
+	$Id: mulk view.h 1330 2024-12-14 Sat 19:51:57 kt $
 */
 
 #include "coord.h"
@@ -24,11 +24,11 @@ extern int view_event_filter;
 #define VIEW_MAX_POLYGON_POINT 20
 
 /* view*.c */
+extern void view_init(void);
 extern void view_open(int width,int height);
 extern int view_set_font(char *font_name);
-extern void view_move(int x,int y);
-extern void view_resize(int width,int height);
 extern void view_close(void);
+extern void view_finish(void);
 
 extern void view_fill_rectangle(int x,int y,int width,int height,int color);
 extern void view_draw_char(int x,int y,uint64_t wc,int color);
@@ -40,4 +40,8 @@ extern void view_put_monochrome_image(int x,int y,char *bits,int w,int h,
 extern void view_load_keymap(char *fn);
 extern int view_get_event(void);
 extern int view_event_empty_p(void);
-extern void view_get_screen_size(int *w,int *h);
+
+extern void view_set_position(int coord);
+extern void view_set_size(int coord);
+extern int view_get_screen_size(void);
+extern int view_get_frame_size(void);

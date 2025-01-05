@@ -1,6 +1,6 @@
 /*
 	image builder.
-	$Id: mulk ib.c 1318 2024-12-01 Sun 14:28:50 kt $
+	$Id: mulk ib.c 1330 2024-12-14 Sat 19:51:57 kt $
 */
 
 #include "std.h"
@@ -635,7 +635,9 @@ static object parse_literal(void)
 {
 	char buf[MAX_STR_LEN];
 	struct xarray al;
+	struct xbarray xba;
 	object result;
+	int b;
 	
 	if(next_token==tIDENTIFIER) {
 		result=global_find(parse_token_str(tIDENTIFIER));
@@ -669,6 +671,18 @@ static object parse_literal(void)
 		parse_skip();
 		result=farray_new_xarray(&al);
 		xarray_free(&al);
+	} else if(next_token==tBYTE_ARRAY_LITERAL) {
+		parse_skip();
+		xbarray_init(&xba);
+		while(next_token!=']') {
+			b=parse_integer();
+			if(!(0<=b&&b<=255)) lex_error("byte array literal require byte");
+			xbarray_add(&xba,b);
+		}
+		parse_skip();
+		result=fbarray_new(SIZE_FBARRAY,xba.size);
+		memcpy(result->fbarray.elt,xba.elt,xba.size);
+		xbarray_free(&xba);
 	} else {
 		result=NULL;
 		lex_error("illegal token %s",lex_token_name(buf,next_token));

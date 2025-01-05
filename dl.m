@@ -1,16 +1,16 @@
 dynamic link library interface
-$Id: mulk dl.m 1301 2024-11-16 Sat 15:42:00 kt $
+$Id: mulk dl.m 1339 2024-12-26 Thu 21:56:19 kt $
 #ja 動的リンクライブラリのインターフェイス
 
 *[man]
 **#en
 .caption DESCRIPTION
-Provides a function to link and execute the dynamic link library of the host system.
+Provides a function to link and execute the dynamic link library of the host OS.
 
 If the image is saved with the library linked, the library will be re-linked when restarting.
 **#ja
 .caption 説明
-ホストシステムの動的リンクライブラリをリンクし実行する機能を提供する。
+ホストOSの動的リンクライブラリをリンクし実行する機能を提供する。
 
 ライブラリをリンクした状態でイメージを保存すると、再起動時に改めて再リンクを行う。
 

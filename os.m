@@ -1,6 +1,6 @@
-execute host system commands
-$Id: mulk os.m 956 2022-10-22 Sat 22:34:12 kt $
-#ja ホストシステムのコマンドを実行
+execute host OS commands
+$Id: mulk os.m 1339 2024-12-26 Thu 21:56:19 kt $
+#ja ホストOSのコマンドを実行
 
 *[man]
 **#en
@@ -8,7 +8,7 @@ $Id: mulk os.m 956 2022-10-22 Sat 22:34:12 kt $
 	os [OPTION] ARG...
 	os.path [-s] ARG... -- Add ARG... to the beginning of the PATH environment variable
 .caption DESCRIPTION
-Execute host system commands.
+Execute host OS commands.
 
 Each ARG is interpreted as a quoted command and argument string.
 
@@ -23,7 +23,7 @@ The output of the command is output to the standard output of Mulk in text mode,
 	os [OPTION] ARG...
 	os.path [-s] ARG... -- ARG...をPATH環境変数の先頭に追加する。
 .caption 説明
-ホストシステムのコマンドを実行する。
+ホストOSのコマンドを実行する。
 
 ARGはそれぞれがquoteされたコマンド及び引数列として解釈される。
 

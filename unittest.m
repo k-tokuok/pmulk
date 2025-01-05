@@ -1,5 +1,5 @@
 unit test utility
-$Id: mulk unittest.m 1259 2024-06-15 Sat 21:38:52 kt $
+$Id: mulk unittest.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja ユニットテストユーティリティ
 
 *[man]
@@ -9,7 +9,7 @@ $Id: mulk unittest.m 1259 2024-06-15 Sat 21:38:52 kt $
 	unittest.class [-v] CLASS ... -- Run a loaded test class.
 	unittest.load MFILE -- Load a test class from module file.
 .caption DESCRIPTION
-The unittest command reads the test description from the module file, executes the test, determines pass / fail, and displays the pass rate.
+The unittest command reads the test description from the module file, executes the test, determines pass/fail, and displays the pass rate.
 
 Tests are defined in the form of test classes.
 The test class is a class with the name "Test.CLASSNAME" that inherits UnitTest, and has a method of "test.TESTNAME".
@@ -112,7 +112,7 @@ Override this method when defining test preconditions.
 	self!
 ***[man.m]
 ****#en
-After the test method is executed, it is executed regardless of pass / fail.
+After the test method is executed, it is executed regardless of pass/fail.
 
 Override this method to clear the test environment.
 ****#ja

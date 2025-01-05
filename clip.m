@@ -1,5 +1,5 @@
 command line interface to clipboard
-$Id: mulk clip.m 934 2022-09-19 Mon 21:10:16 kt $
+$Id: mulk clip.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja クリップボードへのコマンドラインインタフェース
 
 *[man]
@@ -8,7 +8,7 @@ $Id: mulk clip.m 934 2022-09-19 Mon 21:10:16 kt $
 	clip.get -- Read from clipboard
 	clip.put -- Write to clipboard
 .caption DESCRIPTION
-Reads and writes to the clipboard via standard input / output.
+Reads and writes to the clipboard via standard input/output.
 
 The content must be text data in host OS format.m
 .caption SEE ALSO

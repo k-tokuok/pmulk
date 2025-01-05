@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1311 2024-11-23 Sat 06:54:08 kt $
+$Id: mulk wb.m 1344 2024-12-30 Mon 21:22:01 kt $
 #ja テキストエディタ
 
 *[man]
@@ -62,7 +62,7 @@ The characters that can be used in the text and the input method are as follows.
 	ASCII characters (Character code 0x20-0x7e) -- Input from keyboard normally.
 	Line break -- Enter key or ^m.
 	Tab -- Tab key or ^i.
-	Other multibyte characters -- Use the input method on Mulk. Depending on the environment, the input method of the host system may be used.
+	Other multibyte characters -- Use the input method on Mulk. Depending on the environment, the input method of the host OS may be used.
 
 The following control characters correspond to each key.
 
@@ -79,7 +79,7 @@ ctrlキーと共に入力される制御文字で様々な機能を実行出来�
 	ASCII文字(文字コード0x20-0x7e) -- 普通にキーボードから入力。
 	改行 -- Enterもしくは^m。
 	タブ -- Tabもしくは^i。
-	その他のマルチバイト文字 -- Mulkのインプットメソッドを用いる。環境によってはホストシステムのインプットメソッドが使える場合もある。
+	その他のマルチバイト文字 -- Mulkのインプットメソッドを用いる。環境によってはホストOSのインプットメソッドが使える場合もある。
 
 以下の制御文字はそれぞれのキーに対応する。
 
@@ -217,7 +217,7 @@ Cut and copy the specified range and paste it at the cursor position.
 	^w -- Paste (wedge)
 When pasted during a leap, the range corresponding to the pattern after the cursor is deleted.
 
-If the clipboard library (cliplib) is enabled, the host system's clipboard is used.
+If the clipboard library (cliplib) is enabled, the host OS's clipboard is used.
 ****#ja 範囲編集
 指定の範囲の切り取り、複製、カーソル位置への貼り付けを行う。
 	^e -- 切り取り (erase)
@@ -225,7 +225,7 @@ If the clipboard library (cliplib) is enabled, the host system's clipboard is us
 	^w -- 貼り付け (wedge)
 リープ中に貼り付けを行うと、カーソル位置のパターンに対応する範囲が削除される。
 
-クリップボードライブラリ(cliplib)が有効ならば、ホストシステムのクリップボードが用いられる。
+クリップボードライブラリ(cliplib)が有効ならば、ホストOSのクリップボードが用いられる。
 
 ***Undo/Redo
 ****#en
@@ -310,20 +310,22 @@ Each time ^v is entered, the cursor position on the screen is switched to the be
 
 ***Split screen
 ****#en
-Divide the screen and refer to two places in the buffer at the same time.
-	^s -- Screen split ON/OFF.
-	^o -- Move the cursor to another split screen.
+You can split the screen and reference multiple locations in the buffer at the same time.
+	^s -- Split the screen where the cursor is.
+	^t -- Cancel split.
+	^o -- Move the cursor to the next screen.
 ****#ja 分割
-画面を分割してバッファ中の二箇所を同時に参照する。
-	^s -- 画面分割のON/OFF。
-	^o -- 分割した別画面へカーソルを移動する。
+画面を分割してバッファ中の複数箇所を同時に参照出来る。
+	^s -- カーソルのある画面を分割する。
+	^t -- 分割を解除する。
+	^o -- 次画面へカーソルを移動する。
 
-**Completion (^@, ^t)
+**Completion (^@)
 ***#en
 Completing the contents in the middle of input from the contents before and after the cursor.
 
 The next candidate will be displayed if you continue to complement.
-***#ja 補完 (^@, ^t)
+***#ja 補完 (^@)
 カーソルの前後の内容から入力途中の内容を補完する。
 
 続けて補完を行うと次の候補が表示される。
@@ -791,7 +793,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 
 *Wb.Screen class.@
 	Wb.Drawer addSubclass: #Wb.Screen instanceVars:
-		"buffer height head leftEdges tail redrawHint redrawY"
+		"buffer height cursor tag head leftEdges tail redrawHint redrawY"
 **Wb.Screen >> init: wbArg top: topArg left: leftArg width: widthArg
 		height: heightArg
 	super init: wbArg top: topArg left: leftArg width: widthArg;
@@ -800,10 +802,21 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 
 	#init ->redrawHint;
 	FixedArray basicNew: height ->leftEdges
-**Wb.Screen >> width
+
+**accessing.
+***Wb.Screen >> width
 	width!
-**Wb.Screen >> height
+***Wb.Screen >> height
 	height!
+***Wb.Screen >> cursor
+	wb screen = self ifTrue: [wb cursor] ifFalse: [cursor]!
+***Wb.Screen >> cursor: arg
+	arg ->cursor
+***Wb.Screen >> tag
+	tag!
+***Wb.Screen >> tag: arg
+	arg ->tag
+	
 **Wb.Screen >> firstLineLeftEdge
 	head!
 **Wb.Screen >> lastLineLeftEdge
@@ -845,6 +858,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	self solveY: posArg ->:y;
 	self noTrailLineY?: y, ifTrue: [y ->redrawY]
 ***Wb.Screen >> adjustFor: typeArg at: posArg size: sizeArg
+	wb adjustPos: cursor for: typeArg at: posArg size: sizeArg ->cursor;
 	tail <= posArg ifTrue: [self!];
 	typeArg = #insert
 		ifTrue: [posArg < head]
@@ -919,8 +933,6 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	y ->curY;
 	leftEdges at: y ->:pos, notNil? ifTrue: [self drawLineFrom: pos];
 	self drawSpaces: width - curX
-**Wb.Screen >> cursor
-	wb cursorOf: self!
 **Wb.Screen >> solveCursorY
 	self solveY: self cursor!
 **Wb.Screen >> validCursorPos?
@@ -947,27 +959,124 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	self gotoCurXY
 
 *Wb.SpreadScreen class.@
-	Wb.Screen addSubclass: #Wb.SpreadScreen instanceVars: "screenHeight"
+	Wb.Screen addSubclass: #Wb.SpreadScreen instanceVars: "ntrack screenHeight"
 **Wb.SpreadScreen >> init: wbArg top: topArg left: leftArg width: widthArg
-		height: heightArg
+		height: heightArg ntrack: ntrackArg
 	super init: wbArg top: topArg left: leftArg width: widthArg
-		height: heightArg;
-	heightArg // 2 ->screenHeight
+		height: heightArg * ntrackArg;
+	ntrackArg ->ntrack;
+	heightArg ->screenHeight
 **Wb.SpreadScreen >> gotoCurXY
-	curX ->:x;
-	curY ->:y;
-	curY >= screenHeight ifTrue:
-		[x + width + 1 ->x;
-		y - screenHeight ->y];
-	Console gotoX: left + x Y: top + y
+	curY // screenHeight ->:t;
+	Console gotoX: left + curX + (width + 1 * t) Y: top + (curY % screenHeight)
+	
 **Wb.SpreadScreen >> centerY
-	self yOf: 0.625!
+	self yOf: (ntrack = 2 ifTrue: [0.625] ifFalse: [0.5])!
 **Wb.SpreadScreen >> updateDisplayRangeForLeap
-	self validCursorPos? 
-		and: [self solveCursorY between: (self yOf: 0.125) 
-			and: (self yOf: 0.875)],
-		ifFalse: [self updateDisplayRangeCentering]
+	self validCursorPos? ifTrue:
+		[ntrack = 2
+			ifTrue: [0.125 ->:lo; 0.875 ->:hi]
+			ifFalse: [0.167 ->lo; 0.833 ->hi];
+			self solveCursorY between: (self yOf: lo) and: (self yOf: hi),
+				ifTrue: [self!]];
+	self updateDisplayRangeCentering
 
+*Wb.Layout class.@
+	Object addSubclass: #Wb.Layout instanceVars: 
+		"wb parent child1 child2 screen track ntrack top width height"
+**Wb.Layout >> createScreen
+	nil ->child1 ->child2;
+	ntrack <> 1 ifTrue:
+		[Wb.SpreadScreen new init: wb top: 0 left: 0 width: width 
+			height: height ntrack: ntrack ->screen!];
+	Wb.Screen new init: wb top: top left: 81 * track width: width 
+		height: height ->screen!
+**Wb.Layout >> initWb: wbArg width: widthArg height: heightArg
+	wbArg ->wb;
+	nil ->parent;
+	0 ->track;
+	0 ->top;
+	heightArg ->height;
+	widthArg = 161 ifTrue:
+		[80 ->width;
+		2 ->ntrack;
+		self!];
+	widthArg = 242 ifTrue:
+		[80 ->width;
+		3 ->ntrack;
+		self!];
+	widthArg ->width;
+	1 ->ntrack
+
+**accessing.
+***Wb.Layout >> screen
+	screen!
+***Wb.Layout >> child1
+	child1!
+***Wb.Layout >> child2
+	child2!
+***Wb.Layout >> top
+	top!
+***Wb.Layout >> height
+	height!
+	
+**Wb.Layout >> do: blockArg
+	child1 notNil? ifTrue: [child1 do: blockArg];
+	child2 notNil? ifTrue: [child2 do: blockArg];
+	blockArg value: self
+
+**split
+***Wb.Layout >> initWb: wbArg parent: parentArg width: widthArg
+	wbArg ->wb;
+	parentArg ->parent;
+	widthArg ->width
+***Wb.Layout >> track: trackArg ntrack: ntrackArg
+	trackArg ->track;
+	ntrackArg ->ntrack
+***Wb.Layout >> top: topArg height: heightArg
+	topArg ->top;
+	heightArg ->height
+***Wb.Layout >> createLayout
+	Wb.Layout new initWb: wb parent: self width: width,
+		track: track ntrack: ntrack, top: top height: height!
+***Wb.Layout >> split
+	nil ->screen;
+	ntrack <> 1 ifTrue:
+		[self createLayout track: 0 ntrack: ntrack - 1 ->child1;
+		self createLayout track: ntrack - 1 ntrack: 1 ->child2!];
+	height // 2 ->:h2;
+	self createLayout top: top height: h2 ->child1;
+	self createLayout top: top + h2 + 1 height: height - h2 - 1 ->child2
+
+**close
+***Wb.Layout >> relocate: arg
+	arg screen ->:s, notNil? ifTrue: 
+		[self createScreen cursor: s cursor, tag: s tag!];
+	self split;
+	child1 relocate: arg child1;
+	child2 relocate: arg child2
+***Wb.Layout >> close
+	parent child1 ->:sibling, = self ifTrue: [parent child2 ->sibling];
+	parent relocate: sibling
+
+**draw
+***Wb.Layout >> drawVerticalBar: xArg
+	height timesDo:
+		[:y
+		y % 2 = 1 & screen notNil? ifTrue: [' '] ifFalse: ['|'] ->:ch;
+		Console gotoX: xArg Y: y, put: ch]
+***Wb.Layout >> drawVerticalSplitter
+	ntrack = 2 ifTrue: [self drawVerticalBar: 80!];
+	screen notNil? ifTrue: [self drawVerticalBar: 80];
+	self drawVerticalBar: 161
+**Wb.Layout >> draw
+	screen notNil? ifTrue: [screen draw];
+	wb drawSplitter? and: [ntrack <> 1], ifTrue: [self drawVerticalSplitter!];
+
+	wb drawSplitter? & screen nil? ifTrue:
+		[Console gotoX: 81 * track Y: top + child1 height, 
+			put: '-' times: width]
+	
 *Wb.StatusBar class.@
 	Wb.Drawer addSubclass: #Wb.StatusBar
 **Wb.StatusBar >> draw: status
@@ -1241,15 +1350,15 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 *Wb.class class.@
 	Mulk addTransientGlobalVar: #Wb;
 	Object addSubclass: #Wb.class instanceVars:
-		"width height buffer mode nextBackupTime"
-		+ " screen alterScreen statusBar message drawSplitter?"
+		"buffer mode nextBackupTime"
+		+ " screen rootLayout statusBar message drawSplitter?"
 		+ " keyCodeDict cursor yank"
 		+ " operatorRing operatorCount operatorMergeMode"
 		+ " leapKeyCodeDict leapStartPos leapRing leapPrevPattern"
-		+ " undoPosTag"
+		+ " undoPosTag lastScreenTag"
 		+ " startPos endPos docMarker"
 		+ " subprocess"
-		+ " xDict currentTag alterTag"
+		+ " xDict currentTag"
 		+ " abbrevPattern abbrevPos abbrevList abbrevType"
 		+ " history"
 		+ " macro macroRepeat"
@@ -1259,81 +1368,60 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 **screen.
 ***Wb.class >> buffer
 	buffer!
-***Wb.class >> cursorOf: screenArg
-	screen = screenArg ifTrue: [cursor] ifFalse: [xDict at: '\co']!
 ***Wb.class >> screen
 	screen!
-***Wb.class >> horizontalSplit?
-	width < 161!
-***Wb.class >> horizontalCenter
-	height - 2 // 2!
-***Wb.class >> verticalCenter
-	width - 1 // 2!
-***Wb.class >> setupScreen1
-	self horizontalSplit?
-		ifTrue:
-			[Wb.Screen new init: self top: 0 left: 0
-				width: width height: height - 1]
-		ifFalse:
-			[true ->drawSplitter?;
-			Wb.SpreadScreen new init: self top: 0 left: 0
-				width: self verticalCenter height: height - 1 * 2]
-		->screen;
-	nil ->alterScreen
-***Wb.class >> drawHorizontalSplitter
-	Console gotoX: 0 Y: self horizontalCenter, put: '-' times: width
-***Wb.class >> drawVerticalSplitter
-	screen kindOf?: Wb.SpreadScreen ->:perforate?;
-	self verticalCenter ->:x;
-	height - 1 timesDo:
-		[:y
-		y % 2 = 1 & perforate? ifTrue: [' '] ifFalse: ['|'] ->:ch;
-		Console gotoX: x Y: y, put: ch]
-***Wb.class >> drawSplitter
-	self horizontalSplit?
-		ifTrue: [alterScreen notNil? ifTrue: [self drawHorizontalSplitter]]
-		ifFalse: [self drawVerticalSplitter]
-***Wb.class >> setupScreen2
-	self horizontalSplit?
-		ifTrue:
-			[self horizontalCenter ->:c;
-			Wb.Screen new init: self top: c + 1 left: 0
-				width: width height: height - 2 - c ->screen;
-			Wb.Screen new init: self top: 0 left: 0
-				width: width height: c ->alterScreen]
-		ifFalse:
-			[self verticalCenter ->c;
-			Wb.Screen new init: self top: 0 left: c + 1
-				width: c height: height - 1 ->screen;
-			Wb.Screen new init: self top: 0 left: 0
-				width: c height: height - 1 ->alterScreen];
-	true ->drawSplitter?
+***Wb.class >> cursor
+	cursor!
+***Wb.class >> drawSplitter?
+	drawSplitter?!
+	
+***layout related.
+****Wb.class >> layouts
+	Iterator new init: [:b rootLayout do: [:l b value: l]]!
+****Wb.class >> currentLayout
+	self layouts detect: [:l l screen = screen]!
+****Wb.class >> screens
+	Iterator new init:
+		[:b self layouts do: [:l l screen ->:s, notNil? ifTrue: [b value: s]]]!
+	
 ***Wb.class >> redrawCommand
-	screen updateDisplayRangeForRedraw;
-	alterScreen notNil? ifTrue: [alterScreen solveDisplayRange];
+	self screens do:
+		[:s
+		s = screen
+			ifTrue: [s updateDisplayRangeForRedraw]
+			ifFalse: [s solveDisplayRange]];
 	true ->drawSplitter?;
 	Console clear
-***Wb.class >> swapCursor
-	cursor ->:c;
-	xDict at: '\co' ->cursor;
-	xDict at: '\co' put: c;
-	currentTag ->:t;
-	alterTag ->currentTag;
-	t ->alterTag;
-	cursor = self idocPromptPos ifTrue: [Console imAscii]
 ***Wb.class >> splitScreenCommand
-	self swapCursor;
-	alterScreen nil?
-		ifTrue: [self setupScreen2]
-		ifFalse: [self setupScreen1]
+	self currentLayout ->:l;
+	l height < 6 ifTrue: [self message: "can not split"!];
+	l split;
+	l child1 createScreen cursor: cursor, tag: currentTag;
+	--ToDo: set new screen cursor position and tag
+	{l child2 createScreen cursor: cursor ->screen;}
+	l child2 createScreen ->screen;
+	xDict at: '\xfe' ifAbsent: [cursor] ->cursor;
+	screen cursor: cursor;
+	lastScreenTag ->currentTag;
+	true ->drawSplitter?
+***Wb.class >> switchScreen: screenArg
+	screenArg cursor ->cursor;
+	screenArg tag ->currentTag;
+	screenArg ->screen
 ***Wb.class >> otherScreenCommand
-	self swapCursor;
-	alterScreen nil?
-		ifTrue: [self setupScreen2]
-		ifFalse:
-			[alterScreen ->:s;
-			screen ->alterScreen;
-			s ->screen]
+	rootLayout screen notNil? ifTrue: [self splitScreenCommand!];
+	screen cursor: cursor, tag: currentTag;
+	self screens asArray ->:ar;
+	self switchScreen: (ar at: (ar indexOf: screen, + 1 % ar size))
+***Wb.class >> closeScreenCommand
+	rootLayout screen notNil? ifTrue: [self message: "can not close root"!];
+	true ->drawSplitter?;
+	currentTag ->lastScreenTag;
+	xDict at: '\xfe' put: cursor;
+	self screens asArray ->:ar;
+	ar indexOf: screen, - 1 ->:sno, < 0 ifTrue: [ar size - 2 ->sno];
+	self currentLayout close;
+	self switchScreen: (self screens asArray at: sno)
 	
 **status bar control.
 ***Wb.class >> message: messageArg
@@ -1380,9 +1468,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 				and: [newlineArg? not], ifFalse:
 			[xDict at: ch put: (self adjustPos: pos for: typeArg at: posArg
 				size: sizeArg)]];
-	screen adjustFor: typeArg at: posArg size: sizeArg;
-	alterScreen notNil? ifTrue:
-		[alterScreen adjustFor: typeArg at: posArg size: sizeArg]
+	self screens do: [:s s adjustFor: typeArg at: posArg size: sizeArg]
 ****Wb.class >> operate: op reverse: reverse?
 	op type: reverse? ->:type;
 	op pos ->:pos;
@@ -1390,8 +1476,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	nextBackupTime nil? and: [self idocTail < pos], ifTrue:
 		[OS time + 60 ->nextBackupTime];
 	contents includes?: '\n' code ->:newline?, ifFalse:
-		[screen prepareSingleRedrawAt: pos;
-		alterScreen notNil? ifTrue: [alterScreen prepareSingleRedrawAt: pos]];
+		[self screens do: [:s s prepareSingleRedrawAt: pos]];
 	type = #insert
 		ifTrue: [buffer at: pos insert: contents ->cursor]
 		ifFalse:
@@ -1479,7 +1564,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		[Wb.BytesStream new ->:wr;
 		Clip copyTo: wr;
 		wr seek: 0, contentBytes ->:result;
-		result size = 6 and: [result makeStringFrom: 0 size: 6, = "__WB__"],
+		result size = 6 and: [result asString = "__WB__"],
 			ifFalse:
 				[nil ->yank;
 				result!]];
@@ -1794,7 +1879,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	history at: wbfile fullName ifAbsent: [nil]!
 ****Wb.class >> historyFile
 	"wb.mpi" asWorkFile!
-****Wb.class >> initHistory
+****Wb.class >> setupHistory
 	self historyFile ->:f, none?
 		ifTrue: [Dictionary new]
 		ifFalse: [f readObject] ->history
@@ -1975,7 +2060,9 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	result!
 ****Wb.class >> invalidateActiveTag: ch
 	currentTag = ch ifTrue: [nil ->currentTag];
-	alterTag = ch ifTrue: [nil ->alterTag]
+	undoPosTag = ch ifTrue: [nil ->undoPosTag];
+	lastScreenTag = ch ifTrue: [nil ->lastScreenTag];
+	self screens do: [:s s tag = ch ifTrue: [s tag: nil]]
 ****Wb.class >> stringRegistCommand
 	self focusLeapAndFinish;
 	startPos nil? ifTrue: [self focusLine];
@@ -1985,6 +2072,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 ****Wb.class >> tagRegistCommand
 	self focusLeapAndFinish;
 	self querySetXtr: "^x^t" ->:ch;
+	self invalidateActiveTag: ch;
 	ch ->currentTag;
 	xDict at: ch put: cursor
 
@@ -2101,7 +2189,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	xDict at: ch ->:value;
 	value memberOf?: FixedByteArray, ifFalse: [self error: "not string"];
 	self leapCopy ->:leap;
-	leap pattern: (value makeStringFrom: 0 size: value size);
+	leap pattern: value asString;
 	self leap: leap disp: 1
 	
 ***Wb.class >> gotoLineCommand
@@ -2194,19 +2282,16 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	subprocess continue;
 	self subprocessReceive;
 	true!
-
+	
+**Wb.class >> setupDrawers
+	Console width ->:w;
+	Console height ->:h;
+	Wb.Layout new initWb: self width: w height: h - 1 ->rootLayout;
+	rootLayout createScreen cursor: cursor, tag: currentTag ->screen;
+	Wb.StatusBar new init: self top: h - 1 left: 0 width: w - 1 ->statusBar
+							
 **Wb.class >> init: opArg
-	Console width ->width;
-	Console height ->height;
-	Wb.Buffer new ->buffer;
-	buffer at: 0 insert: (self bytes: "||TOP\n\n||BOTTOM\n");
-	self setupScreen1;
-	Wb.StatusBar new init: self top: height - 1 left: 0 width: width - 1 
-		->statusBar;
-	nil ->message;
-	0 ->operatorMergeMode;
-	Ring new ->operatorRing;
-	0 ->operatorCount;
+	-- intitialize statics.
 	Dictionary new ->keyCodeDict;
 	Dictionary new ->leapKeyCodeDict;
 	#(	'\c@'	#abbrevCommand			nil
@@ -2229,7 +2314,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		'\cq'	#prevLineCommand		#prevLineCommand
 		'\cr'	#redoCommand			#leapRedoCommand
 		'\cs'	#splitScreenCommand		nil
-		'\ct'	#abbrevCommand			nil
+		'\ct'	#closeScreenCommand		nil
 		'\cu'	#undoCommand			#leapUndoCommand
 		'\cv'	#redrawCommand			#char --leap veto
 		'\cw'	#wedgeCommand			#leapWedgeCommand
@@ -2244,7 +2329,6 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		ar at: i + 1 ->:code, notNil? ifTrue: [keyCodeDict at: ch put: code];
 		ar at: i + 2 ->code, notNil? ifTrue:
 			[leapKeyCodeDict at: ch put: code]];
-	self bytes: "\n||" ->docMarker;
 	Dictionary new ->xDict;
 	#(	'\cx'	#execCommand
 		'\ct'	#tagRegistCommand
@@ -2261,11 +2345,23 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	0 until: ar size by: 2, do:
 		[:i2
 		xDict at: (ar at: i2) put: (ar at: i2 + 1)];
-	self initHistory;
+	self bytes: "\n||" ->docMarker;
+
+	-- initialize dynamics.
+	Wb.Buffer new ->buffer;
+	buffer at: 0 insert: (self bytes: "||TOP\n\n||BOTTOM\n");
 	buffer next: (buffer lineTail: 0) ->cursor;
-	xDict at: '\co' put: cursor;
+
+	self setupDrawers;
+	nil ->message;
+	0 ->operatorMergeMode;
+	Ring new ->operatorRing;
+	0 ->operatorCount;
+
 	screen updateDisplayRangeCentering; -- for subprocess inserts prompt.
 	self subprocessStart;
+	self setupHistory;
+	
 	self ->Wb;
 	-- option
 	opArg at: 'I' ->:opt, nil? 
@@ -2321,6 +2417,12 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	code <> #abbrevCommand ifTrue: [nil ->abbrevPattern];
 	code = #char ifTrue: [self insertCharCommand: ch!];
 	code notNil? ifTrue: [self perform: code]
+**Wb.class >> draw
+	self drawStatusBar;
+	self layouts do: [:l l draw];
+	false ->drawSplitter?;
+	screen drawCursor
+
 **Wb.class >> mainLoop: opArg
 	opArg at: 'd' ->:debug?;
 	opArg at: 'r', ifTrue: [#quit ->mode];
@@ -2329,18 +2431,11 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	self run: startPos <> endPos;
 	true ->drawSplitter?;
 	#insert ->mode;
-	screen solveDisplayRange;
-	alterScreen notNil? ifTrue: [alterScreen solveDisplayRange];
+	self screens do: [:s s solveDisplayRange];
 	Console clear;
 
 	[mode <> #quit] whileTrue:
-		[drawSplitter? ifTrue: 
-			[self drawSplitter;
-			false ->drawSplitter?];
-		self drawStatusBar;
-		alterScreen notNil? ifTrue: [alterScreen draw];
-		screen draw;
-		screen drawCursor;
+		[self draw;
 		self fetch: false ->:ch;
 		ch = '\r' ifTrue: ['\n' ->ch]; -- CR -> insert newline.
 		debug?
@@ -2355,7 +2450,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 			and: [ch = '\cd' or: [mode = #quit], 
 				or: [OS time > nextBackupTime]], 
 			ifTrue: [self backup]];
-	Console gotoX: 0 Y: height - 1, imAscii;
+	Console gotoX: 0 Y: Console height - 1, imAscii;
 	Out putLn;
 	self run: false;
 	Mulk at: #Wb.onQuitCmd ifAbsent: [self!], runCmd

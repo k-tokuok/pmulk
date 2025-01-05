@@ -1,5 +1,5 @@
 character code conversion
-$Id: mulk ctr.m 1203 2024-04-05 Fri 22:00:56 kt $
+$Id: mulk ctr.m 1339 2024-12-26 Thu 21:56:19 kt $
 #ja 文字コード変換
 
 *[man]
@@ -21,7 +21,7 @@ FROM and TO specify the conversion source and destination codes with two charact
 		c -- CR/LF
 		l -- LF
 	
-If '=' is specified for each, it follows the standard text specification of the host system.
+If '=' is specified for each, it follows the standard text specification of the host OS.
 If the end-of-line code is omitted, 'n' is assumed.
 If FROM is omitted, '=' is assumed.
 .caption OPTION
@@ -46,7 +46,7 @@ FROMとTOはそれぞれ変換元と変換先のコードを文字コードと�
 		c -- CR/LF
 		l -- LF
 	
-それぞれ'='を指定した場合はホストシステムの標準テキスト仕様に従う。
+それぞれ'='を指定した場合はホストOSの標準テキスト仕様に従う。
 行末コードを省略した場合は'n'が指定されたものと見做す。
 FROMを省略した場合は'='が指定されたものと見做す。
 .caption オプション

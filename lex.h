@@ -1,6 +1,6 @@
 /*
 	lexical analysis.
-	$Id: mulk lex.h 406 2020-04-19 Sun 11:29:54 kt $
+	$Id: mulk lex.h 1330 2024-12-14 Sat 19:51:57 kt $
 */
 
 #include "xbarray.h"
@@ -19,6 +19,7 @@
 
 #define tARROW 270 /* -> */
 #define tARRAY_LITERAL 271 /* #( */
+#define tBYTE_ARRAY_LITERAL 272 /* #[ */
 
 extern struct xbarray lex_str;
 extern int lex_ival;

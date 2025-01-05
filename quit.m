@@ -1,5 +1,5 @@
 terminate system
-$Id: mulk quit.m 406 2020-04-19 Sun 11:29:54 kt $
+$Id: mulk quit.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja システムを終了する
 
 *[man]
@@ -7,13 +7,13 @@ $Id: mulk quit.m 406 2020-04-19 Sun 11:29:54 kt $
 .caption SYNOPSIS
 	quit
 .caption DESCRIPTION
-Quit the Mulk interpreter and return to the host OS.
+Quit the Mulk processor and return to the host OS.
 
 **#ja
 .caption 書式
 	quit
 .caption 説明
-Mulkインタプリタを終了し、ホストOSに戻る。
+Mulk処理系を終了し、ホストOSに戻る。
 
 *quit tool.@
 	Object addSubclass: #Cmd.quit

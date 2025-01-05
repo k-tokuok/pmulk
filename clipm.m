@@ -1,11 +1,11 @@
 clipboard for macosx (Clip.m class)
-$Id: mulk clipm.m 422 2020-05-09 Sat 22:42:52 kt $
+$Id: mulk clipm.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja MacOSX版クリップボード (Clip.m class)
 
 *[man]
 **#en
 .caption DESCRIPTION
-Clipboard implementation by pbpaste / pbcopy command.
+Clipboard implementation by pbpaste/pbcopy command.
 .hierarchy Clip.m
 .caption SEE ALSO
 .summary clipc

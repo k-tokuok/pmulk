@@ -1,5 +1,5 @@
 command interpreter
-$Id: mulk cmd.m 1179 2024-03-17 Sun 21:14:15 kt $
+$Id: mulk cmd.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja コマンドインタプリタ
 
 *[man]
@@ -17,7 +17,7 @@ If a token begins with a quotation mark (', ", `), the subsequent quotation mark
 The backslash character (\) is passed as an argument to the command.
 
 The command is a class called Cmd.<command name> and needs to have a main: method.
-When the command is executed, an instance of the class is constructed, standard input / output (In, Out) is set based on redirection and pipe specification, and main: is started with the argument as an array of character strings.
+When the command is executed, an instance of the class is constructed, standard input/output (In, Out) is set based on redirection and pipe specification, and main: is started with the argument as an array of character strings.
 
 If there is no class, the system module with the command name is automatically imported.
 

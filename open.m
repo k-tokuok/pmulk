@@ -1,13 +1,13 @@
-opens a file or url in the host system
-$Id: mulk open.m 1182 2024-03-20 Wed 22:06:05 kt $
-#ja ホストシステムでファイルまたはURLを開く
+opens a file or url in the host OS
+$Id: mulk open.m 1339 2024-12-26 Thu 21:56:19 kt $
+#ja ホストOSでファイルまたはURLを開く
 
 *[man]
 **#en
 .caption SYNOPSIS
 	open [ARG]
 .caption DESCRIPTION
-Opens the file or URL specified by the argument in the corresponding application of the host system.
+Opens the file or URL specified by the argument in the corresponding application of the host OS.
 
 If ARG is omitted, the current directory is targeted.
 .caption LIMITATION
@@ -17,7 +17,7 @@ Only URL is supported on Android.
 .caption 書式
 	open [ARG]
 .caption 説明
-引数で指定されたファイル又はURLをホストシステムの対応したアプリケーションで開く。
+引数で指定されたファイル又はURLをホストOSの対応したアプリケーションで開く。
 
 ARGを省略した場合、カレントディレクトリを対象とする。
 .caption 制限事項

@@ -1,6 +1,6 @@
 /*
 	View (primitive implemented/View.p)
-	$Id: mulk view.c 1320 2024-12-01 Sun 17:22:18 kt $
+	$Id: mulk view.c 1330 2024-12-14 Sat 19:51:57 kt $
 */
 
 #include "std.h"
@@ -15,6 +15,12 @@ int view_shift_mode;
 int view_event_filter;
 
 #include "prim.h"
+
+DEFPRIM(view_init)
+{
+	view_init();
+	return PRIM_SUCCESS;
+}
 
 DEFPRIM(view_open)
 {
@@ -38,6 +44,12 @@ DEFPRIM(view_set_font)
 DEFPRIM(view_close)
 {
 	view_close();
+	return PRIM_SUCCESS;
+}
+
+DEFPRIM(view_finish)
+{
+	view_finish();
 	return PRIM_SUCCESS;
 }
 
@@ -145,7 +157,6 @@ DEFPROPERTY(view)
 {
 	struct xbarray xba;
 	char *fn;
-	int v,w,h;
 	
 	switch(key) {
 	case 200:
@@ -166,20 +177,16 @@ DEFPROPERTY(view)
 		if(sint_p(value)) view_shift_mode=sint_val(value);
 		break;
 	case 204:
-		if(sint_p(value)) {
-			v=sint_val(value);
-			view_move(COORD_X(v),COORD_Y(v));
-		} 
+		if(sint_p(value)) view_set_position(sint_val(value));
 		break;
 	case 205:
-		if(sint_p(value)) {
-			v=sint_val(value);
-			view_resize(COORD_X(v),COORD_Y(v));
-		}
+		if(sint_p(value)) view_set_size(sint_val(value));
 		break;
 	case 206:
-		view_get_screen_size(&w,&h);
-		*result=sint(coord(w,h));
+		*result=sint(view_get_screen_size());
+		break;
+	case 207:
+		*result=sint(view_get_frame_size());
 		break;
 	default:
 		return PRIM_ANOTHER_PROPERTY;

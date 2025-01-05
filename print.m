@@ -1,5 +1,5 @@
 text printing
-$Id: mulk print.m 1179 2024-03-17 Sun 21:14:15 kt $
+$Id: mulk print.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja テキスト印刷
 
 *[man]
@@ -14,11 +14,11 @@ The query subcommand displays the number of characters that the default printer 
 At this time, if the -l option is specified, landscape paper is used.
 .caption OPTION
 	m MODE -- Specifies the print mode.
-		3 -- 3up / landscape (default)
-		2 -- 2up / landscape
-		1 -- 1up / portrait
-		2p -- 2up / portrait
-		w -- 1up / portrait 130 columns
+		3 -- 3up/landscape (default)
+		2 -- 2up/landscape
+		1 -- 1up/portrait
+		2p -- 2up/portrait
+		w -- 1up/portrait 130 columns
 		s -- 40x30 for smartphones and tablets
 	n -- Print line numbers.
 	d -- 2-sided printing.

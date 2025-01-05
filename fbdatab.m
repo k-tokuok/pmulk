@@ -1,5 +1,5 @@
 big endian representation of integer values
-$Id: mulk fbdatab.m 990 2023-01-01 Sun 21:12:27 kt $
+$Id: mulk fbdatab.m 1332 2024-12-15 Sun 08:18:07 kt $
 #ja 整数値のbig endian表現
 
 *[man]
@@ -14,7 +14,7 @@ FixedByteArrayにBig Endianの整数データを読み書きする機能を提�
 	UnitTest addSubclass: #Test.FixedByteArray.fbdatab
 		instanceVars: "bytes" ->testClass
 **Test.FixedByteArray.fbdatab >> setup
-	#(8 7 6 5 4 3 2 1 0xf3 0xf2 0xf1 0xf0) asArray asFixedByteArray ->bytes
+	#[8 7 6 5 4 3 2 1 0xf3 0xf2 0xf1 0xf0] copy ->bytes
 	
 *import.@
 	Mulk import: "intconv"

@@ -1,5 +1,5 @@
 create Mulk/Windows binary package
-$Id: mulk packwin.m 1230 2024-05-10 Fri 22:33:40 kt $
+$Id: mulk packwin.m 1326 2024-12-07 Sat 21:46:37 kt $
 #ja Mulk/Windowsバイナリパッケージを作成する
 
 *[man]
@@ -147,7 +147,6 @@ installer for Windows binary kit.
 	Out	putLn: "#Cmd.icmd ->Mulk.defaultMainClass;",
 		putLn: "Mulk save: \"bin/mulk.mi\""
 ***Installer >> make_icmd_mc
-	Out putLn: "os.path " + "bin" asFile quotedPath;
 	dll? ifTrue: [Out putLn: "os.path " + "dll" asFile quotedPath];
 	Out putLn: "ld -s h.m",
 		putLn: "ld -s clipw.m"

@@ -1,6 +1,6 @@
 /*
 	mulk main routine.
-	$Id: mulk mulk.c 1244 2024-05-27 Mon 22:03:35 kt $
+	$Id: mulk mulk.c 1326 2024-12-07 Sat 21:46:37 kt $
 */
 
 #include "std.h"
@@ -27,7 +27,6 @@
 #include "ip.h"
 
 static char *main_class;
-static char *image_pn;
 static int stack_size;
 
 static void option(int argc,char *argv[])
@@ -35,12 +34,12 @@ static void option(int argc,char *argv[])
 	int ch;
 	
 	main_class=NULL;
-	image_pn=NULL;
+	image_fn=NULL;
 	stack_size=DEFAULT_STACK_SIZE;
 	
 	while((ch=xgetopt(argc,argv,"m:i:f:c:"))!=EOF) switch(ch) {
 	case 'm': main_class=xoptarg; break;
-	case 'i': image_pn=xoptarg; break;
+	case 'i': image_fn=xoptarg; break;
 	case 's': stack_size=atoi(xoptarg); break;
 	default:
 		fputs("\
@@ -57,7 +56,7 @@ static object make_boot_args(int argc,char *argv[])
 	object boot_args,main_args;
 	int i;
 	
-	boot_args=gc_object_new(om_FixedArray,3);
+	boot_args=gc_object_new(om_FixedArray,2);
 	if(main_class==NULL) boot_args->farray.elt[0]=om_nil;
 	else boot_args->farray.elt[0]=gc_string(main_class);
 
@@ -65,8 +64,6 @@ static object make_boot_args(int argc,char *argv[])
 	for(i=0;i<argc;i++) main_args->farray.elt[i]=gc_string(argv[i]);
 	boot_args->farray.elt[1]=main_args;
 
-	boot_args->farray.elt[2]=gc_string(image_pn);
-	
 	return boot_args;
 }
 
@@ -89,8 +86,9 @@ int main(int argc,char *argv[])
 
 	option(argc,argv);
 	xbarray_init(&path);
-	if(image_pn==NULL) {
-		pf_exepath(argv[0],&path);
+	pf_exepath(argv[0],&path);
+	vm_fn=xstrdup(path.elt);
+	if(image_fn==NULL) {
 #if UNIX_P
 		/* remove last nul */
 		path.size--; 
@@ -100,15 +98,15 @@ int main(int argc,char *argv[])
 #endif
 		xbarray_adds(&path,".mi");
 		xbarray_add(&path,'\0');
-		image_pn=path.elt;
+		image_fn=xstrdup(path.elt);
 	}
-
+	xbarray_free(&path);
+	
 	om_init();
-	ir_file(image_pn);
+	ir_file(image_fn);
 	gc_init();
 
 	boot_args=make_boot_args(argc-xoptind,&argv[xoptind]);
-	xbarray_free(&path);
 	
 	ip_start(boot_args,stack_size*K);
 

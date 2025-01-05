@@ -1,5 +1,5 @@
 interactive change of current directory
-$Id: mulk icd.m 919 2022-09-03 Sat 22:11:41 kt $
+$Id: mulk icd.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja 対話的なカレントディレクトリの変更
 
 *[man]
@@ -11,7 +11,7 @@ Change the current directory interactively.
 The operation is as follows.
 
 	Numeric -- Move to the directory indicated by the number
-	p/n -- Go to previous / next page
+	p/n -- Go to previous/next page
 	Enter -- End operation
 	
 If DIR is specified, the current directory is changed first.

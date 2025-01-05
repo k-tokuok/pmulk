@@ -1,13 +1,13 @@
 console
-$Id: mulk console.m 1299 2024-11-10 Sun 15:32:06 kt $
+$Id: mulk console.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja コンソール
 
 *[man]
 **#en
 .caption DESCRIPTION
-Provides additional functions for standard input / output as a terminal.
+Provides additional functions for standard input/output as a terminal.
 
-The standard input / output is simply a character stream, but depending on the terminal and view functions, it is possible to perform wrapping, paging according to the screen size, cursor motion control, etc.
+The standard input/output is simply a character stream, but depending on the terminal and view functions, it is possible to perform wrapping, paging according to the screen size, cursor motion control, etc.
 
 Each console module has a unique name <SET> and is defined as a derived class Console.<SET> of AbstractConsole.
 If this instance is registered in Mulk.bootHook, it can be used automatically at system startup, and by defining it as a system module file c-<SET>.m, it is possible to switch terminals interactively with the cset command.
@@ -129,7 +129,7 @@ Finish the old console, initialize the new console, and set the global variables
 	AbstractConsole addSubclass: #Console.std
 **[man.c]
 ***#en
-Console equivalent to the default standard input / output.
+Console equivalent to the default standard input/output.
 
 Assume a standard screen size of 80x24.
 ***#ja

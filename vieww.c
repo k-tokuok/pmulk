@@ -1,6 +1,6 @@
 /*
 	view for windows.
-	$Id: mulk vieww.c 1320 2024-12-01 Sun 17:22:18 kt $
+	$Id: mulk vieww.c 1330 2024-12-14 Sat 19:51:57 kt $
 */
 
 #include "std.h"
@@ -17,7 +17,6 @@
 #include "view.h"
 #include "vkey.h"
 #include "csplit.h"
-#include "codepage.h"
 
 static HWND window;
 static HBITMAP bitmap;
@@ -30,8 +29,6 @@ static int view_width,view_height;
 
 static struct iqueue vevent_queue;
 static int more_char_p;
-
-static int init_p=FALSE;
 
 static void vevent_queue_put(int val)
 {
@@ -144,39 +141,36 @@ static void delete_bitmap(void)
 
 /* api */
 /** frame */
+#define CLASSNAME "mulkView"
+
+void view_init(void)
+{
+	WNDCLASSEX wc;
+	wc.cbSize=sizeof(wc);
+	wc.style=0;
+	wc.lpfnWndProc=window_proc;
+	wc.cbClsExtra=0;
+	wc.cbWndExtra=0;
+	wc.hInstance=GetModuleHandle(NULL);
+	wc.hIcon=NULL;
+	wc.hCursor=LoadCursor(NULL,IDC_ARROW);
+	wc.hbrBackground=GetStockObject(WHITE_BRUSH);
+	wc.lpszMenuName=NULL;
+	wc.lpszClassName=CLASSNAME;
+	wc.hIconSm=NULL;
+	if(RegisterClassEx(&wc)==0) xerror("RegisterClass failed.");
+	view_shift_mode=VIEW_GENERIC_SHIFT;
+}
 
 void view_open(int width,int height)
 {
-	WNDCLASSEX wc;
 	int sz;
-	char *class_name;
 	
-	class_name="mulkView";
-	
-	if(!init_p) {
-		wc.cbSize=sizeof(wc);
-		wc.style=0;
-		wc.lpfnWndProc=window_proc;
-		wc.cbClsExtra=0;
-		wc.cbWndExtra=0;
-		wc.hInstance=GetModuleHandle(NULL);
-		wc.hIcon=NULL;
-		wc.hCursor=LoadCursor(NULL,IDC_ARROW);
-		wc.hbrBackground=GetStockObject(WHITE_BRUSH);
-		wc.lpszMenuName=NULL;
-		wc.lpszClassName=class_name;
-		wc.hIconSm=NULL;
-		if(RegisterClassEx(&wc)==0) xerror("RegisterClass failed.");
-
-		view_shift_mode=VIEW_GENERIC_SHIFT;
-		init_p=TRUE;
-	}
-
 	view_width=width;
 	view_height=height;
 
 	sz=adjusted_view_size();
-	window=CreateWindow(class_name,class_name,
+	window=CreateWindow(CLASSNAME,CLASSNAME,
 		WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,CW_USEDEFAULT,CW_USEDEFAULT,
 		COORD_X(sz),COORD_Y(sz),NULL,NULL,GetModuleHandle(NULL),NULL);
 		
@@ -185,6 +179,7 @@ void view_open(int width,int height)
 	invalid_count=0;
 	iqueue_reset(&vevent_queue);
 	
+	view_shift_mode=VIEW_GENERIC_SHIFT;
 	more_char_p=FALSE;
 	view_event_filter=0;
 	font=NULL;
@@ -207,29 +202,6 @@ static void process_event(int wait_p)
 			DispatchMessage(&msg);
 		}
 	}		
-}
-
-void view_move(int x,int y)
-{
-	RECT rect;
-	GetWindowRect(window,&rect);
-	MoveWindow(window,x,y,rect.right-rect.left,rect.bottom-rect.top,FALSE);
-}
-
-void view_resize(int width,int height)
-{
-	RECT rect;
-	int sz;
-	
-	view_width=width;
-	view_height=height;
-	
-	delete_bitmap();
-	create_bitmap();
-	
-	GetWindowRect(window,&rect);
-	sz=adjusted_view_size();
-	MoveWindow(window,rect.left,rect.top,COORD_X(sz),COORD_Y(sz),FALSE);
 }
 
 static void delete_font(void)
@@ -284,6 +256,13 @@ void view_close(void)
 	
 	delete_font();
 	delete_bitmap();
+}
+
+void view_finish(void)
+{
+	if(UnregisterClass(CLASSNAME,GetModuleHandle(NULL))==0) {
+		xerror("UnregisterClass failed.");
+	}
 }
 
 /** drawing */
@@ -505,12 +484,6 @@ int view_event_empty_p(void)
 	return iqueue_empty_p(&vevent_queue);
 }
 
-void view_get_screen_size(int *w,int *h)
-{
-	*w=GetSystemMetrics(SM_CXSCREEN);
-	*h=GetSystemMetrics(SM_CYSCREEN);
-}
-
 /* intr */
 void ip_intr_check(void)
 {
@@ -536,4 +509,41 @@ int vkey_press_check(int key)
 	case VKEY_NONCONVERT: return press_p(VK_NONCONVERT);
 	default: return 0;
 	}
+}
+
+/* view propeties */
+void view_set_position(int coord)
+{
+	RECT rect;
+	GetWindowRect(window,&rect);
+	MoveWindow(window,COORD_X(coord),COORD_Y(coord),
+		rect.right-rect.left,rect.bottom-rect.top,FALSE);
+}
+
+void view_set_size(int coord)
+{
+	RECT rect;
+	int sz;
+	
+	view_width=COORD_X(coord);
+	view_height=COORD_Y(coord);
+	
+	delete_bitmap();
+	create_bitmap();
+	
+	GetWindowRect(window,&rect);
+	sz=adjusted_view_size();
+	MoveWindow(window,rect.left,rect.top,COORD_X(sz),COORD_Y(sz),FALSE);
+}
+
+int view_get_screen_size(void)
+{
+	return coord(GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN));
+}
+
+int view_get_frame_size(void)
+{
+	RECT rect;
+	GetWindowRect(window,&rect);
+	return coord(rect.right-rect.left,rect.bottom-rect.top);
 }

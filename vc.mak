@@ -1,6 +1,6 @@
 #
 #	Makefile for Visual-C
-#	$Id: mulk vc.mak 1318 2024-12-01 Sun 14:28:50 kt $
+#	$Id: mulk vc.mak 1327 2024-12-08 Sun 11:38:07 kt $
 #
 #	nmake /fvc.mak [setup=setup.m]
 #
@@ -32,7 +32,7 @@ ibprim.wk: $(ibprimsrc)
 	for %i in ($**) do type %i >>1.wk
 	find "DEFPR" <1.wk >$@
 
-mulkprimsrc=$(ibprimsrc) codepage.c term.c dl.c view.c
+mulkprimsrc=$(ibprimsrc) term.c dl.c view.c
 mulkprim.wk: $(mulkprimsrc)
 	del 1.wk
 	for %i in ($**) do type %i >>1.wk
@@ -43,7 +43,7 @@ xc.lib: std.obj heap.obj xbarray.obj xctype.obj splay.obj xgetopt.obj log.obj \
 	csplit.obj termw.obj view.obj \
 	om.obj omd.obj gc.obj prim.obj ir.obj lex.obj \
 	ip.obj sint.obj lpint.obj os.obj float.obj fbarray.obj \
-	codepage.obj term.obj dl.obj vieww.obj vkey.obj
+	term.obj dl.obj vieww.obj vkey.obj
 	lib /out:$@ $**
 
 mulk.exe: mulk.obj mulkprim.obj xc.lib

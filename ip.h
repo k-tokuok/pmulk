@@ -1,6 +1,6 @@
 /*
 	interpreter.
-	$Id: mulk ip.h 1318 2024-12-01 Sun 14:28:50 kt $
+	$Id: mulk ip.h 1327 2024-12-08 Sun 11:38:07 kt $
 */
 
 extern int ip_trap_code;
@@ -14,4 +14,12 @@ extern void ip_mark_object(int full_gc_p);
 
 #if INTR_CHECK_P
 extern void ip_intr_check(void);
+#endif
+
+/* Kernel property */
+extern char *vm_fn;
+extern char *image_fn;
+
+#if WINDOWS_P
+extern int codepage;
 #endif

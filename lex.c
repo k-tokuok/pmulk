@@ -1,6 +1,6 @@
 /*
 	lex.
-	$Id: mulk lex.c 406 2020-04-19 Sun 11:29:54 kt $
+	$Id: mulk lex.c 1330 2024-12-14 Sat 19:51:57 kt $
 */
 
 #include "std.h"
@@ -231,6 +231,10 @@ int lex(void)
 			skip();
 			return tARRAY_LITERAL;
 		}
+		if(next_ch=='[') {
+			skip();
+			return tBYTE_ARRAY_LITERAL;
+		}
 		while(symbol_char_p()) get();
 		return tSYMBOL;
 	}
@@ -260,6 +264,7 @@ char *lex_token_name(char *buf,int tk)
 	case tSPECIAL: name="special"; break;
 	case tARROW: name="->"; break;
 	case tARRAY_LITERAL: name="#("; break;
+	case tBYTE_ARRAY_LITERAL: name="#["; break;
 	case EOF: name="eof"; break;
 	default: name=NULL; break;
 	}

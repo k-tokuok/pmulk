@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1318 2024-12-01 Sun 14:28:50 kt $
+$Id: mulk base.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -1047,6 +1047,20 @@ Kernel protocolsは内部的な構成要素を定義する。
 **Kernel.class class.#
 	class Kernel.class Object;
 		singleton Kernel.class Kernel;
+***[man.c]
+****#en
+Class that defines the Kernel.
+
+The Kernel abstracts the Mulk processor itself and provides access to its functions.
+
+Kernel is a global object and must not be rebuilt.
+****#ja
+Kernelを定義するクラス。
+
+KernelはMulk処理系自身を抽象し、その機能へのアクセスを提供する。
+
+Kernelはグローバルオブジェクトであり、再構築してはならない。
+
 ***Kernel.class >> currentProcess
 	$kernel_currentProcess
 ***Kernel.class >> cacheReset: selectorArg
@@ -1055,8 +1069,15 @@ Kernel protocolsは内部的な構成要素を定義する。
 	$kernel_property
 ***Kernel.class >> propertyAt: keyArg
 	self propertyAt: keyArg put: nil!
+
 ***Kernel.class >> cycle
 	self propertyAt: 0!
+****[man.m]
+*****#en
+Returns the number of byte code instructions executed from startup to the present.
+*****#ja
+起動から現在までのバイトコード命令の実行数を返す。
+
 ***Kernel.class >> inspect
 	#(	"cycle" "usedMemory" "maxUsedMemory" "objectCount" "maxObjectCount"
 		"cacheSize" "cacheEntry" "cacheCall" "cacheHit" "cacheInvalidate")
@@ -1064,11 +1085,39 @@ Kernel protocolsは内部的な構成要素を定義する。
 	ar size timesDo:
 		[:i
 		Out putLn: (ar at: i) + ": " + (self propertyAt: i)]
+		
 ***Kernel.class >> ptrByteSize
 	self propertyAt: 10!
+****[man.m]
+*****#en
+Returns the byte size (sizeof(void*) value) of the pointer of the processor.
+*****#ja
+処理系のポインタのバイトサイズ(sizeof(void*)の値)を返す。
+
 ***Kernel.class >> littleEndian?
 	self propertyAt: 11!
-			
+****[man.m]
+*****#en
+If the byte order of the processor is little endian, return true.
+*****#ja
+処理系のバイトオーダーがリトル・エンディアンならtrueを返す。
+
+***Kernel.class >> imageFn
+	self propertyAt: 12!
+****[man.m]
+*****#en
+Returns the image file name string loaded at startup.
+*****#ja
+起動時に読み込んだイメージファイル名文字列を返す。
+
+***Kernel.class >> vmFn
+	self propertyAt: 13!
+****[man.m]
+*****#en
+Returns the program file name string of the processor.
+*****#ja
+処理系のプログラムファイル名文字列を返す。
+
 **OS.class class.#
 	class OS.class Object : fps timediff;
 		singleton OS.class OS;
@@ -1076,13 +1125,13 @@ Kernel protocolsは内部的な構成要素を定義する。
 ****#en
 Class that defines the OS object.
 
-The OS abstracts the host system and provides access to its functions.
+The OS abstracts the host OS and provides access to its functions.
 
 The OS is a global object and must not be reconstructed.
 ****#ja
 OSを定義するクラス。
 
-OSはホストシステムを抽象し、機能へのアクセスを提供する。
+OSはホストOSを抽象し、その機能へのアクセスを提供する。
 
 OSはグローバルオブジェクトであり、再構築してはならない。
 
@@ -1671,10 +1720,10 @@ In principle, this exception is not caught and terminates the Mulk system itself
 	gv serializeTo: self;
 	self assert: ref nil?
 	
-*Magnitude / Numeric protocols.
+*Magnitude/Numeric protocols.
 **[man.s]
 ***#en
-Magnitude / Numeric protocols define magnitude relationships themselves and objects (numerical values, characters, etc.) with magnitude relationships.
+Magnitude/Numeric protocols define magnitude relationships themselves and objects (numerical values, characters, etc.) with magnitude relationships.
 ***#ja
 Magnitude/Numeric protocolsでは、大小関係自体と、大小関係のあるオブジェクト(数値、文字等)を定義する。
 
@@ -3263,15 +3312,13 @@ Returns the number of trail bytes if the receiver is the lead byte of a multibyt
 *****#en
 Wide character.
 
-Indicates a character represented by multiple bytes.
-The value that directly represents the byte string in big endian is the character code.
+Indicates a character represented by multiple bytes with a character code of 256 or higher.
 
 Wide characters are treated as printable characters that are neither blank nor alphanumeric.
 *****#ja
 ワイド文字。
 
-複数バイトで表される文字を示す。
-バイト列を直接ビッグエンディアンで表した値が文字コードとなる。
+文字コードが256以上で、複数バイトで表される文字を示す。
 
 ワイド文字は全て空白でも英数字でもない印字可能文字として扱う。
 
@@ -3298,7 +3345,7 @@ Wide characters are treated as printable characters that are neither blank nor a
 			or: [code between: 0xefbfa0 and: 0xefbfa6],
 			ifTrue: [2] ifFalse: [1]!];
 
-	--0x80 - 0x2e7f, refer MS Gothic font glyph width (see ucwidth.m)
+	--0x80 - 0x2e7f, refer VL Gothic regular font glyph width (see ucwidth.m)
 	code <= 0xffff
 		ifTrue: [code & 0x1f00 >> 2 + (code & 0x3f)]
 		ifFalse:
@@ -3309,22 +3356,22 @@ Wide characters are treated as printable characters that are neither blank nor a
 				ifFalse:
 					[code & 0x7000000 >> 6 + (code & 0x3f0000 >> 4)
 						+ (code & 0x3f00 >> 2) + (code & 0x3f)]] ->:uc;
-	#(
-		{0080} 0x00 0x00 0x00 0x00 0x80 0x01 0x53 0x00
+	#[
+		{0080} 0x00 0x00 0x00 0x00 0x8c 0x99 0xf3 0x09
 		{00c0} 0x00 0x00 0x80 0x00 0x00 0x00 0x80 0x00
 		{0100} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{0140} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{0180} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-		{01c0} 0x00 0xe0 0xff 0x1f 0x00 0x00 0x20 0x00
-		{0200} 0x00 0x00 0x00 0x05 0x00 0x00 0x00 0x00
+		{01c0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{0200} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{0240} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{0280} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-		{02c0} 0x00 0x0c 0x00 0x00 0x00 0x00 0x00 0x00
+		{02c0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{0300} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-		{0340} 0x00 0x00 0x00 0x00 0x00 0x00 0x40 0x00
+		{0340} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{0380} 0x00 0x00 0xfe 0xff 0xfb 0x03 0xfe 0xff
-		{03c0} 0xfb 0x03 0xfe 0xd7 0xff 0x75 0x93 0x0f
-		{0400} 0x02 0x20 0xff 0xff 0xff 0xff 0xff 0xff
+		{03c0} 0xfb 0x03 0x00 0x00 0x00 0x00 0x00 0x00
+		{0400} 0x02 0x00 0xff 0xff 0xff 0xff 0xff 0xff
 		{0440} 0xff 0xff 0x02 0x00 0x00 0x00 0x00 0x00
 		{0480} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{04c0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
@@ -3409,9 +3456,9 @@ Wide characters are treated as printable characters that are neither blank nor a
 		{1880} 0xe0 0x00 0x00 0x00 0x00 0x02 0xff 0x38
 		{18c0} 0xc7 0xff 0x01 0x00 0xf9 0x30 0x07 0x00
 		{1900} 0x00 0x00 0x00 0x00 0xff 0x0f 0xff 0x0f
-		{1940} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-		{1980} 0x00 0x00 0x00 0x00 0x00 0x00 0x40 0x00
-		{19c0} 0x00 0x00 0x00 0x00 0x00 0xfc 0x00 0xfc
+		{1940} 0x00 0x00 0xf8 0xd4 0x02 0x20 0x00 0x00
+		{1980} 0x17 0x62 0xe1 0xb9 0x41 0x04 0x40 0xb0
+		{19c0} 0x21 0x00 0xa0 0xc0 0x00 0xfc 0x00 0xfc
 		{1a00} 0x52 0xdf 0x6f 0x06 0x00 0x00 0x00 0x00
 		{1a40} 0x00 0x00 0xe0 0x7f 0xff 0xff 0xff 0x9f
 		{1a80} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
@@ -3430,70 +3477,70 @@ Wide characters are treated as printable characters that are neither blank nor a
 		{1dc0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{1e00} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{1e40} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-		{1e80} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x10
+		{1e80} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{1ec0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{1f00} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{1f40} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{1f80} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{1fc0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-		{2000} 0x0a 0x00 0x61 0x33 0x63 0x00 0x0d 0x08
-		{2040} 0x00 0x00 0x1b 0x34 0xc1 0x03 0x00 0x00
-		{2080} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x07
-		{20c0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-		{2100} 0x08 0x00 0x40 0x00 0x02 0x08 0x00 0x8e
-		{2140} 0x00 0xa8 0x07 0x00 0xff 0xff 0xff 0xff
-		{2180} 0xff 0x03 0x0f 0x00 0x00 0x00 0x00 0x00
-		{21c0} 0x00 0x00 0x14 0x00 0x00 0x00 0xf7 0xff
-		{2200} 0x8d 0x09 0x02 0xe4 0xa1 0x5f 0x30 0x20
-		{2240} 0x00 0x00 0x04 0x00 0xc3 0x0c 0x00 0x00
-		{2280} 0xcc 0x00 0x00 0x00 0x20 0x00 0x00 0x80
-		{22c0} 0x00 0x00 0x00 0x00 0x00 0x00 0x6c 0x2f
-		{2300} 0x83 0x00 0xfc 0x0d 0xfc 0x79 0x7f 0x7f
-		{2340} 0xfe 0xbb 0x9d 0xf6 0xe5 0xb9 0x27 0x5a
-		{2380} 0xff 0x8f 0xbf 0xff 0xff 0x3f 0x7f 0xc0
-		{23c0} 0xff 0xff 0xf0 0xff 0xff 0xfe 0xff 0x07
-		{2400} 0x00 0x00 0x00 0x00 0x28 0x00 0x00 0x00
+		{2000} 0x08 0x00 0xf9 0xff 0x67 0x00 0xff 0x5e
+		{2040} 0x80 0x0f 0x08 0x00 0xc0 0x03 0x00 0x00
+		{2080} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{20c0} 0x00 0x00 0x00 0xe0 0x1d 0x00 0x0e 0x00
+		{2100} 0x2c 0x22 0xea 0x77 0xd7 0x4e 0xe4 0xdf
+		{2140} 0xff 0x0b 0xff 0xff 0xff 0xff 0xff 0xff
+		{2180} 0x78 0x02 0xff 0xff 0xff 0x5f 0xff 0xff
+		{21c0} 0xff 0xff 0xff 0xcf 0xff 0xff 0xef 0xff
+		{2200} 0xdf 0x3f 0x02 0xfc 0xa1 0xff 0x7f 0x20
+		{2240} 0x2c 0x00 0x0f 0x00 0xc7 0x0c 0xcc 0x00
+		{2280} 0xfc 0x03 0xe0 0xff 0x3f 0x00 0x00 0xb8
+		{22c0} 0x2f 0x00 0x00 0x00 0x00 0xc0 0x03 0x00
+		{2300} 0x84 0x00 0x05 0x0d 0x20 0x01 0x00 0x00
+		{2340} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{2380} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{23c0} 0x00 0x80 0x00 0x00 0x00 0xfe 0xff 0x07
+		{2400} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{2440} 0x00 0x00 0x00 0x00 0xff 0xff 0xff 0xff
 		{2480} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		{24c0} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
-		{2500} 0x0f 0x90 0x99 0x39 0x39 0x99 0x99 0x99
-		{2540} 0x04 0x08 0x00 0x00 0x00 0x00 0x00 0x00
-		{2580} 0x00 0x00 0xc0 0xff 0x03 0x00 0x0c 0x30
-		{25c0} 0xc0 0xc8 0x00 0x00 0x00 0x80 0xff 0xff
-		{2600} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xe1
-		{2640} 0xff 0xff 0xff 0xff 0x00 0xa5 0xfc 0xff
-		{2680} 0xff 0xff 0xff 0xfa 0x9f 0xce 0x43 0xe0
-		{26c0} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
-		{2700} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
-		{2740} 0xff 0xff 0xff 0x7f 0xfe 0x00 0xc0 0xff
-		{2780} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
-		{27c0} 0x9f 0xc3 0xe3 0x7c 0x3e 0x00 0xff 0xff
+		{2500} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		{2540} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		{2580} 0x00 0x00 0x0e 0x00 0xff 0xff 0xff 0xff
+		{25c0} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		{2600} 0xff 0xff 0xff 0xff 0x4f 0xfe 0xff 0xff
+		{2640} 0x6f 0xff 0xff 0xff 0xff 0xff 0xf8 0xcf
+		{2680} 0xff 0xff 0xff 0xda 0xff 0xff 0x03 0xfe
+		{26c0} 0xf0 0xdf 0xfe 0x7f 0x08 0xff 0xff 0xbf
+		{2700} 0xfe 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		{2740} 0xff 0xff 0xff 0x07 0xd8 0x00 0xc0 0xff
+		{2780} 0xff 0xff 0xff 0xff 0x7f 0xff 0xff 0xff
+		{27c0} 0x00 0x00 0x00 0x00 0xc0 0x03 0x00 0x00
 		{2800} 0xfe 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		{2840} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		{2880} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		{28c0} 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
-		{2900} 0xff 0xfc 0xf3 0xff 0x87 0xff 0xcf 0x3c
-		{2940} 0xff 0x4d 0xcd 0xcc 0xd4 0x3f 0xbf 0x04
-		{2980} 0x00 0x00 0x78 0x00 0x00 0x00 0xff 0xff
-		{29c0} 0xff 0xff 0xff 0xf0 0x7f 0xf7 0x1f 0x00
-		{2a00} 0xff 0x1f 0x90 0x20 0x81 0x60 0xf8 0x8f
-		{2a40} 0x00 0xfc 0xff 0xff 0x3f 0x03 0x70 0x07
-		{2a80} 0x00 0x00 0x00 0x00 0xfe 0x3f 0x00 0xf8
-		{2ac0} 0x87 0xe1 0x87 0x91 0xfb 0x3f 0xa0 0x29
-		{2b00} 0xff 0xdf 0xff 0x9f 0xff 0xf3 0xff 0xff
-		{2b40} 0xff 0x1f 0xf9 0x33 0x3f 0xc0 0xc5 0xd7
-		{2b80} 0xff 0xff 0x3f 0xff 0xfc 0x0f 0xff 0xe3
-		{2bc0} 0xff 0xfd 0x03 0x00 0x00 0x50 0x00 0x00
+		{2900} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{2940} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{2980} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{29c0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{2a00} 0x7f 0x12 0x00 0x00 0x00 0x00 0x00 0x00
+		{2a40} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{2a80} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{2ac0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{2b00} 0x00 0x00 0xfc 0x1f 0x00 0xf0 0x00 0x00
+		{2b40} 0x00 0x00 0xe1 0x33 0xff 0xff 0xcf 0xff
+		{2b80} 0xff 0xff 0x3f 0xff 0xff 0x0f 0xff 0xe3
+		{2bc0} 0xff 0xff 0x03 0x00 0x00 0x50 0x0c 0x00
 		{2c00} 0xdc 0xd7 0xe0 0xd6 0xea 0x67 0x54 0xc7
-		{2c40} 0x20 0x00 0xa0 0x07 0x00 0x00 0x00 0x00
-		{2c80} 0x00 0x40 0x01 0x45 0x01 0x04 0x03 0x40
-		{2cc0} 0x0c 0x00 0x00 0x11 0x80 0xbc 0x07 0x12
+		{2c40} 0x20 0x00 0xa0 0x07 0x00 0x00 0x02 0x00
+		{2c80} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+		{2cc0} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 		{2d00} 0xa0 0xe4 0x19 0x18 0x21 0x00 0x3e 0x10
 		{2d40} 0x2b 0x11 0x31 0x26 0xe9 0x00 0x00 0x00
 		{2d80} 0xbf 0xfb 0x5d 0x00 0x7f 0x7f 0x7f 0x7f
 		{2dc0} 0x08 0x16 0x7f 0x00 0x00 0x00 0x00 0x00
-		{2e00} 0x00 0xc0 0x03 0x02 0xc0 0x00 0x00 0x80
-		{2e40} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 ) ->:bmp;
+		{2e00} 0x00 0xc0 0x03 0x02 0x00 0x00 0x00 0x80
+		{2e40} 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00] ->:bmp;
 	uc - 0x80 ->:off;
 	bmp at: (off // 8), & (1 << (off % 8)) = 0 ifTrue: [1] ifFalse: [2]!
 *****#ja
@@ -3525,15 +3572,15 @@ Wide characters are treated as printable characters that are neither blank nor a
 ****#en
 Date and Time class.
 
-Process the date and time of the time zone set in the host system.
-The time difference from UTC to Local Time follows the setting of the host system at startup.
+Process the date and time of the time zone set in the host OS.
+The time difference from UTC to Local Time follows the setting of the host OS at startup.
 
 After creating with new, you need to clear and initialize it using the method starting with init.
 ****#ja
 日付と時刻。
 
-ホストシステムに設定されたタイムゾーンにおける日付、時刻を扱う。
-協定世界時から地方時への時差は起動のホストシステムの設定に従う。
+ホストOSに設定されたタイムゾーンにおける日付、時刻を扱う。
+協定世界時から地方時への時差は起動のホストOSの設定に従う。
 
 newで生成してから、initで始まるメソッドで明に初期化する必要がある。
 
@@ -4505,7 +4552,7 @@ Only integers from 0 to 255 can be stored as elements.
 *****[test.m]
 	FixedByteArray basicNew: 3 ->:a;
 	a basicAt: 0 copyFrom: ar at: 3 size: 3;
-	self assert: a asString = "3 4 5"
+	self assert: a describe = "aFixedByteArray(3 4 5)"
 
 ****FixedByteArray >> basicAt: posArg unmatchIndexWith: fbaArg at: fbaPosArg
 		size: sizeArg
@@ -4522,19 +4569,27 @@ Only integers from 0 to 255 can be stored as elements.
 	self size ->:sz, = fbaArg size
 		and: [self unmatchIndexWith: fbaArg size: sz, nil?]!
 *****[test.m]
-	#(1 2 3) asArray asFixedByteArray ->:a;
-	self assert: (a contentsEqual?: #(1 2 3) asArray asFixedByteArray);
-	self assert: (a contentsEqual?: #(1 2 2) asArray asFixedByteArray) not;
-	self assert: (a contentsEqual?: #(1 2) asArray asFixedByteArray) not
+	#[1 2 3] ->:a;
+	self assert: (a contentsEqual?: #[1 2 3]);
+	self assert: (a contentsEqual?: #[1 2 2]) not;
+	self assert: (a contentsEqual?: #[1 2]) not
 
 ****FixedByteArray >> makeStringFrom: fromArg size: sizeArg
 	String basicNew: sizeArg,
 		basicAt: 0 copyFrom: self at: fromArg size: sizeArg,
 		initHash!
 *****[test.m]
-	FixedByteArray basicNew: 4, at: 1 put: 'a' code, at: 2 put: 'b' code ->:fba;
+	FixedByteArray basicNew: 4, at: 1 put: 'a' code, at: 2 put: 'b' code 
+		->:fba;
 	self assert: (fba makeStringFrom: 1 size: 2) = "ab"
 
+****FixedByteArray >> printOn: writerArg
+	writerArg putString: self
+*****[test.m]
+	FixedByteArray basicNew: 2, at: 0 put: 'a' code, at: 1 put: 'b' code 
+		->:fba;
+	self assert: fba asString = "ab"
+	
 ****FixedByteArray >> indexOf: byteArg from: fromArg until: untilArg
 	$fbarray_index
 *****[test.m]
@@ -4582,12 +4637,6 @@ Elements are limited to instances of Char and their contents cannot be changed.
 	self byteAt: posArg, asChar!
 *****[test.m]
 	self assert: (s at: 1) = 'b'
-
-****AbstractString >> printOn: writerArg
-	writerArg putString: self
-*****[test.m]
-	s printOn: (StringWriter new ->:wr);
-	self assert: wr asString = "abc"
 
 ****AbstractString >> indexOf: charArg from: fromArg until: untilArg
 	super indexOf: charArg code from: fromArg until: untilArg!
@@ -4742,8 +4791,6 @@ Returns a file object of the system directory whose file name is a string.
 Generate an error if there is no readable file.
 ******#ja
 文字列をファイル名とするシステムディレクトリのファイルオブジェクトを返す。
-
-可読なファイルが存在しない場合はエラーと発生させる。
 
 ****String >> asWorkFile
 	Mulk.workDirectory + self!
@@ -5157,8 +5204,7 @@ Returns a FixedArray with the same contents as the receiver.
 レシーバーと同じ内容のFixedArrayを返す。
 *****[test.m]
 	a asFixedArray ->a;
-	self assert: (a memberOf?: FixedArray);
-	self assert: a asString = "1 4 9 16 25"
+	self assert: a describe = "aFixedArray(1 4 9 16 25)"
 	
 ****Array >> asFixedByteArray
 	FixedByteArray basicNew: size ->:result;
@@ -5177,8 +5223,7 @@ The element must not contain an object other than an integer from 0 to 255.
 要素として0〜255の整数以外のオブジェクトが含まれていてはならない。
 *****[test.m]
 	a asFixedByteArray ->a;
-	self assert: (a memberOf?: FixedByteArray);
-	self assert: a asString = "1 4 9 16 25"
+	self assert: a describe = "aFixedByteArray(1 4 9 16 25)"
 
 ****Array >> copyFrom: fromArg until: untilArg
 	self class new ->:result;
@@ -5625,7 +5670,7 @@ Cons list.
 
 A class that corresponds to the Cons cell in Lisp and is used to build general-purpose trees and tuples.
 In addition to normal car and cdr references, it provides an API for using cdr-direction concatenation as a unidirectional list and can also be used as a collection.
-car / cdr notation is in reverse order of Lisp.
+car/cdr notation is in reverse order of Lisp.
 ****#ja
 Consリスト。
 
@@ -6069,21 +6114,21 @@ valueArgがリスト中に無い場合はnilを返す。
 ***#en
 Stream protocols define functions for handling streams.
 
-A stream is a mechanism for handling files and consoles, and provides a function that performs input / output in units of characters, character strings, and lines in addition to bytes and byte sequences.
+A stream is a mechanism for handling files and consoles, and provides a function that performs input/output in units of characters, character strings, and lines in addition to bytes and byte sequences.
 
-The standard input / output is the following global variable, and a stream corresponding to the standard input / output of the Mulk interpreter is allocated.
+Standard input/output is the following global variable, to which streams corresponding to the standard input/output of the Mulk processor are assigned.
 
 	Out/Out0 -- standard input
 	In/In0 -- standard output
 
-In / Out can be switched by command redirection or pipe library, but In0 / Out0 cannot be switched by these.
+In/Out can be switched by command redirection or pipe library, but In0/Out0 cannot be switched by these.
 
 ***#ja
 Stream protocolsはストリームを扱う為の機能を定義する。
 
 ストリームはファイルやコンソールを扱う為の機構で、バイト、バイト列の他、文字、文字列、行といった単位で入出力を行う機能を提供する。
 
-標準入出力は、以下のグローバル変数で、Mulkインタプリタの標準入出力に対応するストリームが割り当てられる。
+標準入出力は、以下のグローバル変数で、Mulk処理系の標準入出力に対応するストリームが割り当てられる。
 
 	Out/Out0 -- 標準出力
 	In/In0 -- 標準入力。
@@ -6220,7 +6265,7 @@ FixedByteArray bufArgのfromArgバイト目からsizeArgバイト分をそのま
 
 bufArgは派生クラスでも可。
 ****[test.m]
-	"abcde" collectAsArray: [:ch ch code], asFixedByteArray ->:ar;
+	#[97 98 99 100 101] ->:ar;
 	wr write: ar from: 1 size: 3;
 	self assert: wr asString = "bcd"
 	
@@ -6236,7 +6281,7 @@ FixedByteArray bufArgの先頭からsizeArgバイト分をそのまま出力す�
 
 bufArgは派生クラスでも可。
 ****[test.m]
-	"abcde" collectAsArray: [:ch ch code], asFixedByteArray ->:ar;
+	#[97 98 99 100 101] ->:ar;
 	wr write: ar size: 3;
 	self assert: wr asString = "abc"
 
@@ -6337,7 +6382,7 @@ Returns nil when the stream reaches the end.
 	self getWideCharTrail: ch!
 ****[man.m]
 *****#en
-Input one character from the stream and return an instance of Char / WideChar.
+Input one character from the stream and return an instance of Char/WideChar.
 
 If the stream contains multibyte characters, construct a WideChar according to the content.
 The other behavior is the same as getChar.
@@ -6852,7 +6897,7 @@ Returns a stream to append to the receiver's content.
 ******#en
 Returns a stream that updates the contents of the receiver.
 
-The read / write position is at the beginning of the file.
+The read/write position is at the beginning of the file.
 The file size cannot be reduced.
 ******#ja
 レシーバーの内容を更新するストリームを返す。
@@ -7308,7 +7353,7 @@ Unix系OSではLFのみとなる。
 ****[test.m]
 	--read and write
 	self createTempFile ->:f;
-	"abcde" collectAsArray: [:ch ch code], asFixedByteArray ->:ar;
+	#[97 98 99 100 101] ->:ar;
 	f writeDo: [:wr wr write: ar from: 1 size: 3];
 	f readDo:
 		[:rd
@@ -7350,7 +7395,7 @@ Unix系OSではLFのみとなる。
 *****#en
 Close the file stream.
 
-If multiple file streams are opened or closed for the same file, the input / output operation may not be completed correctly.
+If multiple file streams are opened or closed for the same file, the input/output operation may not be completed correctly.
 *****#ja
 ファイルストリームを閉じる。
 
@@ -8026,6 +8071,9 @@ Skip '*' in the outline line from the beginning of the block.
 		nextChar = '(' ifTrue:
 			[self skipChar;
 			Cons new car: #arrayLiteral!];
+		nextChar = '[' ifTrue:
+			[self skipChar;
+			Cons new car: #byteArrayLiteral!];
 		[self symbolChar?] whileTrue: [self getWideChar];
 		Cons new car: #symbol, add: self token!];
 	nextChar = '$' ifTrue:
@@ -8103,6 +8151,12 @@ Skip '*' in the outline line from the beginning of the block.
 		[self next?: ')'] whileFalse: [ar addLast: self parseLiteral];
 		self scan;
 		ar asFixedArray!];
+	self next?: #byteArrayLiteral, ifTrue:
+		[self scan;
+		Array new ->ar;
+		[self next?: ']'] whileFalse: [ar addLast: self parseLiteral];
+		self scan;
+		ar asFixedByteArray!];
 
 	self error: "illegal token " + next
 *****MethodCompiler.Parser >> parseBlock
@@ -8889,7 +8943,7 @@ Skip '*' in the outline line from the beginning of the block.
 		ifFalse: [self evalReader: In]
 
 *Mulk.class class.#
-	class Mulk.class Dictionary : imageFile imported;
+	class Mulk.class Dictionary : imported;
 	singleton Mulk.class Mulk;
 	
 	singleton GlobalVar Mulk.defaultMainClass;
@@ -8929,8 +8983,8 @@ The following global objects hold configuration information.
 
 The following are fixed values, and hold information about the implementation.
 
-	Mulk.hostOS -- OS name symbol of the running host system.
-	Mulk.hostOSUnix? -- true if the host system is Unix compatible.
+	Mulk.hostOS -- Name symbol of the host OS on which it is running.
+	Mulk.hostOSUnix? -- true if the host OS is Unix compatible.
 	Mulk.codepage -- (Windows only) Codepage number. If undefined, UTF-8 is used.
 	Mulk.charset -- A symbol representing a wide character code. #utf8 or #sjis.
 	Mulk.newline -- Newline character for text files. #lf or #crlf.
@@ -8956,27 +9010,16 @@ Mulkはグローバルオブジェクト全てを保持する連想配列で、M
 
 以下は固定値であり、実装についての情報を保持している。
 
-	Mulk.hostOS -- 動作しているホストシステムのOS名称シンボル。
-	Mulk.hostOSUnix? -- ホストシステムがUnix互換ならtrue。
+	Mulk.hostOS -- 動作しているホストOSの名称シンボル。
+	Mulk.hostOSUnix? -- ホストOSがUnix互換ならtrue。
 	Mulk.codepage -- (Windowsのみ)コードページ番号。未定義時はUTF-8となる。
 	Mulk.charset -- ワイド文字の文字コードを表すシンボル。#utf8もしくは#sjis。
 	Mulk.newline -- テキストファイルの改行文字。#lfもしくは#crlf。
 	Mulk.caseInsensitiveFileName? -- ファイル名は英字の大文字小文字を区別しない場合、true。
 	
 **image.
-***Mulk.class >> imageFile
-	imageFile!
-****[man.m]
-*****#en
-Returns a File object for the boot image.
-*****#ja
-起動イメージのFileオブジェクトを返す。
-
-***Mulk.class >> saveFile: fileArg
-	ImageWriter new writeTo: fileArg
-	
 ***Mulk.class >> save: fileNameArg
-	self saveFile: fileNameArg asFile
+	ImageWriter new writeTo: fileNameArg asFile
 ****[man.m]
 *****#en
 Save the image to the file indicated by String fileNameArg.
@@ -8984,7 +9027,7 @@ Save the image to the file indicated by String fileNameArg.
 String fileNameArgで示されるファイルへイメージを保存する。
 
 ***Mulk.class >> save
-	self saveFile: imageFile
+	self save: Kernel imageFn
 ****[man.m]
 *****#en
 Write the current Mulk back to the boot image file.
@@ -9104,13 +9147,6 @@ Quit the system.
 		[home asFile ->File.home]
 .end
 
-.if ~ib
-.if windows
-**Mulk.class >> codepage: arg
-	$codepage
-.end
-.end
-
 **Mulk.class >> boot: args
 .if ib
 	{args = #(globalTable symbolTable mainArgs)
@@ -9196,7 +9232,7 @@ Quit the system.
 
 	args at: 2 ->:mainArgs;
 .else
-	{args=#(mainClass mainArgs imageFileName)
+	{args=#(mainClass mainArgs)
 		--see mulk.c/make_boot_args
 	}
 	
@@ -9207,14 +9243,11 @@ Quit the system.
 
 	self initFiles;
 .if windows
-	self codepage: (Mulk at: #Mulk.codepage);
+	Kernel propertyAt: 14 put: (Mulk at: #Mulk.codepage);
 .end
 	
-	args at: 2,
-		asFile ->imageFile;
-
 	Mulk.systemDirectory nil?
-		ifTrue: [imageFile parent ->Mulk.systemDirectory];
+		ifTrue: [Kernel imageFn asFile parent ->Mulk.systemDirectory];
 	Mulk.workDirectory nil?
 		ifTrue: [Mulk.systemDirectory ->Mulk.workDirectory];
 .end

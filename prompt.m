@@ -1,11 +1,11 @@
 conversational input (Prompt.class class)
-$Id: mulk prompt.m 981 2022-12-20 Tue 22:29:17 kt $
+$Id: mulk prompt.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja 会話的入力 (Prompt.class class)
 
 *[man]
 **#en
 .caption DESCRIPTION
-Enter any string / number / boolean value interactively.
+Enter any string/number/boolean value interactively.
 .hierarchy Prompt.class
 The argument p is output to the terminal as a prompt.
 

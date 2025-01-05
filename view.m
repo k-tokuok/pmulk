@@ -1,5 +1,5 @@
 graphic screen
-$Id: mulk view.m 1304 2024-11-17 Sun 20:24:29 kt $
+$Id: mulk view.m 1339 2024-12-26 Thu 21:56:19 kt $
 #ja グラフィック画面
 
 *[man]
@@ -227,9 +227,9 @@ View全体を背景色で塗り潰す。
 		ifFalse: [View.FontDrawer new init: fontArg] ->fontDrawer
 ****[man.m]
 *****#en
-Specify the character font with the following character string that depends on the host environment.
+Specify the character font with the following character string that depends on the window system.
 
-|Unix/X11
+|X11
 	X11 font set name. ex. "8x13,kanji16,8x16kana".
 	'*' freeType font name. ex. "*Monospace-12".
 |Windows
@@ -251,9 +251,9 @@ By passing an instance of Dictionary, the drawing position of characters can be 
 	#woffx 		x-coordinate correction of wide characters
 	#woffy 		y-coordinate correction
 *****#ja
-文字フォントをホスト環境に依存する以下の文字列で指定する。
+文字フォントをウィンドウシステムに依存する以下の文字列で指定する。
 
-|Unix/X11
+|X11
 	フォントセット指定。ex. "8x13,kanji16,8x16kana"
 	'*' FreeTypeフォント名 ex. "*monospace-12"
 |Windows

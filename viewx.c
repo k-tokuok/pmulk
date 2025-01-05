@@ -1,6 +1,6 @@
 /*
 	view for X.
-	$Id: mulk viewx.c 1321 2024-12-01 Sun 20:34:54 kt $
+	$Id: mulk viewx.c 1331 2024-12-14 Sat 21:20:31 kt $
 */
 #include "std.h"
 
@@ -23,8 +23,6 @@
 
 #include "om.h"
 #include "ip.h"
-
-static int init_p=FALSE;
 
 static Display *display;
 static Window window;
@@ -291,19 +289,19 @@ static void create_pixmap(void)
 #endif
 }
 
+void view_init(void)
+{
+	if(setlocale(LC_ALL,"")==NULL) xerror("setlocale failed.");
+	if(!XSupportsLocale()) xerror("XSupportsLocale failed.");
+	XSetLocaleModifiers("");
+	if((display=XOpenDisplay(NULL))==NULL) xerror("XOpenDisplay failed.");
+}
+
 void view_open(int width,int height)
 {
-	if(!init_p) {
-		if(setlocale(LC_ALL,"")==NULL) xerror("setlocale failed.");
-		if(!XSupportsLocale()) xerror("XSupportsLocale failed.");
-		XSetLocaleModifiers("");
-		init_p=TRUE;
-	}
-		
 	view_width=width;
 	view_height=height;
 	
-	if((display=XOpenDisplay(NULL))==NULL) xerror("XOpenDisplay failed.");
 	window=XCreateSimpleWindow(display,DefaultRootWindow(display),
 		50,50,view_width,view_height,2,
 		BlackPixel(display,0),WhitePixel(display,0));
@@ -343,11 +341,6 @@ void view_open(int width,int height)
 	view_event_filter=0;
 	view_shift_mode=VIEW_CROSS_SHIFT;
 	XMapRaised(display,window);
-}
-
-void view_move(int x,int y)
-{
-	XMoveWindow(display,window,x,y);
 }
 
 static void free_font(void)
@@ -420,17 +413,6 @@ static void free_pixmap(void)
 	XFreePixmap(display,pixmap);
 }
 
-void view_resize(int width,int height)
-{
-	view_width=width;
-	view_height=height;
-	
-	XResizeWindow(display,window,view_width,view_height);
-	set_hint();
-	free_pixmap();
-	create_pixmap();
-}
-
 void view_close(void)
 {
 #if XIM_P
@@ -442,6 +424,10 @@ void view_close(void)
 	free_pixmap();
 	free_font();
 	XFreeGC(display,gc);
+}
+
+void view_finish(void)
+{
 	XCloseDisplay(display);
 	display=NULL;
 }
@@ -605,10 +591,42 @@ int view_event_empty_p(void)
 	return iqueue_empty_p(&queue);
 }
 
-void view_get_screen_size(int *w,int *h)
+void view_set_position(int coord)
+{
+	XMoveWindow(display,window,COORD_X(coord),COORD_Y(coord));
+}
+
+void view_set_size(int coord)
+{
+	view_width=COORD_X(coord);
+	view_height=COORD_Y(coord);
+	
+	XResizeWindow(display,window,view_width,view_height);
+	set_hint();
+	free_pixmap();
+	create_pixmap();
+}
+
+int view_get_screen_size(void)
 {
 	int s;
 	s=DefaultScreen(display);
-	*w=DisplayWidth(display,s);
-	*h=DisplayHeight(display,s);
+	return coord(DisplayWidth(display,s),DisplayHeight(display,s));
+}
+
+int view_get_frame_size(void)
+{
+	Atom netFrameExtents,actualType;
+	unsigned long *frameExtents;
+	int actualFormat,result;
+	unsigned long nItems,bytesAfter;
+	
+	netFrameExtents=XInternAtom(display,"_NET_FRAME_EXTENTS",True);
+	XGetWindowProperty(display,window,netFrameExtents,0,4,False,
+		AnyPropertyType,&actualType,&actualFormat,&nItems,&bytesAfter,
+		(unsigned char**)&frameExtents);
+	result=coord(view_width+frameExtents[0]+frameExtents[1],
+		view_height+frameExtents[2]+frameExtents[3]);
+	XFree(frameExtents);
+	return result;
 }

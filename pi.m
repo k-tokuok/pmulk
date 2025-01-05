@@ -1,14 +1,14 @@
 object serialization/deserialization with partial image format
-$Id: mulk pi.m 1212 2024-04-14 Sun 20:49:24 kt $
+$Id: mulk pi.m 1346 2025-01-02 Thu 20:00:51 kt $
 #ja 部分イメージ形式によるオブジェクトのシリアライズ
 
 *[man]
 **#en
 .caption description
-Serialize / deserialize a specific object and the objects referenced from it.
+Serialize/deserialize a specific object and the objects referenced from it.
 
-The class definition of the object to be deserialized must be defined in the execution environment with the same structure as at the time of serialization.
-Objects associated with the internal mechanism of the interpreter, such as the class definition itself and FileStream and Context / Block, cannot be serialized correctly.
+The class definition of the object to be deserialized must be defined in the execution environment with the same structure as when serialized.
+Objects that are associated with the class definition itself or with internal mechanisms of the processor, such as FileStream or Context/Block, cannot be serialized correctly.
 
 By convention, the extension of a file serialized using this mechanism is mpi (Mulk partial image).
 **#ja
@@ -16,7 +16,7 @@ By convention, the extension of a file serialized using this mechanism is mpi (M
 特定のオブジェクトとそこから参照しているオブジェクト群をシリアライズ/デシリアライズする。
 
 デシリアライズするオブジェクトのクラス定義は実行環境中にシリアライズ時と同一の構造で定義されていなくてはならない。
-クラス定義そのもの、FileStreamやContext/Blockのようにインタプリタの内部機構と結び付いたオブジェクトは正しくシリアライズ出来ない。
+クラス定義そのもの、FileStreamやContext/Blockのような処理系の内部機構と結び付いたオブジェクトは正しくシリアライズ出来ない。
 
 慣用として、この機構を用いてシリアライズしたファイルの拡張子をmpi(Mulk partial image)とする。
 

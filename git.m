@@ -1,5 +1,5 @@
 revision control system
-$Id: mulk git.m 1200 2024-04-02 Tue 22:39:47 kt $
+$Id: mulk git.m 1339 2024-12-26 Thu 21:56:19 kt $
 #ja 改訂管理システム
 
 *[man]
@@ -8,7 +8,7 @@ $Id: mulk git.m 1200 2024-04-02 Tue 22:39:47 kt $
 	git ARGS... -- Execute git with ARGS as an argument.
 	git.log [OPTION] [ARG] -- Output log for ARG. If omitted, the current directory is the target.
 .caption DESCRIPTION
-Execute git on the host system as a command.
+Execute git on the host OS as a command.
 .caption OPTION
 	n N -- Display N lines of log. The default is 10. Specify '-' to display all.
 	a yyyy-mm-dd -- Display logs after the date.
@@ -18,7 +18,7 @@ Execute git on the host system as a command.
 	git ARGS... -- ARGSを引数のgitを実行する。
 	git.log [OPTION] [ARG] -- ARGに対するログを出力する。省略時はカレントディレクトリを対象とする。
 .caption 説明
-コマンドとしてホストシステムのgitを実行する。
+コマンドとしてホストOSのgitを実行する。
 .caption オプション
 	n N -- ログをN行表示する。デフォルトは10。'-'を指定すると全て表示。
 	a yyyy-mm-dd -- 日付以降のログを表示する。
