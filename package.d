@@ -1,5 +1,5 @@
-;Mulk package std+skk (1346)
-;2025-01-05 Sun 20:43:06
+;Mulk package std+skk (1364)
+;2025-02-02 Sun 20:15:23
 k-us.d,1182,lib
 bg.m,1329,tool
 pwd.m,1258,tool
@@ -7,7 +7,7 @@ fgrep.m,932,tool
 intconv.m,990,lib
 eval.mm,406,tool
 charc.m,1208,tool
-c-view.m,1330,lib
+c-view.m,1353,lib
 iqueue.c,406,vm
 dtrans.m,1289,tool
 vkey.c,1313,vm
@@ -17,17 +17,18 @@ vkey.h,1313,vm
 mtrhk.d,406,skk,ja
 prim.c,1091,vm
 table.m,1164,tool
+onquit.m,1356,tool
 touch.m,475,tool
 prim.h,1299,vm
 ar.m,1055,tool
 oauthlr.c,868,vm
-view.c,1330,vm
+view.c,1347,vm
 inst.h,1246,vm
 termu.c,850,vm
 cp.m,458,tool
 packwin.m,1326,tool
 clipm.m,1346,npw,lib
-view.h,1330,vm
+view.h,1347,vm
 k-jp.d,1182,lib
 ctr.m,1339,tool
 gres.m,1190,tool
@@ -44,10 +45,10 @@ os.c,1318,vm
 diffdir.m,932,tool
 coord.h,644,vm
 gsync.m,1197,tool
-coord.m,1339,lib
+coord.m,1347,lib
 xorshift.m,418,lib
 jsonrd.m,1303,lib
-skkut.m,1260,skk
+skkut.m,1362,skk
 os.m,1339,tool
 cliplib.m,956,lib
 config.h,1318,vm
@@ -57,7 +58,7 @@ linec.m,1145,tool
 cmdstr.m,898,lib
 om.c,1242,vm
 more.m,406,tool
-views.c,1331,vm
+views.c,1347,vm
 fbarray.c,624,vm
 om.h,1299,vm
 cd.m,972,tool
@@ -73,7 +74,7 @@ xconsole.c,628,vm
 addxc.c,406,vm
 xwchar.c,850,vm
 jsonwr.m,1302,lib
-viewp.m,1339,lib
+viewp.m,1347,lib
 xconsole.h,1085,vm
 xwchar.h,1188,vm
 random.m,418,lib
@@ -104,7 +105,7 @@ mem.h,406,vm
 gzip.m,932,tool
 uniq.m,1148,tool
 term.c,850,vm
-wb.m,1344,tool
+wb.m,1364,tool
 wcarray.m,406,lib
 term.h,636,vm
 tr.m,1129,tool
@@ -131,10 +132,10 @@ omd.h,406,vm
 ir.h,406,vm
 crlf.m,1193,lib
 ctrlib.m,1289,lib
-skkchunk.d,1341,skk
+skkchunk.d,1363,skk
 tempfile.m,1318,lib
 xbarray.c,406,vm
-viewx.c,1331,vm
+viewx.c,1347,vm
 xbarray.h,406,vm
 time.m,968,tool
 gtrans.m,1197,tool
@@ -152,7 +153,7 @@ du.m,1259,tool
 csv.m,1266,tool
 icmd.m,1216,tool
 cmp.m,1145,tool
-base.m,1346,lib
+base.m,1357,lib
 xctype.c,1193,vm
 xctype.h,1191,vm
 numlnwr.m,1145,lib
@@ -204,13 +205,13 @@ terms.c,636,vm
 dup.m,1148,tool
 mv.m,1056,tool
 tee.m,417,tool
-sconsole.m,1301,lib
+sconsole.m,1353,lib
 azik.mm,953,skk
 backup.m,1259,tool
 oldchars.m,1141,ja,lib
 icd.m,1346,tool
 c-viewu.m,1179,npw,lib
-vieww.c,1330,vm
+vieww.c,1347,vm
 xgetopt.c,406,vm
 format.m,1208,tool
 open.m,1339,tool
@@ -228,7 +229,7 @@ trz.m,1141,tool,ja
 hidecnsl.m,1318,tool
 cp932.m,1261,lib
 tail.m,932,tool
-package.d,1346,tool
+package.d,1364,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,1346,tool
@@ -246,6 +247,6 @@ print.m,1346,tool
 hrc.m,787,lib
 optparse.m,1179,lib
 mulk.c,1326,vm
-skk.m,1290,skk
+skk.m,1362,skk
 fmv.m,1339,tool
 prompt.m,1346,lib

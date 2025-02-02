@@ -1,5 +1,5 @@
 screen coordinates and size (Coord format)
-$Id: mulk coord.m 1339 2024-12-26 Thu 21:56:19 kt $
+$Id: mulk coord.m 1347 2025-01-09 Thu 22:11:51 kt $
 #ja 画面上の座標・サイズ (coord形式)
 
 *[man]
@@ -33,3 +33,11 @@ Y座標又は高さを返す。
 Returns coord format value (self, y).
 ***#ja
 (self, y)なるcoord値を返す。
+
+*Integer >> asCoordString
+	"(" + self coordX + ',' + self coordY + ')'!
+**[man.m]
+***#en
+Returns a string representation of self as a coord value.
+***#ja
+selfのcoord値としての文字列表現を返す。

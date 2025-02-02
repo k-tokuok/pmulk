@@ -1,5 +1,5 @@
 skkユーティリティ
-$Id: mulk skkut.m 1260 2024-06-16 Sun 21:32:59 kt $
+$Id: mulk skkut.m 1362 2025-01-28 Tue 22:09:14 kt $
 
 *[man]
 .caption 書式
@@ -147,8 +147,9 @@ DICTが存在しない場合頻度情報のみから辞書を生成する。
 			rkTable at: s put: ar first]];
 	dictArg at: #rkDict put: rkTable
 ***Cmd.skkut >> makeExtraHenkanDict
-	"/zaq/kiq/juq/deq/loq"
-	+ "/qai/huu/wei/pou" ->:table;
+	"/zaq/kiq/juq/deq/loq" {撥音拡張}
+	+ "/qai/huu/wei/pou" {二重母音拡張} 
+	+ "/naq" {あ段撥音拡張} ->:table;
 	Dictionary new ->:result;
 	0 until: table size by: 4, do:
 		[:i

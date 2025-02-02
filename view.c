@@ -1,6 +1,6 @@
 /*
 	View (primitive implemented/View.p)
-	$Id: mulk view.c 1330 2024-12-14 Sat 19:51:57 kt $
+	$Id: mulk view.c 1347 2025-01-09 Thu 22:11:51 kt $
 */
 
 #include "std.h"
@@ -177,6 +177,7 @@ DEFPROPERTY(view)
 		if(sint_p(value)) view_shift_mode=sint_val(value);
 		break;
 	case 204:
+		*result=sint(view_get_position());
 		if(sint_p(value)) view_set_position(sint_val(value));
 		break;
 	case 205:

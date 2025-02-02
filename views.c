@@ -1,6 +1,6 @@
 /*
 	view for sdl.
-	$Id: mulk views.c 1331 2024-12-14 Sat 21:20:31 kt $
+	$Id: mulk views.c 1347 2025-01-09 Thu 22:11:51 kt $
 */
 
 #include "std.h"
@@ -367,6 +367,13 @@ int view_event_empty_p(void)
 	present();
 	process_event(FALSE);
 	return iqueue_empty_p(&queue);
+}
+
+int view_get_position(void)
+{
+	int x,y;
+	SDL_GetWindowPosition(window,&x,&y);
+	return coord(x,y);
 }
 
 void view_set_position(int coord)

@@ -1,5 +1,5 @@
 かな漢字変換日本語インプットメソッド
-$Id: mulk skk.m 1290 2024-10-07 Mon 21:55:32 kt $
+$Id: mulk skk.m 1362 2025-01-28 Tue 22:09:14 kt $
 
 *[man]
 .caption 書式
@@ -158,7 +158,9 @@ wb上であれば続けて漢字を入力し'!'以降を実行することで辞
 		[intermBacking notNil? ifTrue: 
 			[self resumeInterm;
 			nil ->intermBacking];
-		intermX >= 81 ifTrue: [81] ifFalse: [0] ->intermX;
+		intermX >= 162 
+			ifTrue: [162]
+			ifFalse: [intermX >= 81 ifTrue: [81] ifFalse: [0]] ->intermX;
 		intermY + 1 ->intermY;
 		intermY = Console height ifTrue: [intermY - 1 ->intermY]];
 	intermBacking nil? ifTrue:
@@ -271,9 +273,9 @@ wb上であれば続けて漢字を入力し'!'以降を実行することで辞
 				[ch = '\ck' | (ch = '\cl') ifTrue:
 					[self reset;
 					ungetQueue addLast: ch!];
-				"asdfghjkl;" indexOf: ch ->: off, notNil?
-					and: [cons cdr + off ->pos, <= cadets size],
-					ifTrue: [self henkanEnd: pos key: key!]]]] loop
+				"asdfghjkl;" indexOf: ch ->:off, notNil?
+					and: [cons cdr + off ->:pos2, <= cadets size],
+					ifTrue: [self henkanEnd: pos2 key: key!]]]] loop
 
 **Skk.class >> modeChar: ch
 	ch = '\cj' | (ch = '\ck') | (ch = '\cl') ifFalse: [false!];
@@ -369,11 +371,11 @@ wb上であれば続けて漢字を入力し'!'以降を実行することで辞
 	queue first ->:result;
 	queue removeFirst;
 	result!
-**Skk.class >> ascii?
-	mode = #ascii!
-**Skk.class >> ascii
+**Skk.class >> mode
+	mode!
+**Skk.class >> mode: arg
 	self reset;
-	#ascii ->mode
+	arg ->mode
 		
 *skk tool.@
 	Object addSubclass: #Cmd.skk

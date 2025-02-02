@@ -1,6 +1,6 @@
 /*
 	View (primitive implement)
-	$Id: mulk view.h 1330 2024-12-14 Sat 19:51:57 kt $
+	$Id: mulk view.h 1347 2025-01-09 Thu 22:11:51 kt $
 */
 
 #include "coord.h"
@@ -41,6 +41,7 @@ extern void view_load_keymap(char *fn);
 extern int view_get_event(void);
 extern int view_event_empty_p(void);
 
+extern int view_get_position(void);
 extern void view_set_position(int coord);
 extern void view_set_size(int coord);
 extern int view_get_screen_size(void);

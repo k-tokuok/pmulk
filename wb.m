@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1344 2024-12-30 Mon 21:22:01 kt $
+$Id: mulk wb.m 1364 2025-02-02 Sun 20:14:28 kt $
 #ja テキストエディタ
 
 *[man]
@@ -55,7 +55,7 @@ wb(ワークベンチ)は画面ベースのテキストエディタである。
 All operations are performed from the keyboard.
 
 Various functions can be performed with control characters entered with the ctrl key.
-In the following description, ^x means input x while holding down ctrl.
+In the following explanation, ^X means to type X (where X is any letter) while holding down ctrl.
 
 The characters that can be used in the text and the input method are as follows.
 
@@ -67,12 +67,16 @@ The characters that can be used in the text and the input method are as follows.
 The following control characters correspond to each key.
 
 	^h -- Backspace
-	^[ -- Esc
+	^[ -- ESC
+	
+Normally, a single control character performs one function, but ^x requires a subsequent character to perform a different function.
+Some functions may also require additional keystrokes.
+Functions that are not completed with a single character can be canceled by entering ESC.
 ***#ja 操作
 操作は全てキーボードから行う。
 
 ctrlキーと共に入力される制御文字で様々な機能を実行出来る。
-以下の説明では^xはctrlを押しながらxを入力する事を意味する。
+以下の説明では^Xはctrlを押しながらX(Xは任意の文字)を入力する事を意味する。
 
 テキスト中に使用出来る文字と入力の仕方は以下の通り。
 
@@ -84,7 +88,11 @@ ctrlキーと共に入力される制御文字で様々な機能を実行出来�
 以下の制御文字はそれぞれのキーに対応する。
 
 	^h -- Backspace
-	^[ -- Esc
+	^[ -- ESC
+
+通常、制御文字は一文字で一つの機能を実行するが、^xは後続に文字を必要とし、それによって異なる機能を実行する。
+又、機能によっては追加のキー入力を必要とする場合もある。
+一文字で完結しない機能はESCを入力することでキャンセルできる。
 
 **Buffer and cursor
 ***#en
@@ -156,7 +164,7 @@ The following operations are valid during the leap.
 	^[ -- Return to the position where you started the leap and end the leap.
 	^u -- Undo the last of the operations after the start of the leap.
 	^r -- Redo undone operation.
-
+	^x + ^z -- Initializes the pattern and reverses the orientation of the leaps.
 For other operations, the corresponding function is executed after terminating the leap.
 Some functions that require range specification target between the leap start position and the cursor.
 When such a function is executed during non-leap, the line with the cursor is targeted.
@@ -167,7 +175,6 @@ When such a function is executed during non-leap, the line with the cursor is ta
 	^f -- 前進リープの開始。
 	^b -- 後退リープの開始。
 	^a -- 前進リープを開始し、直前のパターンまで前進。
-
 リープ中、最下行にリープ開始ドキュメントに対するカーソルの相対位置、リープの向き、パターンが表示される。
 相対位置は開始ドキュメントの前方なら'>'、後方なら'<'で示す。
 開始ドキュメント内にある場合は何も表示しない。
@@ -185,9 +192,16 @@ When such a function is executed during non-leap, the line with the cursor is ta
 	^[ -- リープを始めた位置に戻ってリープを終了する。
 	^u -- リープ開始後の操作の最後のものを取り消す。
 	^r -- 取り消した繰作をやり直す。
+	^x + ^z -- パターンを初期化しリープの向きを反転する。
 それ以外の操作はリープを終了させた上で対応する機能を実行する。
 範囲指定を必要とする一部の機能は、リープ開始位置からカーソルの間を対象とする。
 そのような機能を非リープ中に実行するとカーソルのある行が対象となる。
+
+***Goto Line (^x + ^g)
+****#en
+Moves to the line with the line number specified as the leap range.
+****#ja 行移動 (^x + ^g)
+リープ範囲として指定した行番号の行に移動する。
 
 **Edit
 ***#ja 編集
@@ -265,7 +279,7 @@ Synchronize the document with the cursor to the corresponding file.
 .item
 The file path corresponding to a document is indicated by a marker line <...> in the marker line.
 If this is not the case, create an absolute path name from the contents of the marker line and add a <...> description is added.
-If the content of the marker line starts with '*', no file synchronization is performed.
+If the content of the marker line begins with '*', it is not eligible for synchronization with the file.
 
 .item
 If the document is empty and there is a file, read the file.
@@ -274,17 +288,17 @@ If the document is empty and there is a file, read the file.
 If the document is not empty and has no files, write to the file.
 
 .item
-If the contents of the document and the file do not match, a message to that effect is displayed, and one of read (r), write (w), insert difference into buffer (d) or skip (s) from the file is selected.
+If the document and file contents do not match, this is indicated and the user can choose to read from the file (r), write to the file (w), or insert the difference into the buffer (d).
 
 If you specify the ctr code argument + ':' at the beginning of the file path, the character code and line feed code will be converted when reading and writing the file.
-If the cursor is on an interactive document, synchronize all documents that have a file name and differ from the file.
+When the cursor is on an interactive document, synchronize all documents except those that are not to be synchronized.
 ****#ja ファイル同期 (^d)
 カーソルのあるドキュメントと対応するファイルを一致させる。
 
 .item
 ドキュメントに対応するファイルパスはマーカー行の<..>で囲んだ形で示される。
 これがない場合、マーカー行の内容から絶対パス名を作り<..>記述を追加する。
-マーカー行の内容が'*'で始まる場合、ファイルとの同期は行わない。
+マーカー行の内容が'*'で始まる場合、ファイルとの同期対象外とする。
 
 .item
 ドキュメントが空でファイルがある場合はファイルを読み込む。
@@ -293,10 +307,10 @@ If the cursor is on an interactive document, synchronize all documents that have
 ドキュメントが空でなくファイルが無い場合はファイルへ書き込む。
 
 .item
-ドキュメントとファイルの内容が一致しない場合はその旨を表示し、ファイルから読み込む(r)、書き込む(w)、差分をバッファに挿入する(d)、そのままにする(s)の何れかを選択する。
+ドキュメントとファイルの内容が一致しない場合はその旨を表示し、ファイルから読み込む(r)、書き込む(w)、差分をバッファに挿入する(d)の何れかを選択する。
 
 ファイルパスの先頭にctrのコード引数+':'を指定すると、ファイルの読み書きの際文字コード、改行コードの変換を行う。
-インタラクティブドキュメントにカーソルがある場合、ファイル名を持ち、ファイルと内容が異なる全てのドキュメントを同期する。
+インタラクティブドキュメントにカーソルがある場合、同期対象外のドキュメント以外の全てのドキュメントを同期する。
 
 **Screen
 ***#ja 画面
@@ -314,11 +328,13 @@ You can split the screen and reference multiple locations in the buffer at the s
 	^s -- Split the screen where the cursor is.
 	^t -- Cancel split.
 	^o -- Move the cursor to the next screen.
+	^x + ^o -- move the cursor to the previous screen.
 ****#ja 分割
 画面を分割してバッファ中の複数箇所を同時に参照出来る。
 	^s -- カーソルのある画面を分割する。
 	^t -- 分割を解除する。
 	^o -- 次画面へカーソルを移動する。
+	^x + ^o -- 前画面にカーソルを移動する。
 
 **Completion (^@)
 ***#en
@@ -330,51 +346,30 @@ The next candidate will be displayed if you continue to complement.
 
 続けて補完を行うと次の候補が表示される。
 
-**Quit (^[)
+**User Registration Key
 ***#en
-Quit wb.
-
-Synchronize all documents that have a file name and differ from the file in content.
-If wb is run again without exiting Mulk, it resumes from the previous state.
-
-If wb terminates abnormally, it will try to resume with the r option if Mulk is running.
-If Mulk itself has terminated, the next run of wb will try to restore the contents of the non-interactive document buffer.
-Even if wb exited normally, you can restore the contents of the previous session's buffer with the R option.
-
-***#ja 終了 (^[)
-wbを終了する。
-
-ファイル名を持ち、ファイルと内容が異なる全てのドキュメントを同期する。
-Mulkを終了せずに再びwbを実行すると直前の状態から再開する。
-
-wbが異常終了した場合、Mulkが実行中ならばrオプションで再開しようとする。
-Mulk自体が終了している場合、次にwbを実行するとインタラクティブドキュメント以外のバッファの内容を復元しようとする。
-wbが正常終了していてもRオプションで前回のセッションのバッファの内容を復元出来る。
-
-**^x prefix
-***#en
-^x performs each function depending on the character that is entered in succession.
-***#ja ^xプリフィックス (^x)
-^xは続けて入力する文字によってそれぞれの機能を実行する。
-
-***User Registration Key
-****#en
 The characters except '(', ')' and control characters can be used to register functions that are valid only for the duration of the session.
 The user registration key is executed by typing ^x followed by the registered characters.
-****#ja ユーザー登録キー
+***#ja ユーザー登録キー
 '(', ')'及び制御文字を除く文字に、セッションの間だけ有効な機能を登録することが出来る。
 ユーザー登録キーは^xに続けて登録した文字を入力することで実行される。
 
-****String (^x + ^y + KEY)
-*****#en
-Register the string in the specified range.
-When executed, a string is inserted at the cursor position.
-*****#ja 文字列 (^x + ^y + KEY)
+***String (^x + ^y + KEY)
+****#en
+Registers a string in the specified range.
+When executed, the string is inserted at the cursor position.
+
+^x + ^f + KEY performs a forward leap with the registered string.
+If executed during a leap, the string is added to the pattern.
+****#ja 文字列 (^x + ^y + KEY)
 指定範囲の文字列を登録する。
 実行するとカーソル位置に文字列が挿入される。
 
-****Tag (^x + ^t + KEY)
-*****#en
+^x + ^f + KEYで登録された文字列での前進リープを行う。
+リープ中に実行した場合は、文字列をパターンに追加する。
+
+***Tag (^x + ^t + KEY)
+****#en
 Register the cursor position as a tag.
 
 The tag is a mechanism that points to the same position regardless of editing, and when executed, the cursor is moved to the tag position.
@@ -383,12 +378,11 @@ The current tag is valid as long as the cursor is in the document and follows it
 The current tag is saved when the document is synced and restored when the file is read.
 
 The following tags have a special meaning.
-	^o -- The cursor position on the other side's screen when the screen is split.
 	^i -- Prompt location for interactive documents.
 	^u -- The position before the last leap or tag jump. If you cancel the leap, the place you moved in the last leap.
 	
 These are automatically preached and updated and do not become current tags.
-*****#ja タグ (^x + ^t + KEY)
+****#ja タグ (^x + ^t + KEY)
 カーソル位置をタグとして登録する。
 
 タグは編集に関わらず同じ位置を指す仕組みで、実行するとカーソルをタグの位置に移動させる。
@@ -397,22 +391,21 @@ These are automatically preached and updated and do not become current tags.
 カレントタグはドキュメントを同期させる時に保存され、そのファイルを読み込む時に復元される。
 
 次のタグには特殊な意味がある。
-	^o -- 画面分割した際の相手側の画面のカーソル位置。
 	^i -- インタラクティブドキュメントのプロンプトの位置。
 	^u -- 直前のリープ/タグジャンプ前の位置。リープを取り消した場合は最後のリープで移動した場所。
 これらは自動的に設定・更新されカレントタグにはならない。
 
-****Macro
-*****#en
+***Macro
+****#en
 Register the series of operations and execute them to reproduce the operations.
 
 	^x + ( -- Start macro definition
 	^x + ) + KEY -- End macro definition and registration to KEY.
-.
+
 During the definition, M is displayed at the beginning of the bottom line.
 
 	^x + ^r + KEY -- Execute the key macro and display the prompt. If you enter ' ', it will be repeated. If you enter '1' to '9' and '0', 10 to 100 times repeated. If you enter anything else, it will end.
-*****#ja マクロ
+****#ja マクロ
 一連の繰作の内容を登録し、実行すると繰作を再現する。
 
 	^x + ( -- マクロ定義開始
@@ -422,15 +415,15 @@ During the definition, M is displayed at the beginning of the bottom line.
 
 	^x + ^r + KEY -- KEYのマクロを実行しプロンプトを表示。' 'を入力するともう一度、'1'から'9'及び'0'を入力すると10回から100回繰り返す。それ以外を入力すると終了する。
 
-***Execute/evaluate/load (^x + ^x)
-****#en
+**Execute/evaluate/load (^x + ^x)
+***#en
 If the beginning of the specified range is '!', the description after the second character is executed by 'cmd' command and the output is replaced with the specified range.
 
 In the case of '@', the description after the second character is evaluated as Mulk's statement and the result is inserted.
 
 In other cases, the specified range is read as a module.
 The entire document is loaded during non-leap.
-****#ja 実行/評価/読み込み (^x + ^x)
+***#ja 実行/評価/読み込み (^x + ^x)
 指定範囲の先頭が'!'の場合、二文字目以降の記述をcmdで実行し出力を指定範囲と置き換える。
 
 '@'の場合は二文字目以降の記述をMulkのstatementとして評価し、結果を挿入する。
@@ -438,24 +431,26 @@ The entire document is loaded during non-leap.
 それ以外の場合は指定範囲をモジュールとして読み込む。
 非リープ中はドキュメント全体が読み込まれる。
 
-***Leap reverse (^x + ^z)
-****#en
-During the leap, the pattern is initialized while maintaining the cursor position, and the direction of the leap is reversed.
-****#ja リープ反転 (^x + ^z)
-リープ中、カーソル位置を保持したままパターンを初期化し、リープの向きを反転する。
-***Leap string (^x + ^f + KEY)
-****#en
-Forward leap with the string assigned to the user registration key.
-If executed during a leap, the string is added to the pattern.
-****#ja 文字列リープ (^x + ^f + KEY)
-ユーザー登録キーに割り当てた文字列で前進リープを行う。
-リープ中に実行した場合、文字列をパターンに追加する。
+**Quit (^[)
+***#en
+Quit wb.
 
-***Goto Line (^x + ^g)
-****#en
-Moves to the line with the line number specified as the leap range.
-****#ja 行移動 (^x + ^g)
-リープ範囲として指定した行番号の行に移動する。
+Synchronize all documents except those not subject to synchronization.
+If wb is run again without exiting Mulk, it resumes from the previous state.
+
+If wb terminates abnormally, it will try to resume with the r option if Mulk is running.
+If Mulk itself has terminated, the next run of wb will try to restore the contents of the non-interactive document buffer.
+Even if wb exited normally, you can restore the contents of the previous session's buffer with the R option.
+
+***#ja 終了 (^[)
+wbを終了する。
+
+同期対象外のドキュメント以外の全てのドキュメントを同期する。
+Mulkを終了せずに再びwbを実行すると直前の状態から再開する。
+
+wbが異常終了した場合、Mulkが実行中ならばrオプションで再開しようとする。
+Mulk自体が終了している場合、次にwbを実行するとインタラクティブドキュメント以外のバッファの内容を復元しようとする。
+wbが正常終了していてもRオプションで前回のセッションのバッファの内容を復元出来る。
 
 **Subcommand
 ***#en
@@ -468,16 +463,18 @@ The following are subcommands of wb, which can be executed from interactive docu
 Display a list of documents and tags in the buffer.
 
 The symbol before the document or tag indicates the synchronization status.
-	= -- The file is synchronized and the contents match.
-	* -- Synced but content does not match.
-	Blank -- Not synced.
+	= -- Synchronized, contents and position are consistent.
+	* -- Synchronized, but content and position do not match.
+	! -- Files to be synchronized are not assigned.
+	Blank -- Not subject to synchronization.
 ****#ja wb.d -- ドキュメント一覧
 バッファ中のドキュメントとタグの一覧を表示する。
 
 ドキュメント、タグの前の記号は同期状態を示している。
-	= -- 同期されファイルと内容が一致している。
-	* -- 同期済みだが内容は一致しない。
-	空白 -- 同期されていない。
+	= -- 同期され内容・位置が一致している。
+	* -- 同期済みだが内容・位置は一致しない。
+	! -- 同期すべきファイルが割り当てられていない。
+	空白 -- 同期対象ではない。
 
 ***wb.h [-f] -- history
 ****#en
@@ -760,30 +757,31 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 			[:f :e :off
 			fs write: elements from: f size: e - f]]
 		
-*Wb.Drawer class.@
+*drawers.
+**Wb.Drawer class.@
 	Object addSubclass: #Wb.Drawer instanceVars:
 		"wb tabWidth top left width curX curY"
-**Wb.Drawer >> init: wbArg top: topArg left: leftArg width: widthArg
+***Wb.Drawer >> init: wbArg top: topArg left: leftArg width: widthArg
 	wbArg ->wb;
 	topArg ->top;
 	leftArg ->left;
 	widthArg ->width;
 	4 ->tabWidth
-**Wb.Drawer >> width
+***Wb.Drawer >> width
 	width!
-**Wb.Drawer >> charWidth: ch
+***Wb.Drawer >> charWidth: ch
 	ch = '\t'
 		ifTrue: [tabWidth - (curX % tabWidth)]
 		ifFalse: [ch width]!
-**Wb.Drawer >> gotoCurXY
+***Wb.Drawer >> gotoCurXY
 	Console gotoX: left + curX Y: top + curY
-**Wb.Drawer >> drawChar0: ch
+***Wb.Drawer >> drawChar0: ch
 	self gotoCurXY;
 	Console put: ch;
 	curX + ch width ->curX
-**Wb.Drawer >> drawSpaces: n 
+***Wb.Drawer >> drawSpaces: n 
 	n timesRepeat: [self drawChar0: ' ']
-**Wb.Drawer >> drawChar: ch
+***Wb.Drawer >> drawChar: ch
 	self charWidth: ch ->:w;
 	curX + w > width ifTrue: [false!];
 	ch = '\t'
@@ -791,10 +789,31 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		ifFalse: [self drawChar0: ch];
 	true!
 
-*Wb.Screen class.@
+**Wb.StatusBar class.@
+	Wb.Drawer addSubclass: #Wb.StatusBar
+***Wb.StatusBar >> draw: status
+	0 ->curX ->curY;
+	status notNil? ifTrue:
+		[StringReader new init: status ->:rd;
+		[rd getWideChar ->:ch, notNil?] whileTrue:
+			[self drawChar: ch, ifFalse: [Console hit?!]]];
+	curX ->:x;
+	self drawSpaces: width - curX;
+	Console hit?;
+	x ->curX
+***Wb.StatusBar >> query: prompt
+	self draw: prompt;
+	self gotoCurXY;
+	wb fetch: true ->:result, = '\c[' ifTrue: [self error: "abort"];
+	result! 
+***Wb.StatusBar >> query: prompt in: acccpts
+	[acccpts includes?: (self query: prompt ->:result)] whileFalse;
+	result!
+
+**Wb.Screen class.@
 	Wb.Drawer addSubclass: #Wb.Screen instanceVars:
 		"buffer height cursor tag head leftEdges tail redrawHint redrawY"
-**Wb.Screen >> init: wbArg top: topArg left: leftArg width: widthArg
+***Wb.Screen >> init: wbArg top: topArg left: leftArg width: widthArg
 		height: heightArg
 	super init: wbArg top: topArg left: leftArg width: widthArg;
 	wb buffer ->buffer;
@@ -803,34 +822,34 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	#init ->redrawHint;
 	FixedArray basicNew: height ->leftEdges
 
-**accessing.
-***Wb.Screen >> width
+***accessing.
+****Wb.Screen >> width
 	width!
-***Wb.Screen >> height
+****Wb.Screen >> height
 	height!
-***Wb.Screen >> cursor
+****Wb.Screen >> cursor
 	wb screen = self ifTrue: [wb cursor] ifFalse: [cursor]!
-***Wb.Screen >> cursor: arg
+****Wb.Screen >> cursor: arg
 	arg ->cursor
-***Wb.Screen >> tag
+****Wb.Screen >> tag
 	tag!
-***Wb.Screen >> tag: arg
+****Wb.Screen >> tag: arg
 	arg ->tag
 	
-**Wb.Screen >> firstLineLeftEdge
+***Wb.Screen >> firstLineLeftEdge
 	head!
-**Wb.Screen >> lastLineLeftEdge
+***Wb.Screen >> lastLineLeftEdge
 	height - 1 to: 0, do:
 		[:y
 		leftEdges at: y ->:h, notNil? ifTrue: [h!]]
-**Wb.Screen >> thruLine: pos
+***Wb.Screen >> thruLine: pos
 	0 ->curX;
 	[buffer at: pos ->:ch, = buffer newline ifTrue: [buffer next: pos!];
 	self charWidth: ch ->:w;
 	curX + w ->curX, = width ifTrue: [buffer next: pos!];
 	curX > width ifTrue: [pos!];
 	buffer next: pos ->pos] loop
-**Wb.Screen >> solveDisplayRange
+***Wb.Screen >> solveDisplayRange
 	head ->:pos;
 	buffer size ->:en;
 	0 ->:y;
@@ -842,36 +861,35 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	pos ->tail;
 	#all ->redrawHint
 
-**adjust by edit.
-***Wb.Screen >> solveY: posArg
+***adjust by edit.
+****Wb.Screen >> solveY: posArg
 	height - 1 timesDo:
 		[:y
 		leftEdges at: y + 1 ->:h, nil? ifTrue: [y!];
 		posArg < h ifTrue: [y!]];
 	height - 1!
-***Wb.Screen >> noTrailLineY?: y
+****Wb.Screen >> noTrailLineY?: y
 	y + 1 < height ifTrue: [leftEdges at: y + 1 ->:pos];
 	pos nil? ifTrue: [tail ->pos];
 	buffer lineTail: (leftEdges at: y), < pos!
-***Wb.Screen >> prepareSingleRedrawAt: posArg
+****Wb.Screen >> prepareSingleRedrawAt: posArg
 	posArg between: head until: tail, ifFalse: [self!];
 	self solveY: posArg ->:y;
 	self noTrailLineY?: y, ifTrue: [y ->redrawY]
-***Wb.Screen >> adjustFor: typeArg at: posArg size: sizeArg
+****Wb.Screen >> adjustFor: typeArg at: posArg size: sizeArg
 	wb adjustPos: cursor for: typeArg at: posArg size: sizeArg ->cursor;
 	tail <= posArg ifTrue: [self!];
 	typeArg = #insert
 		ifTrue: [posArg < head]
-		ifFalse: [posArg + sizeArg <= head],
-	ifTrue:
-		[wb adjustPos: head for: typeArg at: posArg size: sizeArg ->head;
-		wb adjustPos: tail for: typeArg at: posArg size: sizeArg ->tail;
+		ifFalse: [posArg + sizeArg <= head] ->:outside?;
+	wb adjustPos: head for: typeArg at: posArg size: sizeArg ->head;
+	outside? ifTrue:
+		[wb adjustPos: tail for: typeArg at: posArg size: sizeArg ->tail;
 		height timesDo:
 			[:y
 			leftEdges at: y ->:pos, nil? ifTrue: [self!];
 			wb adjustPos: pos for: typeArg at: posArg size: sizeArg ->pos;
 			leftEdges at: y put: pos]!];
-	wb adjustPos: head for: typeArg at: posArg size: sizeArg ->head;
 	redrawHint ->:prevHint;
 	self solveDisplayRange;
 	prevHint = #none and: [redrawY notNil?],
@@ -879,14 +897,14 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		and: [typeArg = #insert or: [self solveY: posArg, = redrawY]],
 		ifTrue: [#single ->redrawHint]
 
-**locate cursor.
-***Wb.Screen >> addLeftEdges: ring forLineTo: en
+***locate cursor.
+****Wb.Screen >> addLeftEdges: ring forLineTo: en
 	buffer lineHead: en ->:pos;
 	[pos <= en] whileTrue:
 		[ring addNext: pos;
 		ring next ->ring;
 		self thruLine: pos ->pos]
-***Wb.Screen >> leftEdgesRingBefore: pos lines: lines
+****Wb.Screen >> leftEdgesRingBefore: pos lines: lines
 	Ring new ->:ring;
 	[ring size < lines] whileTrue:
 		[self addLeftEdges: ring forLineTo: pos;
@@ -894,7 +912,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		pos = 0 ifTrue: [ring!];
 		buffer prev: pos ->pos];
 	ring!
-***Wb.Screen >> updateDisplayRangeForPos: pos toLine: line
+****Wb.Screen >> updateDisplayRangeForPos: pos toLine: line
 	line = 0
 		ifTrue: [pos]
 		ifFalse:
@@ -903,52 +921,52 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 				[excess timesRepeat: [ring removeFirst]];
 			ring first] ->head;
 	self solveDisplayRange
-***Wb.Screen >> yOf: percent
+****Wb.Screen >> yOf: percent
 	height * percent, asInteger!
-***Wb.Screen >> centerY
+****Wb.Screen >> centerY
 	self yOf: 0.5!
-***Wb.Screen >> updateDisplayRangeCentering
+****Wb.Screen >> updateDisplayRangeCentering
 	self updateDisplayRangeForPos: self cursor toLine: self centerY
-***Wb.Screen >> updateDisplayRangeHeading
+****Wb.Screen >> updateDisplayRangeHeading
 	self updateDisplayRangeForPos: self cursor toLine: 1
-***Wb.Screen >> updateDisplayRangeTailing
+****Wb.Screen >> updateDisplayRangeTailing
 	self updateDisplayRangeForPos: self cursor toLine: height - 2
-***Wb.Screen >> updateDisplayRangeForRedraw
+****Wb.Screen >> updateDisplayRangeForRedraw
 	self solveCursorY ->:y;
 	y = 1 ifTrue: [self updateDisplayRangeTailing!];
 	y = (height - 2) ifTrue: [self updateDisplayRangeCentering!];
 	self updateDisplayRangeHeading
-***Wb.Screen >> updateDisplayRangeForLeap
+****Wb.Screen >> updateDisplayRangeForLeap
 	self validCursorPos? 
 		and: [self solveCursorY between: (self yOf: 0.25) 
 			and: (self yOf: 0.75)],
 		ifFalse: [self updateDisplayRangeCentering]
 	
-**Wb.Screen >> drawLineFrom: pos
+***Wb.Screen >> drawLineFrom: pos
 	[buffer at: pos ->:ch, = buffer newline ifTrue: [self!];
 	self drawChar: ch, ifFalse: [self!];
 	buffer next: pos ->pos] loop
-**Wb.Screen >> drawLine: y
+***Wb.Screen >> drawLine: y
 	0 ->curX;
 	y ->curY;
 	leftEdges at: y ->:pos, notNil? ifTrue: [self drawLineFrom: pos];
 	self drawSpaces: width - curX
-**Wb.Screen >> solveCursorY
+***Wb.Screen >> solveCursorY
 	self solveY: self cursor!
-**Wb.Screen >> validCursorPos?
+***Wb.Screen >> validCursorPos?
 	self cursor between: head until: tail, ifFalse: [false!];
 	self solveCursorY ->:y;
 	y = 0 & (head <> 0) ifTrue: [false!];
 	y = (height - 1) ifTrue: [false!];
 	true!
-**Wb.Screen >> draw
+***Wb.Screen >> draw
 	redrawHint = #init or: [self validCursorPos? not], ifTrue:
 		[self updateDisplayRangeCentering];
 	redrawHint = #all ifTrue: [height timesDo: [:y self drawLine: y]];
 	redrawHint = #single ifTrue: [self drawLine: redrawY];
 	#none ->redrawHint;
 	nil ->redrawY
-**Wb.Screen >> drawCursor
+***Wb.Screen >> drawCursor
 	self solveCursorY ->curY;
 	0 ->curX;
 	leftEdges at: curY ->:pos;
@@ -958,21 +976,21 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		buffer next: pos ->pos];
 	self gotoCurXY
 
-*Wb.SpreadScreen class.@
+**Wb.SpreadScreen class.@
 	Wb.Screen addSubclass: #Wb.SpreadScreen instanceVars: "ntrack screenHeight"
-**Wb.SpreadScreen >> init: wbArg top: topArg left: leftArg width: widthArg
+***Wb.SpreadScreen >> init: wbArg top: topArg left: leftArg width: widthArg
 		height: heightArg ntrack: ntrackArg
 	super init: wbArg top: topArg left: leftArg width: widthArg
 		height: heightArg * ntrackArg;
 	ntrackArg ->ntrack;
 	heightArg ->screenHeight
-**Wb.SpreadScreen >> gotoCurXY
+***Wb.SpreadScreen >> gotoCurXY
 	curY // screenHeight ->:t;
 	Console gotoX: left + curX + (width + 1 * t) Y: top + (curY % screenHeight)
 	
-**Wb.SpreadScreen >> centerY
+***Wb.SpreadScreen >> centerY
 	self yOf: (ntrack = 2 ifTrue: [0.625] ifFalse: [0.5])!
-**Wb.SpreadScreen >> updateDisplayRangeForLeap
+***Wb.SpreadScreen >> updateDisplayRangeForLeap
 	self validCursorPos? ifTrue:
 		[ntrack = 2
 			ifTrue: [0.125 ->:lo; 0.875 ->:hi]
@@ -981,17 +999,17 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 				ifTrue: [self!]];
 	self updateDisplayRangeCentering
 
-*Wb.Layout class.@
+**Wb.Layout class.@
 	Object addSubclass: #Wb.Layout instanceVars: 
 		"wb parent child1 child2 screen track ntrack top width height"
-**Wb.Layout >> createScreen
+***Wb.Layout >> createScreen
 	nil ->child1 ->child2;
 	ntrack <> 1 ifTrue:
-		[Wb.SpreadScreen new init: wb top: 0 left: 0 width: width 
+		[Wb.SpreadScreen new init: wb top: 0 left: 81 * track width: width 
 			height: height ntrack: ntrack ->screen!];
 	Wb.Screen new init: wb top: top left: 81 * track width: width 
 		height: height ->screen!
-**Wb.Layout >> initWb: wbArg width: widthArg height: heightArg
+***Wb.Layout >> initWb: wbArg width: widthArg height: heightArg
 	wbArg ->wb;
 	nil ->parent;
 	0 ->track;
@@ -1008,96 +1026,111 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	widthArg ->width;
 	1 ->ntrack
 
-**accessing.
-***Wb.Layout >> screen
+***accessing.
+****Wb.Layout >> screen
 	screen!
-***Wb.Layout >> child1
+****Wb.Layout >> child1
 	child1!
-***Wb.Layout >> child2
+****Wb.Layout >> child2
 	child2!
-***Wb.Layout >> top
+****Wb.Layout >> top
 	top!
-***Wb.Layout >> height
+****Wb.Layout >> height
 	height!
 	
-**Wb.Layout >> do: blockArg
+***Wb.Layout >> do: blockArg
 	child1 notNil? ifTrue: [child1 do: blockArg];
 	child2 notNil? ifTrue: [child2 do: blockArg];
 	blockArg value: self
 
-**split
-***Wb.Layout >> initWb: wbArg parent: parentArg width: widthArg
+***split.
+****Wb.Layout >> initWb: wbArg parent: parentArg width: widthArg
 	wbArg ->wb;
 	parentArg ->parent;
 	widthArg ->width
-***Wb.Layout >> track: trackArg ntrack: ntrackArg
+****Wb.Layout >> track: trackArg ntrack: ntrackArg
 	trackArg ->track;
 	ntrackArg ->ntrack
-***Wb.Layout >> top: topArg height: heightArg
+****Wb.Layout >> top: topArg height: heightArg
 	topArg ->top;
 	heightArg ->height
-***Wb.Layout >> createLayout
+****Wb.Layout >> createLayout
 	Wb.Layout new initWb: wb parent: self width: width,
 		track: track ntrack: ntrack, top: top height: height!
-***Wb.Layout >> split
+****Wb.Layout >> split
 	nil ->screen;
 	ntrack <> 1 ifTrue:
-		[self createLayout track: 0 ntrack: ntrack - 1 ->child1;
-		self createLayout track: ntrack - 1 ntrack: 1 ->child2!];
+		[self createLayout track: track ntrack: 1 ->child1;
+		self createLayout track: track + 1 ntrack: ntrack - 1 ->child2!];
 	height // 2 ->:h2;
 	self createLayout top: top height: h2 ->child1;
 	self createLayout top: top + h2 + 1 height: height - h2 - 1 ->child2
 
-**close
-***Wb.Layout >> relocate: arg
+***close.
+****Wb.Layout >> relocate: arg
 	arg screen ->:s, notNil? ifTrue: 
 		[self createScreen cursor: s cursor, tag: s tag!];
 	self split;
 	child1 relocate: arg child1;
 	child2 relocate: arg child2
-***Wb.Layout >> close
+****Wb.Layout >> close
 	parent child1 ->:sibling, = self ifTrue: [parent child2 ->sibling];
 	parent relocate: sibling
 
-**draw
-***Wb.Layout >> drawVerticalBar: xArg
+***draw.
+****Wb.Layout >> drawVerticalBar: xArg
 	height timesDo:
 		[:y
 		y % 2 = 1 & screen notNil? ifTrue: [' '] ifFalse: ['|'] ->:ch;
 		Console gotoX: xArg Y: y, put: ch]
-***Wb.Layout >> drawVerticalSplitter
-	ntrack = 2 ifTrue: [self drawVerticalBar: 80!];
-	screen notNil? ifTrue: [self drawVerticalBar: 80];
-	self drawVerticalBar: 161
-**Wb.Layout >> draw
+****Wb.Layout >> drawVerticalSplitter
+	ntrack = 2 ifTrue: [self drawVerticalBar: 80 + (81 * track)!];
+	screen notNil? ifTrue: [self drawVerticalBar: 161];
+	self drawVerticalBar: 80
+***Wb.Layout >> draw
 	screen notNil? ifTrue: [screen draw];
 	wb drawSplitter? and: [ntrack <> 1], ifTrue: [self drawVerticalSplitter!];
 
 	wb drawSplitter? & screen nil? ifTrue:
 		[Console gotoX: 81 * track Y: top + child1 height, 
 			put: '-' times: width]
+
+*Wb.Operation class.@
+	Object addSubclass: #Wb.Operation instanceVars: 
+		"type pos contents tag mergeMode"
+**Wb.Operation >> initType: typeArg pos: posArg contents: contentsArg
+		tag: tagArg mergeMode: mergeModeArg
+	typeArg ->type;
+	posArg ->pos;
+	contentsArg ->contents;
+	tagArg ->tag;
+	mergeModeArg ->mergeMode
+**Wb.Operation >> type: reverse?
+	reverse?
+		ifTrue: [type = #insert ifTrue: [#remove] ifFalse: [#insert]]
+		ifFalse: [type]!
+**Wb.Operation >> pos
+	pos!
+**Wb.Operation >> contents
+	contents!
+**Wb.Operation >> tag
+	tag!
+**Wb.Operation >> mergeMode
+	mergeMode!
+**Wb.Operation >> merge: op
+	type = #insert ifFalse: [false!];
+	mergeMode >= 1 ifFalse: [false!];
+	op type: false, = #insert ifFalse: [false!];
+	op mergeMode = 2 ifFalse: [false!];
+	pos + contents size = op pos ifFalse: [false!];
 	
-*Wb.StatusBar class.@
-	Wb.Drawer addSubclass: #Wb.StatusBar
-**Wb.StatusBar >> draw: status
-	0 ->curX ->curY;
-	status notNil? ifTrue:
-		[StringReader new init: status ->:rd;
-		[rd getWideChar ->:ch, notNil?] whileTrue:
-			[self drawChar: ch, ifFalse: [Console hit?!]]];
-	curX ->:x;
-	self drawSpaces: width - curX;
-	Console hit?;
-	x ->curX
-**Wb.StatusBar >> query: prompt
-	self draw: prompt;
-	self gotoCurXY;
-	wb fetch: true ->:result, = '\c[' ifTrue: [self error: "abort"];
-	result! 
-**Wb.StatusBar >> query: prompt in: acccpts
-	[acccpts includes?: (self query: prompt ->:result)] whileFalse;
-	result!
-	
+	FixedByteArray basicNew: contents size + op contents size ->:ncontents;
+	ncontents basicAt: 0 copyFrom: contents at: 0 size: contents size;
+	ncontents basicAt: contents size copyFrom: op contents at: 0
+		size: op contents size;
+	ncontents ->contents;
+	true!
+
 *subprocess.
 **Wb.SubprocessConsole class.@
 	AbstractConsole addSubclass: #Wb.SubprocessConsole
@@ -1212,42 +1245,6 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		[Out putLn: "finish icmd";
 		false ->running?;
 		self switchParent: true]
-
-*Wb.Operation class.@
-	Object addSubclass: #Wb.Operation instanceVars: 
-		"type pos contents tag mergeMode"
-**Wb.Operation >> initType: typeArg pos: posArg contents: contentsArg
-		tag: tagArg mergeMode: mergeModeArg
-	typeArg ->type;
-	posArg ->pos;
-	contentsArg ->contents;
-	tagArg ->tag;
-	mergeModeArg ->mergeMode
-**Wb.Operation >> type: reverse?
-	reverse?
-		ifTrue: [type = #insert ifTrue: [#remove] ifFalse: [#insert]]
-		ifFalse: [type]!
-**Wb.Operation >> pos
-	pos!
-**Wb.Operation >> contents
-	contents!
-**Wb.Operation >> tag
-	tag!
-**Wb.Operation >> mergeMode
-	mergeMode!
-**Wb.Operation >> merge: op
-	type = #insert ifFalse: [false!];
-	mergeMode >= 1 ifFalse: [false!];
-	op type: false, = #insert ifFalse: [false!];
-	op mergeMode = 2 ifFalse: [false!];
-	pos + contents size = op pos ifFalse: [false!];
-	
-	FixedByteArray basicNew: contents size + op contents size ->:ncontents;
-	ncontents basicAt: 0 copyFrom: contents at: 0 size: contents size;
-	ncontents basicAt: contents size copyFrom: op contents at: 0
-		size: op contents size;
-	ncontents ->contents;
-	true!
 		
 *Wb.Leap class.@
 	Object addSubclass: #Wb.Leap instanceVars:
@@ -1268,6 +1265,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	patternArg ->pattern
 **Wb.Leap >> pattern
 	pattern!
+**Wb.Leap >> reverse
+	mode = #leapForward ifTrue: [#leapBackward] ifFalse: [#leapForward] ->mode
 **Wb.Leap >> firstLineLeftEdge: firstLineLeftEdgeArg
 	firstLineLeftEdgeArg ->firstLineLeftEdge
 **Wb.Leap >> firstLineLeftEdge
@@ -1304,6 +1303,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 **Wb.File >> file
 	file!
 **Wb.File >> = wbfileArg
+	wbfileArg kindOf?: Wb.File, not ifTrue: [false!];
 	file = wbfileArg file!
 **Wb.File >> fullName
 	file path ->:result;
@@ -1365,7 +1365,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 **Wb.class >> bytes: string
 	Wb.BytesStream new put: string, seek: 0, contentBytes!
 
-**screen.
+**accessing.
 ***Wb.class >> buffer
 	buffer!
 ***Wb.class >> screen
@@ -1374,61 +1374,16 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	cursor!
 ***Wb.class >> drawSplitter?
 	drawSplitter?!
-	
-***layout related.
-****Wb.class >> layouts
-	Iterator new init: [:b rootLayout do: [:l b value: l]]!
-****Wb.class >> currentLayout
-	self layouts detect: [:l l screen = screen]!
-****Wb.class >> screens
-	Iterator new init:
-		[:b self layouts do: [:l l screen ->:s, notNil? ifTrue: [b value: s]]]!
-	
-***Wb.class >> redrawCommand
-	self screens do:
-		[:s
-		s = screen
-			ifTrue: [s updateDisplayRangeForRedraw]
-			ifFalse: [s solveDisplayRange]];
-	true ->drawSplitter?;
-	Console clear
-***Wb.class >> splitScreenCommand
-	self currentLayout ->:l;
-	l height < 6 ifTrue: [self message: "can not split"!];
-	l split;
-	l child1 createScreen cursor: cursor, tag: currentTag;
-	--ToDo: set new screen cursor position and tag
-	{l child2 createScreen cursor: cursor ->screen;}
-	l child2 createScreen ->screen;
-	xDict at: '\xfe' ifAbsent: [cursor] ->cursor;
-	screen cursor: cursor;
-	lastScreenTag ->currentTag;
-	true ->drawSplitter?
-***Wb.class >> switchScreen: screenArg
-	screenArg cursor ->cursor;
-	screenArg tag ->currentTag;
-	screenArg ->screen
-***Wb.class >> otherScreenCommand
-	rootLayout screen notNil? ifTrue: [self splitScreenCommand!];
-	screen cursor: cursor, tag: currentTag;
-	self screens asArray ->:ar;
-	self switchScreen: (ar at: (ar indexOf: screen, + 1 % ar size))
-***Wb.class >> closeScreenCommand
-	rootLayout screen notNil? ifTrue: [self message: "can not close root"!];
-	true ->drawSplitter?;
-	currentTag ->lastScreenTag;
-	xDict at: '\xfe' put: cursor;
-	self screens asArray ->:ar;
-	ar indexOf: screen, - 1 ->:sno, < 0 ifTrue: [ar size - 2 ->sno];
-	self currentLayout close;
-	self switchScreen: (self screens asArray at: sno)
-	
-**status bar control.
-***Wb.class >> message: messageArg
+***Wb.class >> xDict
+	xDict!
+
+**drawing.
+***status bar control.
+****Wb.class >> message: messageArg
 	message nil?
 		ifTrue: [messageArg]
 		ifFalse: [message + ", " + messageArg] ->message
-***Wb.class >> drawStatusBar
+****Wb.class >> drawStatusBar
 	StringWriter new ->:wr;
 	macro memberOf?: StringWriter, ifTrue: [wr put: "M"];
 	currentTag notNil? ifTrue: [wr put: '[', put: currentTag, put: "] "];
@@ -1444,6 +1399,71 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		[wr put: '(', put: message, put: ')';
 		nil ->message];
 	statusBar draw: wr asString
+	
+***screen.
+****Wb.class >> layouts
+	Iterator new init: [:b rootLayout do: [:l b value: l]]!
+****Wb.class >> currentLayout
+	self layouts detect: [:l l screen = screen]!
+****Wb.class >> screens
+	Iterator new init:
+		[:b self layouts do: [:l l screen ->:s, notNil? ifTrue: [b value: s]]]!
+	
+****Wb.class >> redrawCommand
+	self screens do:
+		[:s
+		s = screen
+			ifTrue: [s updateDisplayRangeForRedraw]
+			ifFalse: [s solveDisplayRange]];
+	true ->drawSplitter?;
+	Console clear
+****Wb.class >> splitScreenCommand
+	self currentLayout ->:l;
+	l height < 6 ifTrue: [self message: "can not split"!];
+	l split;
+	l child1 createScreen cursor: cursor, tag: currentTag;
+	l child2 createScreen ->screen;
+	self keepUndoPos: cursor;
+	xDict at: '\xfe' ifAbsent: [cursor] ->cursor;
+	screen cursor: cursor;
+	lastScreenTag ->currentTag;
+	true ->drawSplitter?
+****Wb.class >> switchScreen: screenArg
+	screenArg cursor ->cursor;
+	screenArg tag ->currentTag;
+	screenArg ->screen
+****Wb.class >> otherScreen: deltaArg
+	rootLayout screen notNil? ifTrue: [self splitScreenCommand!];
+	screen cursor: cursor, tag: currentTag;
+	self screens asArray ->:ar;
+	self switchScreen: 
+		(ar at: (ar indexOf: screen, + deltaArg + ar size % ar size))
+****Wb.class >> nextScreenCommand
+	self otherScreen: 1
+****Wb.class >> prevScreenCommand -- ^x^o
+	self focusLeapAndFinish; 
+	self otherScreen: -1
+****Wb.class >> closeScreenCommand
+	rootLayout screen notNil? ifTrue: [self message: "can not close root"!];
+	true ->drawSplitter?;
+	currentTag ->lastScreenTag;
+	xDict at: '\xfe' put: cursor;
+	self screens asArray ->:ar;
+	ar indexOf: screen, - 1 ->:sno, < 0 ifTrue: [ar size - 2 ->sno];
+	self currentLayout close;
+	self switchScreen: (self screens asArray at: sno)
+	
+***Wb.class >> setupDrawers
+	Console width ->:w;
+	Console height ->:h;
+	Wb.Layout new initWb: self width: w height: h - 1 ->rootLayout;
+	rootLayout createScreen cursor: cursor, tag: currentTag ->screen;
+	Wb.StatusBar new init: self top: h - 1 left: 0 width: w - 1 ->statusBar
+***Wb.class >> draw
+	self drawStatusBar;
+	self layouts do: [:l l draw];
+	false ->drawSplitter?;
+	screen drawCursor
 	
 **editing.
 ***operate buffer.
@@ -1513,6 +1533,36 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	self operateNew: #remove pos: pos contents:
 		(buffer copyFrom: pos until: pos + size)
 		
+***subprocess.
+****Wb.class >> subprocessReceive
+	1 ->operatorMergeMode;
+	[self at: cursor insert: subprocess childConsole receive;
+	screen updateDisplayRangeTailing;
+	subprocess waitInput?] whileFalse:
+		[screen draw;
+		subprocess continue];
+	0 ->operatorMergeMode;
+	xDict at: '\ci' put: cursor;	
+	subprocess running? ifFalse: [nil ->subprocess]
+****Wb.class >> subprocessStart
+	xDict at: '\ci' put: cursor;
+	Wb.Subprocess new init: self ->subprocess;
+	subprocess start;
+	self subprocessReceive
+****Wb.class >> subprocessEnter
+	subprocess nil? ifTrue: [false!];
+	self idocPromptPos ->:st;
+	buffer lineTail: st ->:en;
+	cursor between: st and: en, ifFalse: [false!];
+	en ->cursor;
+	buffer stringFrom: st until: en ->:s;
+	subprocess childConsole send: s + '\n';
+	subprocess childConsole echobackLn;
+	statusBar draw: "*BUSY*";
+	subprocess continue;
+	self subprocessReceive;
+	true!
+	
 ***Wb.class >> focusLine
 	buffer lineHead: cursor ->startPos;
 	buffer lineTail: cursor ->endPos
@@ -1780,6 +1830,39 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		leap pattern: leapPrevPattern];
 	self leap: leap disp: 1
 
+***extra commands.
+****Wb.class >> leapReverseCommand
+	mode = #insert ifTrue: [self!];
+	self leapCopy ->:leap, pattern: nil, reverse;
+	leap mode ->mode;
+	self leapAdd: leap
+****Wb.class >> leapStringCommand
+	mode = #insert ifTrue: [self leapForwardCommand];
+	statusBar query: "^x^f" ->:ch;
+	xDict at: ch ->:value;
+	value memberOf?: FixedByteArray, ifFalse: [self error: "not string"];
+	self leapCopy ->:leap;
+	leap pattern: value asString;
+	self leap: leap disp: 1
+****Wb.class >> undoPosCommand
+	self focusLeapAndFinish;
+	xDict at: '\xff' ->:pos;
+	undoPosTag ->:tag;
+	self keepUndoPos: cursor;
+	pos ->cursor;
+	tag ->currentTag
+****Wb.class >> gotoLineCommand
+	mode = #insert ifTrue: [self error: "mark digits"];
+	self focusLeapAndFinish;
+	buffer stringFrom: startPos until: endPos, asInteger ->:n;
+	self at: startPos remove: endPos - startPos;
+	self focusDocAt: cursor, <> #doc ifTrue: [self error: "not in document"];
+	startPos ->:pos;
+	n timesRepeat:
+		[buffer lineTail: pos ->pos;
+		buffer next: pos ->pos;
+		pos >= endPos ifTrue: [self error: "end of ducment"]];
+	pos ->cursor
 
 **document management.
 ***Wb.class >> docHeader
@@ -1787,14 +1870,14 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 ***Wb.class >> docFile
 	--note: document must be focused.
 	self docHeader ->:hd;
-	hd empty? or: [hd first = '*'], ifTrue: [nil!];
-	hd indexOf: '<' ->:st, nil? ifTrue: [nil!];
-	hd indexOf: '>' ->:en, nil? ifTrue: [nil!];
-	st >= en ifTrue: [nil!];
-	Wb.File new init: self name: (hd copyFrom: st + 1 until: en)!
+	hd empty? not and: [hd first = '*'], ifTrue: [#outOfSync!];
+	hd indexOf: '<' ->:st, notNil? and: [hd indexOf: '>' ->:en, notNil?],
+			and: [st < en], ifTrue: 
+		[Wb.File new init: self name: (hd copyFrom: st + 1 until: en)!];
+	#undefined!
 ***Wb.class >> insertDocFile
 	self docHeader ->:hd;
-	hd empty? or: [hd first = '*'], ifTrue: [nil!];
+	hd empty? ifTrue: [nil!];
 	Wb.File new init: self name: hd trim ->:result;
 	" <" + result fullName + '>' ->:s;
 	buffer lineTail: startPos ->:insPos;
@@ -1925,20 +2008,10 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	wbfile none? ifTrue: [self writeDoc: wbfile!];
 	self equalDoc?: wbfile, 
 		ifTrue: [self message: wbfile name + " not changed"!];
-	statusBar query: wbfile name + " changed (r/w/d/s)" in: "rwds" ->:ch;
+	statusBar query: wbfile name + " changed (r/w/d)" in: "rwd" ->:ch;
 	ch = 'r' ifTrue: [self readDoc: wbfile!];
 	ch = 'w' ifTrue: [self writeDoc: wbfile!];
-	ch = 'd' ifTrue: [self diffDoc: wbfile!]
-***Wb.class >> docCommand
-	self focusDocAt: cursor ->:pos, = #top, ifTrue: [self syncAllDocs!];
-	pos <> #doc ifTrue: [self error: "not document"];
-	self docFile ->:wbfile, nil? ->:insert?, ifTrue:
-		[self insertDocFile ->wbfile, nil? ifTrue: 
-			[self error: "file not specified"!]];
-	[self docCommandMain: wbfile] on: Error do:
-		[:e 
-		insert? ifTrue: [self undoCommand];
-		e signal]
+	self diffDoc: wbfile
 ***Wb.class >> focusAllDocsDo: block
 	0 ->endPos;
 	[endPos ->startPos;
@@ -1948,15 +2021,27 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	buffer next: pos ->endPos;
 	block value] loop
 ***Wb.class >> syncFocusedDoc
-	self docFile ->:wbfile, nil? ifTrue: [self!];
+	self docFile ->:wbfile, = #outOfSync ifTrue: [self!];
+	wbfile = #undefined ifTrue: 
+		[self error: "sync target undefined for \"" + self docHeader + '"'];
 	self refocusContents;
 	self updateHistoryPosition: wbfile;
 	wbfile none? or: [self equalDoc?: wbfile, not], ifFalse: [self!];
-	statusBar query: wbfile name + " changed (r/w/s)?" in: "rws" ->:ch;
-	ch = 'r' ifTrue: [self readDoc: wbfile!];
-	ch = 'w' ifTrue: [self writeDoc: wbfile!]
+	statusBar query: wbfile name + " changed (r/w)?" in: "rw" ->:ch;
+	ch = 'r' ifTrue: [self readDoc: wbfile] ifFalse: [self writeDoc: wbfile]
 ***Wb.class >> syncAllDocs
 	self focusAllDocsDo: [self syncFocusedDoc]
+***Wb.class >> docCommand
+	self focusDocAt: cursor ->:pos, = #top, ifTrue: [self syncAllDocs!];
+	pos <> #doc ifTrue: [self error: "not document"];
+	self docFile ->:wbfile, = #outOfSync ifTrue: [self!];
+	wbfile = #undefined ->:insert?, ifTrue:
+		[self insertDocFile ->wbfile, nil? ifTrue: 
+			[self error: "file not specified"!]];
+	[self docCommandMain: wbfile] on: Error do:
+		[:e 
+		insert? ifTrue: [self undoCommand];
+		e signal]
 
 **abbrevCommand.
 ***#en
@@ -2044,47 +2129,39 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		ifTrue: [self at: cursor insert: abbrevList last]
 		ifFalse: [nil ->abbrevPattern]
 
-**Wb.class >> quitCommand
-	self syncAllDocs;
-	#quit ->mode
-
-**xCommand.
-***Wb.class >> xDict
-	xDict!
-	
-***user registration key.
-****Wb.class >> querySetXtr: prompt
+**user registration key.
+***Wb.class >> querySetXtr: prompt
 	statusBar query: prompt ->:result;
 	result between: ' ' and: '~', not | (result = '(') | (result = ')') 
 		ifTrue: [self error: "unregistable char " + result describe];
 	result!
-****Wb.class >> invalidateActiveTag: ch
+***Wb.class >> invalidateActiveTag: ch
 	currentTag = ch ifTrue: [nil ->currentTag];
 	undoPosTag = ch ifTrue: [nil ->undoPosTag];
 	lastScreenTag = ch ifTrue: [nil ->lastScreenTag];
 	self screens do: [:s s tag = ch ifTrue: [s tag: nil]]
-****Wb.class >> stringRegistCommand
+***Wb.class >> stringRegistCommand
 	self focusLeapAndFinish;
 	startPos nil? ifTrue: [self focusLine];
 	self querySetXtr: "^x^y" ->:ch;
 	self invalidateActiveTag: ch;
 	xDict at: ch put: self focusedBytes
-****Wb.class >> tagRegistCommand
+***Wb.class >> tagRegistCommand
 	self focusLeapAndFinish;
 	self querySetXtr: "^x^t" ->:ch;
 	self invalidateActiveTag: ch;
 	ch ->currentTag;
 	xDict at: ch put: cursor
 
-****macro.
-*****Wb.class >> registeringMacroCheck
+***macro.
+****Wb.class >> registeringMacroCheck
 	macro notNil? ifTrue:
 		[nil ->macro;
 		self error: "registering macro"]
-*****Wb.class >> macroRegistStartCommand
+****Wb.class >> macroRegistStartCommand
 	self registeringMacroCheck;
 	StringWriter new ->macro
-*****Wb.class >> macroRegistEndCommand
+****Wb.class >> macroRegistEndCommand
 	macro nil? ifTrue: [self error: "unregistering macro"];
 	macro asString ->:s;
 	s copyUntil: s size - 2 ->s; -- remove ^x)
@@ -2092,19 +2169,19 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	self querySetXtr: "^x)" ->:ch;
 	xDict at: ch put: s;
 	self invalidateActiveTag: ch
-*****Wb.class >> startMacro: macroArg
+****Wb.class >> startMacro: macroArg
 	self registeringMacroCheck;
 	1 ->operatorMergeMode;
 	StringReader new init: macroArg ->macro
-*****Wb.class >> macroRepeatCommand
+****Wb.class >> macroRepeatCommand
 	statusBar query: "^x^r" ->:ch;
 	xDict at: ch ->:value;
 	value memberOf?: String, ifFalse: [self error: "not macro"];
 	self startMacro: value;
 	1 ->macroRepeat
 
-***execCommand.
-****Wb.class >> execEval
+**execCommand.
+***Wb.class >> execEval
 	buffer readerFrom: startPos + 1 until: endPos ->:rd;
 	Wb.BytesStream new ->:wr;
 	In pipe:
@@ -2116,7 +2193,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		] to: wr;
 	wr seek: 0, contentBytes ->:bytes, size <> 0 
 		ifTrue: [self at: endPos insert: bytes]
-****Wb.class >> execCmd
+***Wb.class >> execCmd
 	buffer stringFrom: startPos until: endPos ->:str;
 	str includes?: '\n', ifTrue: [self error: "require single line"];
 	self at: startPos remove: endPos - startPos;
@@ -2129,7 +2206,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		[sz - (Mulk.newline = #crlf ifTrue: [2] ifFalse: [1]) ->sz;
 		bytes copyUntil: sz ->bytes];
 	self at: cursor insert: bytes
-****Wb.class >> errorInsertPos: ex
+***Wb.class >> errorInsertPos: ex
 	ex memberOf?: MethodCompiler.Error, ifFalse: [startPos!];
 	ex file notNil? ifTrue: [startPos!];
 	buffer lineHead: startPos ->:cadet;
@@ -2138,7 +2215,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		pos >= endPos ifTrue: [cadet!];
 		pos ->cadet];
 	cadet!
-****Wb.class >> execCommand
+***Wb.class >> execCommand
 	self focusLeapAndFinish;
 	statusBar draw: "*BUSY*";
 	startPos nil? ->:noMark?, ifTrue: [self focusLine];
@@ -2150,7 +2227,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	self focusDocAt: startPos, <> #doc ifTrue: [self error: "not document"];
 	self docFile ->:wbfile;
 	self refocusContents;
-	wbfile notNil? ifTrue:
+	wbfile kindOf?: Wb.File, ifTrue:
 		[self updateHistoryCurrentDoc: wbfile;
 		wbfile none? or: [self equalDoc?: wbfile, not], 
 			ifTrue: [self writeDoc: wbfile]
@@ -2167,45 +2244,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 				insert: (self bytes: "---" + ex message + '\n')];
 	self message: "loaded"
 
-***Wb.class >> undoPosCommand
-	xDict at: '\xff' ->:pos;
-	undoPosTag ->:tag;
-	self keepUndoPos: cursor;
-	pos ->cursor;
-	tag ->currentTag
-
-***leap reverse.
-****Wb.Leap >> reverse
-	mode = #leapForward ifTrue: [#leapBackward] ifFalse: [#leapForward] ->mode
-****Wb.class >> leapReverseCommand
-	mode = #insert ifTrue: [self!];
-	self leapCopy ->:leap, pattern: nil, reverse;
-	leap mode ->mode;
-	self leapAdd: leap
-
-***Wb.class >> leapStringCommand
-	mode = #insert ifTrue: [self leapForwardCommand];
-	statusBar query: "^x^f" ->:ch;
-	xDict at: ch ->:value;
-	value memberOf?: FixedByteArray, ifFalse: [self error: "not string"];
-	self leapCopy ->:leap;
-	leap pattern: value asString;
-	self leap: leap disp: 1
-	
-***Wb.class >> gotoLineCommand
-	mode = #insert ifTrue: [self error: "mark digits"];
-	self focusLeapAndFinish;
-	buffer stringFrom: startPos until: endPos, asInteger ->:n;
-	self at: startPos remove: endPos - startPos;
-	self focusDocAt: cursor, <> #doc ifTrue: [self error: "not in document"];
-	startPos ->:pos;
-	n timesRepeat:
-		[buffer lineTail: pos ->pos;
-		buffer next: pos ->pos;
-		pos >= endPos ifTrue: [self error: "end of ducment"]];
-	pos ->cursor
-
-***Wb.class >> xCommand
+**Wb.class >> xCommand
 	statusBar query: "^x" ->:ch;
 	xDict at: ch ->:value;
 	value memberOf?: Symbol, ifTrue: [self perform: value!];
@@ -2216,9 +2255,12 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	value kindOf?: Integer, ifTrue:
 		[self keepUndoPos: cursor;
 		ch print? ifTrue: [ch] ifFalse: [nil] ->currentTag;
-		ch = '\ci' ifTrue: [Console imAscii];
 		value ->cursor!];
 	value memberOf?: FixedByteArray, ifTrue: [self at: cursor insert: value!]
+
+**Wb.class >> quitCommand
+	self syncAllDocs;
+	#quit ->mode
 
 **buffer backup and session.
 ***Wb.class >> sessionId
@@ -2249,47 +2291,11 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		[buffer at: (buffer next: self idocTail) insert: bf contentBytes];
 	self focusAllDocsDo:
 		[self docFile ->:wbfile;
-		wbfile notNil? and: [self historyAt: wbfile ->:fh, notNil?], ifTrue:
+		wbfile kindOf?: Wb.File, 
+				and: [self historyAt: wbfile ->:fh, notNil?], ifTrue:
 			[self refocusContents;
 			xDict at: fh tag put: startPos + fh offset]]
 
-**subprocess.
-***Wb.class >> subprocessReceive
-	1 ->operatorMergeMode;
-	[self at: cursor insert: subprocess childConsole receive;
-	screen updateDisplayRangeTailing;
-	subprocess waitInput?] whileFalse:
-		[screen draw;
-		subprocess continue];
-	0 ->operatorMergeMode;
-	xDict at: '\ci' put: cursor;	
-	subprocess running? ifFalse: [nil ->subprocess]
-***Wb.class >> subprocessStart
-	xDict at: '\ci' put: cursor;
-	Wb.Subprocess new init: self ->subprocess;
-	subprocess start;
-	self subprocessReceive
-***Wb.class >> subprocessEnter
-	subprocess nil? ifTrue: [false!];
-	self idocPromptPos ->:st;
-	buffer lineTail: st ->:en;
-	cursor between: st and: en, ifFalse: [false!];
-	en ->cursor;
-	buffer stringFrom: st until: en ->:s;
-	subprocess childConsole send: s + '\n';
-	subprocess childConsole echobackLn;
-	statusBar draw: "*BUSY*";
-	subprocess continue;
-	self subprocessReceive;
-	true!
-	
-**Wb.class >> setupDrawers
-	Console width ->:w;
-	Console height ->:h;
-	Wb.Layout new initWb: self width: w height: h - 1 ->rootLayout;
-	rootLayout createScreen cursor: cursor, tag: currentTag ->screen;
-	Wb.StatusBar new init: self top: h - 1 left: 0 width: w - 1 ->statusBar
-							
 **Wb.class >> init: opArg
 	-- intitialize statics.
 	Dictionary new ->keyCodeDict;
@@ -2309,7 +2315,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		--'\cl' jim latin
 		--'\cm' enter convert to ^j
 		'\cn'	#nextCharCommand		#nextCharCommand
-		'\co'	#otherScreenCommand		nil
+		'\co'	#nextScreenCommand		nil
 		'\cp'	#prevCharCommand		#prevCharCommand
 		'\cq'	#prevLineCommand		#prevLineCommand
 		'\cr'	#redoCommand			#leapRedoCommand
@@ -2341,6 +2347,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		'\cz'	#leapReverseCommand
 		'\cf'	#leapStringCommand
 		'\cg'	#gotoLineCommand
+		'\co'	#prevScreenCommand
 		) ->ar;
 	0 until: ar size by: 2, do:
 		[:i2
@@ -2349,7 +2356,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 
 	-- initialize dynamics.
 	Wb.Buffer new ->buffer;
-	buffer at: 0 insert: (self bytes: "||TOP\n\n||BOTTOM\n");
+	buffer at: 0 insert: (self bytes: "||*TOP\n\n||*BOTTOM\n");
 	buffer next: (buffer lineTail: 0) ->cursor;
 
 	self setupDrawers;
@@ -2417,11 +2424,6 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	code <> #abbrevCommand ifTrue: [nil ->abbrevPattern];
 	code = #char ifTrue: [self insertCharCommand: ch!];
 	code notNil? ifTrue: [self perform: code]
-**Wb.class >> draw
-	self drawStatusBar;
-	self layouts do: [:l l draw];
-	false ->drawSplitter?;
-	screen drawCursor
 
 **Wb.class >> mainLoop: opArg
 	opArg at: 'd' ->:debug?;
@@ -2433,7 +2435,6 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	#insert ->mode;
 	self screens do: [:s s solveDisplayRange];
 	Console clear;
-
 	[mode <> #quit] whileTrue:
 		[self draw;
 		self fetch: false ->:ch;
@@ -2450,15 +2451,19 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 			and: [ch = '\cd' or: [mode = #quit], 
 				or: [OS time > nextBackupTime]], 
 			ifTrue: [self backup]];
-	Console gotoX: 0 Y: Console height - 1, imAscii;
+	Console gotoX: 0 Y: Console height - 1;
 	Out putLn;
-	self run: false;
-	Mulk at: #Wb.onQuitCmd ifAbsent: [self!], runCmd
+	self run: false
 
 **subcommands.
 ***wb.d.
+****Wb.class >> markOfFile: wbfile
+	wbfile = #undefined ifTrue: ['!'!];
+	wbfile = #outOfSync ifTrue: [' '!];
+	wbfile none? or: [self equalDoc?: wbfile, not], 
+		ifTrue: ['*'] ifFalse: ['=']!
 ****Wb.class >> markOfTag: cons file: wbfile
-	wbfile nil?
+	wbfile kindOf?: Wb.File, not
 		or: [self historyAt: wbfile ->:fh, nil?],
 		or: [fh tag <> cons car], 
 		ifTrue: [' '!];
@@ -2473,13 +2478,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		startPos ->:markerTop;
 		self refocusContents;
 		startPos ->:docTop;
-		wbfile nil?
-			ifTrue: [Out put: "  "]
-			ifFalse:
-				[wbfile none? or: [self equalDoc?: wbfile, not],
-					ifTrue: [Out put: "* "]
-					ifFalse: [Out put: "= "]];
-		Out putLn: hd;
+		Out put: (self markOfFile: wbfile), put: ' ', putLn: hd;
 		markerTop ->startPos;
 		self focusedDocTags
 			select: [:cons cons car print?],
@@ -2497,14 +2496,12 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 
 ***Wb.class >> main.h: args
 	OptionParser new init: "f" ->:op, parse: args ->args;
-	op at: 'f' ->:file?;
-	history do:
-		[:fh
-		file? 
-			ifTrue: [Out put: fh fullName]
-			ifFalse:
-				[Out put: fh tag, put: " <", put: fh fullName, put: "> "];
-		Out putLn]
+	op at: 'f', ifTrue:
+		[history do: [:h Out putLn: h fullName]!];
+	[history do:
+		[:h2
+		Out put: h2 tag, put: " <", put: h2 fullName, putLn: '>']]
+		pipe: "sort -C3" to: Out
 		
 ***Wb.class >> main.rmh: args
 	args empty? ifTrue: [In contentLines] ifFalse: [args], do: 

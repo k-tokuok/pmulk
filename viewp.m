@@ -1,5 +1,5 @@
 View.p class
-$Id: mulk viewp.m 1339 2024-12-26 Thu 21:56:19 kt $
+$Id: mulk viewp.m 1347 2025-01-09 Thu 22:11:51 kt $
 #ja
 
 *[man]
@@ -117,6 +117,14 @@ Open a View with width widthArg pixels and height heightArg pixels.
 	Kernel propertyAt: 200 put: arg!
 **View.p >> updateInterval
 	Kernel propertyAt: 200!
+
+**View.p >> position
+	Kernel propertyAt: 204!
+***[man.m]
+****#en
+Returns the View position in coord format.
+****#ja
+Viewの位置をcoord形式で返す。
 
 **View.p >> position: coordArg
 	Kernel propertyAt: 204 put: coordArg

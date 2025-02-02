@@ -1,6 +1,6 @@
 /*
 	view for X.
-	$Id: mulk viewx.c 1331 2024-12-14 Sat 21:20:31 kt $
+	$Id: mulk viewx.c 1347 2025-01-09 Thu 22:11:51 kt $
 */
 #include "std.h"
 
@@ -589,6 +589,17 @@ int view_event_empty_p(void)
 	expose();
 	process_event(FALSE);
 	return iqueue_empty_p(&queue);
+}
+
+int view_get_position(void)
+{
+	XWindowAttributes attr;
+	Window w;
+	int x,y;
+	XGetWindowAttributes(display,window,&attr);
+	XTranslateCoordinates(display,window,DefaultRootWindow(display),
+		attr.x,attr.y,&x,&y,&w);
+	return coord(x,y);
 }
 
 void view_set_position(int coord)

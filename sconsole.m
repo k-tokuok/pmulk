@@ -1,5 +1,5 @@
 console with screen control function (ScreenConsole class)
-$Id: mulk sconsole.m 1301 2024-11-16 Sat 15:42:00 kt $
+$Id: mulk sconsole.m 1353 2025-01-19 Sun 11:17:44 kt $
 #ja 画面制御機能付きコンソール (ScreenConsole class)
 
 *[man]
@@ -186,10 +186,10 @@ tabを表示した部位は空白に置換される。
 **inputMethod i/f.
 ***ScreenConsole >> inputMethod: inputMethodArg
 	inputMethodArg ->inputMethod
-***ScreenConsole >> imAscii?
-	inputMethod nil? or: [inputMethod ascii?]!
-***ScreenConsole >> imAscii
-	inputMethod notNil? ifTrue: [inputMethod ascii]
+***ScreenConsole >> imMode
+	inputMethod nil? ifTrue: [#ascii] ifFalse: [inputMethod mode]!
+***ScreenConsole >> imMode: arg
+	inputMethod notNil? ifTrue: [inputMethod mode: arg]
 ***ScreenConsole >> curX
 	curX!
 ***ScreenConsole >> curY

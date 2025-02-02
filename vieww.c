@@ -1,6 +1,6 @@
 /*
 	view for windows.
-	$Id: mulk vieww.c 1330 2024-12-14 Sat 19:51:57 kt $
+	$Id: mulk vieww.c 1347 2025-01-09 Thu 22:11:51 kt $
 */
 
 #include "std.h"
@@ -511,7 +511,13 @@ int vkey_press_check(int key)
 	}
 }
 
-/* view propeties */
+int view_get_position(void)
+{
+	RECT rect;
+	GetWindowRect(window,&rect);
+	return coord(rect.left,rect.top);
+}
+
 void view_set_position(int coord)
 {
 	RECT rect;

@@ -1,5 +1,5 @@
 console for view (Console.view class)
-$Id: mulk c-view.m 1330 2024-12-14 Sat 19:51:57 kt $
+$Id: mulk c-view.m 1353 2025-01-19 Sun 11:17:44 kt $
 #ja view用コンソール (Console.view class)
 
 *[man]
@@ -93,7 +93,7 @@ View上で直接文字の入出力を行う為のコンソール。
 	cursorShow? not ->cursorShow?;
 	cursorShow?
 		ifTrue:
-			[self imAscii?
+			[self imMode = #ascii
 				ifTrue: [self drawCursor]
 				ifFalse: [self drawImCursor]]
 		ifFalse: [self rawPutChar: cursorChar]

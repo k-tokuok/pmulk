@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1346 2025-01-02 Thu 20:00:51 kt $
+$Id: mulk base.m 1357 2025-01-22 Wed 21:38:54 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -456,19 +456,15 @@ messageArgでエラーを発生させる。
 
 ****[man.c]
 *****#en
-Class of class object.
+Class of the class object.
 
-All class objects are instances of Class class.
-Class objects are global objects and can be referenced from any part of the program by the class name.
-
-When declaring a new class, send an addSubclass:(instanceVars:) message to the superclass object.
+A class object abstracts a class definition and provides functions such as constructing instances and subclasses.
+It is a global object and can be referenced from any part of the program by its class name.
 *****#ja
 クラスオブジェクトのクラス。
 
-全てのクラスオブジェクトはClassのインスタンスである。
-クラスオブジェクトはグローバルオブジェクトであり、クラス名によってプログラムの任意の箇所から参照出来る。
-
-新たなクラスを宣言する場合は、スーパークラスのクラスオブジェクトにaddSubclass:(instanceVars:)メッセージを送信する。
+クラスオブジェクトはクラス定義を抽象し、インスタンスやサブクラスの構築等の機能を提供する。
+グローバルオブジェクトでありクラス名によってプログラムの任意の箇所から参照出来る。
 
 ****attributes.
 *****Class >> name
