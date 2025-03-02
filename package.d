@@ -1,5 +1,5 @@
-;Mulk package std+skk (1364)
-;2025-02-02 Sun 20:15:23
+;Mulk package std+skk (1383)
+;2025-03-02 Sun 21:41:42
 k-us.d,1182,lib
 bg.m,1329,tool
 pwd.m,1258,tool
@@ -105,7 +105,7 @@ mem.h,406,vm
 gzip.m,932,tool
 uniq.m,1148,tool
 term.c,850,vm
-wb.m,1364,tool
+wb.m,1379,tool
 wcarray.m,406,lib
 term.h,636,vm
 tr.m,1129,tool
@@ -118,7 +118,7 @@ deff.m,932,tool
 heap.c,988,vm
 cdep.m,932,tool
 c-termu.m,1179,npw,lib
-termw.c,1299,vm
+termw.c,1366,vm
 heap.h,406,vm
 regexp.m,1141,lib
 dm.mak,1327,vm
@@ -132,7 +132,7 @@ omd.h,406,vm
 ir.h,406,vm
 crlf.m,1193,lib
 ctrlib.m,1289,lib
-skkchunk.d,1363,skk
+skkchunk.d,1382,skk
 tempfile.m,1318,lib
 xbarray.c,406,vm
 viewx.c,1347,vm
@@ -153,11 +153,11 @@ du.m,1259,tool
 csv.m,1266,tool
 icmd.m,1216,tool
 cmp.m,1145,tool
-base.m,1357,lib
+base.m,1365,lib
 xctype.c,1193,vm
 xctype.h,1191,vm
 numlnwr.m,1145,lib
-delang.m,932,tool
+delang.m,1369,tool
 cut.m,932,tool
 urlenc.m,1104,lib
 fbdata.m,1339,lib
@@ -211,7 +211,7 @@ backup.m,1259,tool
 oldchars.m,1141,ja,lib
 icd.m,1346,tool
 c-viewu.m,1179,npw,lib
-vieww.c,1347,vm
+vieww.c,1366,vm
 xgetopt.c,406,vm
 format.m,1208,tool
 open.m,1339,tool
@@ -220,7 +220,7 @@ xgetopt.h,406,vm
 fbdatal.m,1332,lib
 ibprim.c,1299,vm
 script.m,1259,tool
-lang.mm,1330,etc
+lang.mm,1381,etc
 cal.m,417,tool
 mtoib.c,406,vm
 packzip.m,1212,tool
@@ -229,13 +229,13 @@ trz.m,1141,tool,ja
 hidecnsl.m,1318,tool
 cp932.m,1261,lib
 tail.m,932,tool
-package.d,1364,tool
+package.d,1383,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,1346,tool
 std.c,850,vm
 ib.c,1330,vm
-package.m,1269,tool
+package.m,1381,tool
 std.h,1318,vm
 date.m,415,tool
 wordc.m,1145,tool
@@ -247,6 +247,6 @@ print.m,1346,tool
 hrc.m,787,lib
 optparse.m,1179,lib
 mulk.c,1326,vm
-skk.m,1362,skk
+skk.m,1368,skk
 fmv.m,1339,tool
 prompt.m,1346,lib

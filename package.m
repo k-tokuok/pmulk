@@ -1,5 +1,5 @@
 copy and manage Mulk packages
-$Id: mulk package.m 1269 2024-07-07 Sun 20:57:16 kt $
+$Id: mulk package.m 1381 2025-02-27 Thu 21:57:34 kt $
 #ja Mulkパッケージのコピー及び管理
 
 *[man]
@@ -224,7 +224,7 @@ The package expression specifies the copy target and conversion, and is defined 
 		Out putLn: f file name]] pipe: filter to: Out
 ***Cmd.package >> sysfiles
 	"ls " + (sysDir 
-		+ "(?*.([chmdlr]|txt|mak|el|m[cm]|ott|dotx|mpw|make)|makefile)")
+		+ "(?*.([chmdl]|txt|mak|m[cm]|ott|dotx|p4)|makefile)")
 			quotedPath,
 		runCmd	
 ***Cmd.package >> main.sysfiles: args

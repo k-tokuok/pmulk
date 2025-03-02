@@ -1,12 +1,12 @@
 mulk language specification
-$Id: mulk lang.mm 1330 2024-12-14 Sat 19:51:57 kt $
+$Id: mulk lang.mm 1381 2025-02-27 Thu 21:57:34 kt $
 #ja Mulk言語仕様書
 
 *#en
 This document defines the specification of the programming language Mulk.
 
 .right 2
-Ask. Do not touch.
+Ask, don't touch.
 --Adele Goldberg, Computer scientist
 .index
 
@@ -16,7 +16,7 @@ For the base class library, see the manual topic 'base'.
 この資料はプログラミング言語Mulkの仕様を定義する。
 
 .right 2	
-頼むのよ。触っては駄目。
+頼むのよ、触っては駄目。
 --Adele Goldberg 計算機科学者
 .index
 
@@ -641,17 +641,17 @@ An assignment expression has a value, and you can then write an assignment expre
 
 Parenthesized expressions are evaluated first.
 
-In <literal>, global object references, fixed arrays, positive and negative numbers, characters, and character strings can be described.
+In <literal>, global object references, fixed arrays, positive and negative numbers, characters, character strings and symbols can be described.
 ***#ja factor(項)
 	factor = variable | '(' expression ')' | block | literal
-	literal = global | fixedArray | fixedByteArray | '-'? number | char | string
+	literal = global | fixedArray | fixedByteArray | '-'? number | char | string | symbol
 	global = identifier
 
 factorは変数参照、括弧付きの式、block、literalからなる。
 
 括弧付きの式は先に評価される。
 
-literalにはグローバルオブジェクト参照、固定配列、正負の数値、文字、文字列が記述出来る。
+literalにはグローバルオブジェクト参照、固定配列、正負の数値、文字、文字列、シンボルが記述出来る。
 
 ***fixedArray
 ****#en

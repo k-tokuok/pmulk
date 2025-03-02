@@ -1,6 +1,6 @@
 /*
 	terminal for windows.
-	$Id: mulk termw.c 1299 2024-11-10 Sun 15:32:06 kt $
+	$Id: mulk termw.c 1366 2025-02-04 Tue 22:02:09 kt $
 */
 
 #include "std.h"
@@ -17,7 +17,6 @@ static HANDLE console_in;
 static HANDLE console_out;
 static DWORD saved_mode;
 static struct cqueue cq;
-static int more_char_p;
 
 static void init(void)
 {
@@ -55,7 +54,6 @@ int term_start(void)
 	if(!init_p) init();
 	set_mode(ENABLE_PROCESSED_INPUT);
 	cqueue_reset(&cq);
-	more_char_p=FALSE;
 	buffer_size(&w,&h);
 	return coord(w,h);
 }
@@ -75,9 +73,8 @@ static void fetch(void)
 	if(input.EventType!=KEY_EVENT) return;
 	if(!input.Event.KeyEvent.bKeyDown) return;
 	ch=(unsigned char)(input.Event.KeyEvent.uChar.AsciiChar);
-	if(more_char_p) more_char_p=FALSE;
-	else if(IsDBCSLeadByte(ch)) more_char_p=TRUE;
-	else if(ch==0) ch=-1;
+	if(ch==0) ch=-1;
+	if(ch==' '&&(GetKeyState(VK_CONTROL)&0x8000)) ch=0;
 	if(ch!=-1) cqueue_put(&cq,ch);
 }
 

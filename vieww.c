@@ -1,6 +1,6 @@
 /*
 	view for windows.
-	$Id: mulk vieww.c 1347 2025-01-09 Thu 22:11:51 kt $
+	$Id: mulk vieww.c 1366 2025-02-04 Tue 22:02:09 kt $
 */
 
 #include "std.h"
@@ -73,6 +73,7 @@ static LRESULT CALLBACK window_proc(HWND hWnd,UINT msg,WPARAM wParam,
 		else if(IsDBCSLeadByte(ch)) more_char_p=TRUE;
 		else {
 			if(view_shift_mode==VIEW_GENERIC_SHIFT) {
+				if(ch==' '&&(GetKeyState(VK_CONTROL)&0x8000)) ch=0;
 				if(ch==3) ip_trap_code=TRAP_INTERRUPT;
 			} else ch=-1;
 		}

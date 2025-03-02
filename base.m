@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1357 2025-01-22 Wed 21:38:54 kt $
+$Id: mulk base.m 1365 2025-02-03 Mon 21:47:00 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -3322,8 +3322,7 @@ Wide characters are treated as printable characters that are neither blank nor a
 	codeArg ->code;
 	self hash: code & 0xfffff
 ****WideChar >> = arg
-	self hash = arg hash and: [arg hash memberOf?: WideChar, not],
-		and: [code = arg code]!
+	self == arg or: [arg memberOf?: WideChar, and: [code = arg code]]!
 ****WideChar >> width
 	--ref: http://ftp.unicode.org/Public/UNIDATA/EastAsianWidth.txt
 	code >= 0xe2ba80 ifTrue:
@@ -3666,9 +3665,9 @@ Returns the number of seconds relative to the receiver's Unix epoch (January 1, 
 *****[test.m]
 	self assert: d unixTime = (1407737889 - OS timediff)
 	
-***DateAndTime >> = dateArg
-	dateArg memberOf?: DateAndTime, ifFalse: [false!];
-	unixTime = dateArg unixTime!
+***DateAndTime >> = arg
+	self == arg or: 
+		[arg memberOf?: DateAndTime, and: [unixTime = arg unixTime]]!
 ****[test.m]
 	self assert: (d = nil) not;
 	self assert: d = d;
@@ -4705,11 +4704,11 @@ Construct a string with the string representation of objectArg added to the rece
 	self assert: s < "abcdf";
 	self assert: s < "abcdef"
 	
-****String >> = stringArg
-	stringArg memberOf?: String,
-		and: [self hash = stringArg hash],
-		and: [self contentsEqual?: stringArg]!
+****String >> = arg
+	self == arg or: [arg memberOf?: String, and: [self hash = arg hash],
+		and: [self contentsEqual?: arg]]!
 *****[test.m]
+	self assert: s = s;
 	self assert: s = "abcde";
 	self assert: (s = "abc") not;
 	self assert: (s = nil) not

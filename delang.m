@@ -1,5 +1,5 @@
 detangle multi-language file to mono-language file
-$Id: mulk delang.m 932 2022-09-18 Sun 17:45:15 kt $
+$Id: mulk delang.m 1369 2025-02-11 Tue 21:55:17 kt $
 #ja 多言語ファイルから単言語ファイルへの変換
 
 *[man]
@@ -7,16 +7,32 @@ $Id: mulk delang.m 932 2022-09-18 Sun 17:45:15 kt $
 .caption SYNOPSIS
 	delang [LANG]
 .caption DESCRIPTION
-Read multi-language module file or mm file and output LANG language mono-language file.
+Reads a multilingual module file or mm file and outputs the LANG language version.
+If LANG is omitted, Mulk.lang is assumed to be specified.
 
-If LANG is omitted, it is assumed that Mulk.lang has been specified.
+Specific conversion details are as follows:
+
+Language dependent version of the summary line (first line) -- Lines starting with '#' after the third line are the specific language version of the summary line. The language-specific version replaces the summary line, and the other language versions are deleted.
+
+Language-dependent sections -- Blocks of outline lines beginning with '#' are language-dependent sections, and blocks of non-specified language versions are deleted.
+.caption SEE ALSO
+.summary lang
+.summary man
 **#ja
 .caption 書式
 	delang [LANG]
 .caption 説明
-多言語のモジュールファイル又はmmファイルを読み込み、LANG言語の単言語ファイルを出力する。
-
+多言語のモジュールファイル又はmmファイルを読み込み、LANG言語版のものを出力する。
 LANGを省略すると、Mulk.langが指定されたものとみなす。
+
+具体的な変換内容は以下の通り。
+
+概要行(先頭行)の言語依存版 -- 3行目以降の'#'で始まる行群は概要行の特定言語版である。言語版で概要行を置き換えられ、他言語版は削除される。
+
+言語依存部 -- '#'で始まるアウトライン行のブロックは言語依存部であり、指定言語版以外のブロックは削除される。
+.caption 関連項目
+.summary lang
+.summary man
 
 *delang tool.@
 	Object addSubclass: #Cmd.delang instanceVars: "reader lang savedHeader"

@@ -1,5 +1,5 @@
 かな漢字変換日本語インプットメソッド
-$Id: mulk skk.m 1362 2025-01-28 Tue 22:09:14 kt $
+$Id: mulk skk.m 1368 2025-02-09 Sun 10:40:20 kt $
 
 *[man]
 .caption 書式
@@ -47,7 +47,7 @@ azikについてはマニュアルトピックazikを参照のこと。
 空白を入力すると次の候補に進み、^hを入力すると前の候補に戻る。
 ^jを入力するとキャンセルされ平仮名モードとなる。
 
-5つ目の候補まで進むとホームポジションのキー(a:, s:, d:,...)が前置される形で最大十個の候補が一度に表示される。
+3つ目の候補まで進むとホームポジションのキー(a:, s:, d:,...)が前置される形で最大十個の候補が一度に表示される。
 ここではホームポジションのキーを入力することで漢字が入力される。
 
 最後の変換候補として▼が表示される。
@@ -110,7 +110,7 @@ wb上であれば続けて漢字を入力し'!'以降を実行することで辞
 	0 ->updateCount;
 	WideCharArray new ->interm;
 	Console width min: 80, - 1 ->cadetsWidth;
-	5 ->singleHenkan
+	3 ->singleHenkan
 **Skk.class >> personalDictAt: keyArg
 	tDict at: keyArg ifAbsent: [nil] ->:result;
 	result nil? ifTrue: [pDict at: keyArg ifAbsent: [nil] ->result];

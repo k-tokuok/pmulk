@@ -15,10 +15,11 @@
 *.mc text working-tree-encoding=cp932
 *.mk text working-tree-encoding=cp932
 *.mm text working-tree-encoding=cp932
-*.mpw text working-tree-encoding=cp932
 #ott -- libreoffice template
 #png -- android resource
 *.pro text working-tree-encoding=cp932
 *.properties text working-tree-encoding=cp932
 *.txt text working-tree-encoding=cp932
 *.xml text working-tree-encoding=cp932
+*.pas text working-tree-encoding=cp932
+*.p4 text working-tree-encoding=cp932

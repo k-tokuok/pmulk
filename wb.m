@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1364 2025-02-02 Sun 20:14:28 kt $
+$Id: mulk wb.m 1379 2025-02-26 Wed 22:16:22 kt $
 #ja テキストエディタ
 
 *[man]
@@ -404,7 +404,7 @@ Register the series of operations and execute them to reproduce the operations.
 
 During the definition, M is displayed at the beginning of the bottom line.
 
-	^x + ^r + KEY -- Execute the key macro and display the prompt. If you enter ' ', it will be repeated. If you enter '1' to '9' and '0', 10 to 100 times repeated. If you enter anything else, it will end.
+	^x + ^r + KEY -- Executes the macro for KEY and stops. Then, the macro is repeated 10 to 100 times for '1' to '9' and '0', and once for all other cases; ESC to exit.
 ****#ja マクロ
 一連の繰作の内容を登録し、実行すると繰作を再現する。
 
@@ -413,7 +413,7 @@ During the definition, M is displayed at the beginning of the bottom line.
 	
 定義中は最下行の先頭にMが表示される。
 
-	^x + ^r + KEY -- KEYのマクロを実行しプロンプトを表示。' 'を入力するともう一度、'1'から'9'及び'0'を入力すると10回から100回繰り返す。それ以外を入力すると終了する。
+	^x + ^r + KEY -- KEYのマクロを実行し停止する。その後、'1'から'9'及び'0'では10回から100回、それ以外では1回ずつマクロを繰り返し実行する。ESCで終了する。
 
 **Execute/evaluate/load (^x + ^x)
 ***#en
@@ -1302,9 +1302,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	nameArg asFile ->file
 **Wb.File >> file
 	file!
-**Wb.File >> = wbfileArg
-	wbfileArg kindOf?: Wb.File, not ifTrue: [false!];
-	file = wbfileArg file!
+**Wb.File >> = arg
+	self == arg or: [arg memberOf?: Wb.File, and: [file = arg file]]!
 **Wb.File >> fullName
 	file path ->:result;
 	conv notNil? ifTrue: [conv + ':' +result ->result];
@@ -1424,9 +1423,15 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	l child1 createScreen cursor: cursor, tag: currentTag;
 	l child2 createScreen ->screen;
 	self keepUndoPos: cursor;
-	xDict at: '\xfe' ifAbsent: [cursor] ->cursor;
+	xDict includesKey?: '\xfe', 
+		ifTrue:
+			[xDict at: '\xfe' ->cursor;
+			lastScreenTag ->currentTag;
+			xDict removeAt: '\xfe']
+		ifFalse: 
+			[self idocPromptPos ->cursor;
+			nil ->currentTag];
 	screen cursor: cursor;
-	lastScreenTag ->currentTag;
 	true ->drawSplitter?
 ****Wb.class >> switchScreen: screenArg
 	screenArg cursor ->cursor;
@@ -2382,19 +2387,17 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 **Wb.class >> macroAgain?
 	macroRepeat = -1 ifTrue: [false!];
 	macroRepeat - 1 ->macroRepeat, <> 0 ifTrue: [true!];
-	statusBar draw: "again(sp/0-9/other)?";
+	statusBar draw: "again(0-9/other)?";
 	screen drawCursor;
 	Console rawFetch ->:ch;
 	self drawStatusBar;
 	screen drawCursor;
-	ch = ' ' ifTrue:
-		[1 ->macroRepeat;
-		true!];
-	ch digit? ifTrue:
-		[ch = '0' ifTrue: [100] ifFalse: [ch asDecimalValue * 10] 
-			->macroRepeat;
-		true!];
-	false!
+	ch = '\c[' ifTrue: [false!];
+	ch digit? 
+		ifTrue: [ch = '0' ifTrue: [100] ifFalse: [ch asDecimalValue * 10]]
+		ifFalse: [1]
+		->macroRepeat;
+	true!
 **Wb.class >> fetch: raw?
 	macro kindOf?: StringReader, ifTrue:
 		[macro getWideChar ->:result, nil? ifTrue:
