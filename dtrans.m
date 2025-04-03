@@ -1,5 +1,5 @@
 DeepL Translate
-$Id: mulk dtrans.m 1289 2024-10-06 Sun 20:37:22 kt $
+$Id: mulk dtrans.m 1395 2025-03-22 Sat 22:10:13 kt $
 #ja DeepL翻訳
 
 *[man]
@@ -24,9 +24,11 @@ DeepL翻訳APIを使用して入力した文書を翻訳する。
 	
 *dtrans tool.@
 	Mulk import: #("tempfile" "hrlib" "jsonrd" "urlenc");
-	Object addSubclass: #Cmd.dtrans instanceVars: "target"
-**Cmd.dtrans >> translate
-	In contentBytes ->:text, empty? ifTrue: [self error: "text empty"];
+	Object addSubclass: #Cmd.dtrans
+**Cmd.dtrans >> main: args
+	args first ->:target;
+	Mulk.charset = #sjis ifTrue: [In pipe: "ctr u"] ifFalse: [In], 
+		contentBytes ->:text, empty? ifTrue: [self error: "text empty"];
 	HttpRequestFactory new create ->:hr;
 	hr method: "POST";
 	hr url: "https://api-free.deepl.com/v2/translate?target_lang="
@@ -35,12 +37,7 @@ DeepL翻訳APIを使用して入力した文書を翻訳する。
 	TempFile create ->:outFile;
 	hr outFile: outFile;
 	hr run;
-	outFile readDo: [:fs JsonReader new read: fs ->:json];
+	Mulk.charset = #sjis ifTrue: [outFile pipe: "ctr u ="] ifFalse: [outFile],
+		pipe: [JsonReader new read: In ->:json];
 	Out put: (json at: "translations", first at: "text");
 	outFile remove
-**Cmd.dtrans >> main: args
-	args first ->target;
-	Mulk.charset = #sjis 
-		ifTrue: 
-			["cat | ctr u" pipe: [self translate], pipe: "ctr u =" to: Out]
-		ifFalse: ["cat" pipe: [self translate] to: Out]

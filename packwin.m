@@ -1,5 +1,5 @@
 create Mulk/Windows binary package
-$Id: mulk packwin.m 1326 2024-12-07 Sat 21:46:37 kt $
+$Id: mulk packwin.m 1403 2025-04-03 Thu 20:37:22 kt $
 #ja Mulk/Windowsバイナリパッケージを作成する
 
 *[man]
@@ -140,6 +140,7 @@ installer for Windows binary kit.
 ***Installer >> make_mulk_mi
 	Out putLn: "\"mulk\" asFile ->Mulk.systemDirectory;",
 		putLn: "\"work\" asFile ->Mulk.workDirectory;",
+		putLn: "nil ->File.home;",
 		putLn: "Mulk at: #charset put: #" + charset + ";",
 		putLn: "\"" + lang + "\" ->Mulk.lang;",
 		putLn: "Mulk import: #(\"crlf\" \"icmd\");";

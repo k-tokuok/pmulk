@@ -1,5 +1,5 @@
 temporary file (TempFile.class class)
-$Id: mulk tempfile.m 1318 2024-12-01 Sun 14:28:50 kt $
+$Id: mulk tempfile.m 1394 2025-03-22 Sat 15:22:14 kt $
 #ja 一時ファイル (TempFile.class class)
 
 *[man]
@@ -56,7 +56,7 @@ Mulkを複数並列実行しても正しく動作する。
 	numFile writeDo: [:fs2 fs2 putLn: num];
 	f!
 **TempFile.class >> create: suffixArg
-	Mulk.hostOS = #dos | (Mulk.hostOS = #android) | (Mulk.hostOS = #cm)
+	Mulk.hostOS = #dos | (Mulk.hostOS = #android)
 		ifTrue: [self makeFile: suffixArg]
 		ifFalse: 
 			["tempfile.lck" asWorkFile lockDo: [self makeFile: suffixArg]]!

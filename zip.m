@@ -1,5 +1,5 @@
 zip archiver
-$Id: mulk zip.m 1339 2024-12-26 Thu 21:56:19 kt $
+$Id: mulk zip.m 1399 2025-03-29 Sat 22:15:31 kt $
 #ja zipアーカイバ
 
 *[man]
@@ -121,7 +121,7 @@ DIRとして対象のディレクトリを、FILEとして対象のファイル�
 	zip pos ->headerOffset;
 	zip u32: 0x04034b50; -- header
 	zip u16: 20; -- version
-	zip u16: 0; -- flag
+	zip u16: 2048; -- flag/UTF-8
 	zip u16: compressionMethod;
 	zip u16: self time;
 	zip u16: self date;
@@ -138,7 +138,7 @@ DIRとして対象のディレクトリを、FILEとして対象のファイル�
 	zip u32: 0x02014b50;
 	zip u16: 788; -- versionMadeBy
 	zip u16: 20; -- versionNeed
-	zip u16: 0; -- flag
+	zip u16: 2048; -- flag/UTF8
 	zip u16: compressionMethod;
 	zip u16: self time;
 	zip u16: self date;
@@ -201,7 +201,7 @@ DIRとして対象のディレクトリを、FILEとして対象のファイル�
 	zfp write: bytes
 
 **Zip >> sweep: blockArg
-	self assert: zf size > 256;
+	zf size < 256 ifTrue: [self error: "too small zip file"];
 	self pos: zf size - 256;
 	zfp read: buf;
 	buf indexOf: "PK\x05\x06" size: 4 from: buf size - 4 until: 0 ->:p;

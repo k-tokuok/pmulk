@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1365 2025-02-03 Mon 21:47:00 kt $
+$Id: mulk base.m 1396 2025-03-23 Sun 08:21:41 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -6618,7 +6618,7 @@ Initialize the stream with stringArg.
 **File class.#
 	class File Object : name path parent mode size mtime;
 	singleton TransientGlobalVar File.current;
-	singleton TransientGlobalVar File.home;
+	singleton GlobalVar File.home;
 
 ***[man.c]
 ****#en
@@ -6630,7 +6630,7 @@ It should not be construct by new.
 Pathnames are expressed in POSIX format regardless of the host OS.
 In case of DOS/Windows, the drive is treated as a directory directly under the root directory.
 Specifying "~" at the beginning of the path name makes it a relative path from the global variable File.home.
-This is initialized at startup with the value of the environment variable HOME.
+This is initialized at boot time with the value of the HOME environment variable if it is not set in the image.
 
 The current directory is obtained with "." asFile.
 ****#ja
@@ -6642,7 +6642,7 @@ newによって構築してはならない。
 パス名はホストOSに関係なくPOSIX形式で表す。
 DOS/Windowsの場会、ドライブはルートディレクトリ直下のディレクトリとして扱う。
 パス名の先頭に"~"を指定すると大域変数File.homeからの相対パスとなる。
-これは起動時に環境変数HOMEの値で初期化される
+これはイメージ内で設定されていなければ起動時に環境変数HOMEの値で初期化される
 
 カレントディレクトリは"." asFileで収得する。
 
@@ -9128,7 +9128,7 @@ Quit the system.
 	FileStream new init: (Kernel propertyAt: 100) ->In ->In0;
 	FileStream new init: (Kernel propertyAt: 101) ->Out ->Out0;
 	File new fileOfPath: (Kernel propertyAt: 102) ->File.current;
-	OS getenv: "HOME" ->:home, nil? ifFalse:
+	File.home nil? and: [OS getenv: "HOME" ->:home, notNil?], ifTrue:
 .if windows|dos
 		[StringWriter new ->:w;
 		StringReader new init: home ->:r;
@@ -9193,8 +9193,6 @@ Quit the system.
 		#windows
 .elseif dos
 		#dos
-.elseif cm
-		#cm
 .end
 		;
 

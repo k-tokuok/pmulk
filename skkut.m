@@ -1,5 +1,5 @@
 skkユーティリティ
-$Id: mulk skkut.m 1362 2025-01-28 Tue 22:09:14 kt $
+$Id: mulk skkut.m 1402 2025-04-03 Thu 20:17:23 kt $
 
 *[man]
 .caption 書式
@@ -9,8 +9,8 @@ $Id: mulk skkut.m 1362 2025-01-28 Tue 22:09:14 kt $
 	skkut.checkfreq
 	skkut.merge [DICT]
 	skkut.exist [-n] DICT
-	skkut.exclude EXCLUDELIST
 	skkut.dump
+	skkut.adjust ADJUSTFREQ
 
 .caption 説明
 skkutはskkの使用を支援するユーティリティプログラムである。
@@ -47,13 +47,13 @@ DICTが存在しない場合頻度情報のみから辞書を生成する。
 
 -nオプションを指定すると含まれないエントリを出力する。
 
-**skkut.exclude EXCLUDELIST
-標準入力から頻度情報を読み込み、EXCLUDELISTにあるエントリを削除する。
-
 **skkut.dump
 現在の個人辞書(skk.mpi)の内容を出力する。
 
 これを入力としてskkut.mergeを行うと、頻度を反映させた形で変換辞書に追記出来る。
+
+**skkut.adjust ADJUSTFREQ
+標準入力から頻度情報を読み込み、頻度情報形式ADJUSTFREQと同じエントリがあれば頻度情報を入れ換えて出力する。
 
 *skkut tool.@
 	Mulk import: #("wcarray" "csvrd" "csvwr" "mtr" "pi" "oldchars");
@@ -249,13 +249,6 @@ DICTが存在しない場合頻度情報のみから辞書を生成する。
 		self henkanAt: ar first ->:henkan;
 		henkan includes?: (ar at: 1), = exist?, ifTrue: [wr put: ar]]
 		
-**Cmd.skkut >> main.exclude: args
-	Set new addAll: args first asFile contentLines ->:exc;
-	CsvWriter new init: Out ->:wr;
-	self csvs: In, do:
-		[:ar
-		exc includes?: (ar at: 1), ifFalse: [wr put: ar]]
-		
 **Cmd.skkut >> main.dump: args
 	"skk.mpi" asWorkFile readObject ->:dict;
 	dict keysAndValuesDo:
@@ -263,3 +256,19 @@ DICTが存在しない場合頻度情報のみから辞書を生成する。
 		v reverse do: 
 			[:e
 			Out put: k, put: ',', put: e, putLn]]
+	
+**Cmd.skkut >> main.adjust: args
+	Dictionary new ->:adjDict;
+	CsvWriter new init: Out ->:wr;
+	args first asFile readDo:
+		[:s
+		self csvs: s, do:
+			[:ar
+			ar at: 2, <> "0" ifTrue: [wr put: ar];
+			adjDict at: (ar at: 1) put: (ar at: 0)]];
+	self csvs: In, do:
+		[:ar2
+		ar2 at: 1 ->:k;
+		adjDict includesKey?: k, and: [ar2 at: 0, = (adjDict at: k)],
+			ifFalse: [wr put: ar2]]
+	

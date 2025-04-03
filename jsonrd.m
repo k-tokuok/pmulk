@@ -1,5 +1,5 @@
 JsonReader class
-$Id: mulk jsonrd.m 1303 2024-11-17 Sun 14:09:03 kt $
+$Id: mulk jsonrd.m 1397 2025-03-25 Tue 21:22:56 kt $
 #ja
 
 *[man]
@@ -31,34 +31,27 @@ JSONの記述をMulkの自然な構造に変換する。
 **JsonReader >> addU16: codeArg
 	u16buf putByte: codeArg & 0xff;
 	u16buf putByte: codeArg >> 8
-**JsonReader >> escapeCode: ch
-	ch = 'b' ifTrue: ['\b' code!];
-	ch = 'f' ifTrue: ['\f' code!];
-	ch = 'n' ifTrue: ['\n' code!];
-	ch = 'r' ifTrue: ['\r' code!];
-	ch = 't' ifTrue: ['\t' code!];
-	ch code!
-**JsonReader >> getU16Char
-	self skipChar ->:ch, = '\\' ifTrue:
-		[self skipChar ->ch, = 'u' 
-			ifTrue: [self addU16: self getHexByte << 8 | self getHexByte!];
-		self addU16: (self escapeCode: ch)!];
-	self assert: ch ascii?;
-	self addU16: ch code
-			
-**JsonReader >> getRestStringWithEscapeU
-	-- after "...\u"
+
+**JsonReader >> decodeU16
 	ctr nil? ifTrue:
-		[Mulk at: #CodeTranslatorFactory in: "ctrlib",
+		[Mulk at: #CodeTranslatorFactory in: "ctrllib",
 			create: "U" + (Mulk.charset = #sjis ifTrue: ['s'] ifFalse: ['u'])
 			->ctr];
 	MemoryStream new ->u16buf;
 	self addU16: self getHexByte << 8 | self getHexByte;
-	[nextChar <> '"'] whileTrue: [self getU16Char];
 	u16buf seek: 0;
 	u16buf contentBytes ->:bytes;
 	ctr translate: bytes from: 0 size: bytes size ->:sz;
-	self add: (ctr resultBuf makeStringFrom: 0 size: sz)
+	self add: (ctr resultBuf makeStringFrom: 0 size: sz)			
+**JsonReader >> escapeCode
+	self skipChar ->:ch;
+	ch = 'b' ifTrue: [self add: '\b'!];
+	ch = 'f' ifTrue: [self add: '\f'!];
+	ch = 'n' ifTrue: [self add: '\n'!];
+	ch = 'r' ifTrue: [self add: '\r'!];
+	ch = 't' ifTrue: [self add: '\t'!];
+	ch = 'u' ifTrue: [self decodeU16!];
+	self add: ch
 **JsonReader >> getToken
 	self skipSpace;
 	nextChar nil? ifTrue: [#eof!];
@@ -80,10 +73,7 @@ JSONの記述をMulkの自然な構造に変換する。
 		[self skipChar;
 		[nextChar <> '"'] whileTrue: 
 			[self skipWideChar ->:ch, = '\\' 
-				ifTrue:
-					[self skipChar ->ch, = 'u'
-						ifTrue: [self getRestStringWithEscapeU]
-						ifFalse: [self add: (self escapeCode: ch) asChar]]
+				ifTrue: [self escapeCode]
 				ifFalse: [self add: ch]];
 		self skipChar;
 		self token!];

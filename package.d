@@ -1,5 +1,5 @@
-;Mulk package std+skk (1383)
-;2025-03-02 Sun 21:41:42
+;Mulk package std+skk (1403)
+;2025-04-03 Thu 20:38:29
 k-us.d,1182,lib
 bg.m,1329,tool
 pwd.m,1258,tool
@@ -9,7 +9,7 @@ eval.mm,406,tool
 charc.m,1208,tool
 c-view.m,1353,lib
 iqueue.c,406,vm
-dtrans.m,1289,tool
+dtrans.m,1395,tool
 vkey.c,1313,vm
 traitc.m,1145,lib
 iqueue.h,406,vm
@@ -26,7 +26,7 @@ view.c,1347,vm
 inst.h,1246,vm
 termu.c,850,vm
 cp.m,458,tool
-packwin.m,1326,tool
+packwin.m,1403,tool
 clipm.m,1346,npw,lib
 view.h,1347,vm
 k-jp.d,1182,lib
@@ -47,8 +47,8 @@ coord.h,644,vm
 gsync.m,1197,tool
 coord.m,1347,lib
 xorshift.m,418,lib
-jsonrd.m,1303,lib
-skkut.m,1362,skk
+jsonrd.m,1397,lib
+skkut.m,1402,skk
 os.m,1339,tool
 cliplib.m,956,lib
 config.h,1318,vm
@@ -100,9 +100,9 @@ xarray.c,406,vm
 pp.c,1087,vm
 packtbz.m,1212,tool
 clipx.m,422,npw,lib
+gzip.m,932,tool
 xarray.h,406,vm
 mem.h,406,vm
-gzip.m,932,tool
 uniq.m,1148,tool
 term.c,850,vm
 wb.m,1379,tool
@@ -110,7 +110,7 @@ wcarray.m,406,lib
 term.h,636,vm
 tr.m,1129,tool
 term.m,1299,lib
-setup.m,1204,vm
+setup.m,1396,vm
 nl.m,1145,tool
 float.c,1318,vm
 h.m,1030,tool
@@ -132,8 +132,9 @@ omd.h,406,vm
 ir.h,406,vm
 crlf.m,1193,lib
 ctrlib.m,1289,lib
-skkchunk.d,1382,skk
-tempfile.m,1318,lib
+skkchunk.d,1402,skk
+gemini.m,1399,tool
+tempfile.m,1394,lib
 xbarray.c,406,vm
 viewx.c,1347,vm
 xbarray.h,406,vm
@@ -153,15 +154,16 @@ du.m,1259,tool
 csv.m,1266,tool
 icmd.m,1216,tool
 cmp.m,1145,tool
-base.m,1365,lib
+base.m,1396,lib
 xctype.c,1193,vm
 xctype.h,1191,vm
 numlnwr.m,1145,lib
 delang.m,1369,tool
 cut.m,932,tool
+chat.m,1400,tool
 urlenc.m,1104,lib
 fbdata.m,1339,lib
-zip.m,1339,tool
+zip.m,1399,tool
 dl.c,1091,vm
 echo.m,406,tool
 clip.m,1346,tool
@@ -198,7 +200,7 @@ base64.m,932,tool
 lex.c,1330,vm
 ld.m,406,tool
 pf.h,1091,vm
-chatgpt.m,1330,tool
+chatgpt.m,1397,tool
 lex.h,1330,vm
 git.m,1339,tool
 terms.c,636,vm
@@ -215,7 +217,7 @@ vieww.c,1366,vm
 xgetopt.c,406,vm
 format.m,1208,tool
 open.m,1339,tool
-setupwj.m,1267,vm
+setupwj.m,1396,vm
 xgetopt.h,406,vm
 fbdatal.m,1332,lib
 ibprim.c,1299,vm
@@ -229,7 +231,7 @@ trz.m,1141,tool,ja
 hidecnsl.m,1318,tool
 cp932.m,1261,lib
 tail.m,932,tool
-package.d,1383,tool
+package.d,1403,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,1346,tool
