@@ -1,15 +1,16 @@
 /*
 	path and files for windows/WIDECHAR API.
-	$Id: mulk pfw.c 1327 2024-12-08 Sun 11:38:07 kt $
+	$Id: mulk pfw.c 1413 2025-04-26 Sat 18:55:59 kt $
 */
 
 #include "std.h"
+#include <io.h>
+#include <windows.h>
+
 #include "pf.h"
 #include "mem.h"
 #include "om.h"
 #include "ip.h" /* codepage */
-
-#include <windows.h>
 
 #define WCSIZE sizeof(wchar_t)
 
@@ -88,6 +89,18 @@ FILE *pf_open(char *pfn,char *mode)
 	fp=_wfopen(to_mfn(pfn,&xba),wmode);
 	xbarray_free(&xba);
 	return fp;
+}
+
+int pf_lock(FILE *fp,int lock_p)
+{
+	HANDLE h;
+	OVERLAPPED ov;
+	int st;
+	h=(HANDLE)_get_osfhandle(_fileno(fp));
+	memset(&ov,0,sizeof(ov));
+	if(lock_p) st=LockFileEx(h,LOCKFILE_EXCLUSIVE_LOCK,0,1,0,&ov);
+	else st=UnlockFileEx(h,0,1,0,&ov);
+	return st;
 }
 
 static int xstat(WCHAR *fn,struct pf_stat *statbuf) 

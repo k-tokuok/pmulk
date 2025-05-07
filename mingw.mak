@@ -1,6 +1,6 @@
 #
 #	makefile for MinGW-w64 tool chain.
-#	$Id: mulk mingw.mak 1327 2024-12-08 Sun 11:38:07 kt $
+#	$Id: mulk mingw.mak 1413 2025-04-26 Sat 18:55:59 kt $
 #	MinGW-w64:
 #		https://www.mingw-w64.org/
 #	binary releases:
@@ -34,7 +34,7 @@ xc.a: std.o heap.o xbarray.o xctype.o splay.o xgetopt.o log.o xarray.o \
 	cqueue.o iqueue.o xwchar.o coord.o \
 	om.o omd.o gc.o prim.o ir.o lex.o \
 	$(mulkprim:%.c=%.o) \
-	pfw.o csplit.o termw.o vieww.o vkey.o
+	osw.o pfw.o csplit.o termw.o vieww.o vkey.o
 	-del xc.a
 	$(ar) -r $@ $+
 

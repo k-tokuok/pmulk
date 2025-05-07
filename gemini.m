@@ -1,5 +1,5 @@
 chat with Google Gemini
-$Id: mulk gemini.m 1399 2025-03-29 Sat 22:15:31 kt $
+$Id: mulk gemini.m 1407 2025-04-18 Fri 21:19:20 kt $
 #ja Google Geminiとチャットする
 
 *[man]
@@ -47,7 +47,9 @@ Google Geminiとチャットを行う。
 **Cmd.gemini >> generateMain: arg
 	self addDialogRole: "user" text: arg;
 	[HttpRequestFactory new create ->hr;
-	hr url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + Cmd.gemini.apikey;
+	--"gemini-2.0-flash" ->:model;
+	"gemini-2.5-flash-preview-04-17" ->:model;
+	hr url: "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + Cmd.gemini.apikey;
 	hr header: "Content-Type" value: "application/json";
 	self runJson: chat ->:json;
 	json at: "candidates", first, at: "content", at: "parts", first at: "text"

@@ -1,5 +1,5 @@
 chat with ChatGPT
-$Id: mulk chatgpt.m 1397 2025-03-25 Tue 21:22:56 kt $
+$Id: mulk chatgpt.m 1407 2025-04-18 Fri 21:19:20 kt $
 #ja ChatGPTとチャットする
 
 *[man]
@@ -47,18 +47,18 @@ ChatGPTとチャットを行う。
 	self addDialogRole: "system" text: "You are a helpful assistant."
 **Cmd.chatgpt >> generateMain: arg
 	self addDialogRole: "user" text: arg;
-	HttpRequestFactory new create ->hr;
+	[HttpRequestFactory new create ->hr;
 	hr url: "https://api.openai.com/v1/chat/completions";
 	hr header: "Content-Type" value: "application/json";
 	hr header: "Authorization" 
 		value: "Bearer " + (Mulk at: #Cmd.chatgpt.apikey);
 	self runJson: chat ->:json;
-	json includesKey?: "error", 
-		ifTrue:
-			[JsonWriter new write: json to: Out;
-			"*error*"]
-		ifFalse:
-			[json at: "choices", first at: "message", at: "content"] 
-		->:result;
+	json at: "choices", first at: "message", at: "content" ->:result
+	] on: Error do:
+		[:e
+		self dialogs removeLast;
+		Out putLn: e message;
+		JsonWriter new write: json to: Out;
+		"*error"!];
 	self addDialogRole: "assistant" text: result;
 	result!	

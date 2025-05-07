@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1396 2025-03-23 Sun 08:21:41 kt $
+$Id: mulk base.m 1417 2025-04-28 Mon 21:44:09 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -7702,7 +7702,8 @@ Appends the next ordinary character or multibyte character to the end of a one-c
 				[:i
 				ch = (table at: i) ifTrue: [table at: i + 1!]];
 			ch = 'c' ifTrue:
-				[self skipChar upper ->ch, between: '@' and: '_',
+				[self skipChar ->ch, = '@' or: [ch lower?], 
+						or: [ch between: '[' and: '_'],
 					ifTrue: [ch code & 0x1f, asChar!]
 					ifFalse: [self error: "illegal ctrl char"]];
 			ch = 'x' ifTrue:
@@ -7720,9 +7721,10 @@ Skips the next ordinary character, multibyte character, and Mulk escape sequence
 	AheadReader new init: "\\a" ->:r;
 	self assert: r skipWideEscapeChar = '\a'
 *****[test.m] 2
-	AheadReader new init: "\\cA\\ca\\c!" ->:r;
+	AheadReader new init: "\\c@\\ca\\c[\\c!" ->:r;
+	self assert: r skipWideEscapeChar = '\c@';
 	self assert: r skipWideEscapeChar = '\ca';
-	self assert: r skipWideEscapeChar = '\ca';
+	self assert: r skipWideEscapeChar = '\c[';
 	self assertError: [r skipWideEscapeChar] message: "illegal ctrl char"
 *****[test.m] 3
 	AheadReader new init: "\\xff\\x!!" ->:r;

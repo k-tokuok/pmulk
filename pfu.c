@@ -1,6 +1,6 @@
 /*
 	path and files for unix.
-	$Id: mulk pfu.c 1091 2023-07-16 Sun 07:11:27 kt $
+	$Id: mulk pfu.c 1413 2025-04-26 Sat 18:55:59 kt $
 */
 
 #include "std.h"
@@ -12,8 +12,14 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "pf.h"
+
+int pf_lock(FILE *fp,int lock_p)
+{
+	return lockf(fileno(fp),lock_p?F_LOCK:F_ULOCK,1)==0;
+}
 
 static int group_member_p(gid_t gid)
 {

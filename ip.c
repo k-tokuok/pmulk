@@ -1,6 +1,6 @@
 /*
 	interpreter.
-	$Id: mulk ip.c 1327 2024-12-08 Sun 11:38:07 kt $
+	$Id: mulk ip.c 1413 2025-04-26 Sat 18:55:59 kt $
 */
 
 #include "std.h"
@@ -8,6 +8,7 @@
 #include "mem.h"
 
 #include "om.h"
+#include "os.h"
 #include "ip.h"
 #include "gc.h"
 #include "inst.h"
@@ -935,46 +936,6 @@ static void switch_process(object process)
 	cur_stack=process->process.stack;
 }
 
-/* interrupt */
-
-#if UNIX_P
-#include <signal.h>
-
-static void intr_handler(int signo)
-{
-	ip_trap_code=TRAP_INTERRUPT;
-}
-#endif
-
-#if WINDOWS_P
-#include <windows.h>
-
-static BOOL intr_handler(DWORD dwCtrlType)
-{
-	if(dwCtrlType==CTRL_C_EVENT) {
-		ip_trap_code=TRAP_INTERRUPT;
-		return TRUE;
-	}
-	return FALSE;
-}
-#endif
-
-static void intr_init(void)
-{
-#if UNIX_P
-	struct sigaction sa;
-	memset(&sa,0,sizeof(sa));
-	sa.sa_handler=intr_handler;
-	if(sigaction(SIGINT,&sa,NULL)==-1) xerror("sigaction failed.");
-#endif
-
-#if WINDOWS_P
-	if(SetConsoleCtrlHandler((PHANDLER_ROUTINE)intr_handler,TRUE)==0) {
-		xerror("SetConsoleCtrlHandler failed.");
-	}
-#endif
-}
-
 void ip_start(object arg,int fs_size)
 {
 	cache_init();
@@ -995,7 +956,7 @@ void ip_start(object arg,int fs_size)
 
 	perform(om_Mulk,om_boot,1,&arg,NULL);
 
-	intr_init();
+	os_intr_init();
 	
 	ip_main();
 

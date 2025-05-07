@@ -1,5 +1,5 @@
 codepage 932
-$Id: mulk cp932.m 1261 2024-06-17 Mon 21:10:05 kt $
+$Id: mulk cp932.m 1415 2025-04-27 Sun 07:29:30 kt $
 #ja
 
 *[man]
@@ -13,7 +13,7 @@ Windows CP932にコードページを切替える。
 起動イメージを構築する際に読み込むこと。
 
 *@
-	Mulk at: #Mulk.codepage put: 932;
+	Mulk.hostOS = #windows ifTrue: [Mulk at: #Mulk.codepage put: 932];
 	Mulk at: #Mulk.charset put: #sjis;
 	
 	0x40 to: 0x7e, do:

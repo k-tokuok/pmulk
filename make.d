@@ -1,6 +1,6 @@
 #
 #	c source dependency.
-#	$Id: mulk make.d 1327 2024-12-08 Sun 11:38:07 kt $
+#	$Id: mulk make.d 1414 2025-04-26 Sat 22:32:20 kt $
 #
 # following rules are generated automatically.
 # !ls ?*.c | cdep $(objsuf)
@@ -9,14 +9,13 @@ coord.$(objsuf): coord.c std.h config.h u64.h coord.h
 cqueue.$(objsuf): cqueue.c std.h config.h u64.h cqueue.h mem.h
 csplit.$(objsuf): csplit.c std.h config.h u64.h csplit.h
 dl.$(objsuf): dl.c std.h config.h u64.h mem.h om.h xarray.h prim.h xbarray.h
-dos.$(objsuf): dos.c std.h config.h u64.h om.h xarray.h ip.h term.h coord.h cqueue.h
 fbarray.$(objsuf): fbarray.c std.h config.h u64.h mem.h om.h xarray.h prim.h xbarray.h
 float.$(objsuf): float.c std.h config.h u64.h om.h xarray.h prim.h xbarray.h
 gc.$(objsuf): gc.c std.h config.h u64.h log.h om.h xarray.h ip.h gc.h omd.h
 heap.$(objsuf): heap.c std.h config.h u64.h heap.h
 ib.$(objsuf): ib.c std.h config.h u64.h splay.h heap.h xgetopt.h log.h mem.h xctype.h om.h xarray.h omd.h lex.h xbarray.h inst.h gc.h ip.h ibprim.wk
 ibprim.$(objsuf): ibprim.c std.h config.h u64.h om.h xarray.h ibprim.wk
-ip.$(objsuf): ip.c std.h config.h u64.h mem.h om.h xarray.h ip.h gc.h inst.h prim.h xbarray.h heap.h splay.h csplit.h
+ip.$(objsuf): ip.c std.h config.h u64.h mem.h om.h xarray.h os.h ip.h gc.h inst.h prim.h xbarray.h heap.h splay.h csplit.h
 iqueue.$(objsuf): iqueue.c std.h config.h u64.h iqueue.h
 ir.$(objsuf): ir.c std.h config.h u64.h mem.h heap.h pf.h xbarray.h om.h xarray.h ir.h
 lex.$(objsuf): lex.c std.h config.h u64.h mem.h lex.h xbarray.h
@@ -30,7 +29,11 @@ mulks.$(objsuf): mulks.c std.h config.h u64.h pf.h xbarray.h om.h xarray.h gc.h 
 oauthlr.$(objsuf): oauthlr.c std.h config.h u64.h
 om.$(objsuf): om.c std.h config.h u64.h mem.h heap.h om.h xarray.h
 omd.$(objsuf): omd.c std.h config.h u64.h log.h xbarray.h om.h xarray.h
-os.$(objsuf): os.c std.h config.h u64.h pf.h xbarray.h mem.h om.h xarray.h gc.h ip.h prim.h
+os.$(objsuf): os.c std.h config.h u64.h pf.h xbarray.h mem.h om.h xarray.h gc.h ip.h os.h prim.h
+osd.$(objsuf): osd.c std.h config.h u64.h om.h xarray.h os.h ip.h term.h coord.h cqueue.h
+oss.$(objsuf): oss.c std.h config.h u64.h os.h
+osu.$(objsuf): osu.c std.h config.h u64.h om.h xarray.h os.h ip.h
+osw.$(objsuf): osw.c std.h config.h u64.h om.h xarray.h os.h ip.h
 pfd.$(objsuf): pfd.c std.h config.h u64.h pf.h xbarray.h mem.h
 pfu.$(objsuf): pfu.c std.h config.h u64.h pf.h xbarray.h
 pfw.$(objsuf): pfw.c std.h config.h u64.h pf.h xbarray.h mem.h om.h xarray.h ip.h

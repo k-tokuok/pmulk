@@ -1,6 +1,6 @@
 /*
 	path and files.
-	$Id: mulk pf.h 1091 2023-07-16 Sun 07:11:27 kt $
+	$Id: mulk pf.h 1413 2025-04-26 Sat 18:55:59 kt $
 */
 
 #include "xbarray.h"
@@ -29,6 +29,7 @@ struct pf_stat {
 extern FILE *pf_open(char *fn,char *mode);
 #endif
 
+extern int pf_lock(FILE *fp,int lock_p);
 extern int pf_stat(char *fn,struct pf_stat *statbuf);
 extern void pf_exepath(char *argv0,struct xbarray *path);
 #if U64_P

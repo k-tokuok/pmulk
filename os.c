@@ -1,6 +1,6 @@
 /*
 	OS class. - libc/posix wrapper.
-	$Id: mulk os.c 1318 2024-12-01 Sun 14:28:50 kt $
+	$Id: mulk os.c 1413 2025-04-26 Sat 18:55:59 kt $
 */
 
 #include "std.h"
@@ -10,21 +10,13 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#if UNIX_P
-#include <unistd.h>
-#endif
-
-#if WINDOWS_P
-#include <windows.h>
-#include <io.h>
-#endif
-
 #include "pf.h"
 
 #include "mem.h"
 #include "om.h"
 #include "gc.h"
 #include "ip.h"
+#include "os.h"
 #include "prim.h"
 
 #if UNDERSCORE_PUTENV_P
@@ -224,24 +216,7 @@ DEFPRIM(os_lock)
 
 	lock_p=args[0]==om_true;
 	if(!p_uintptr_val(args[1],(uintptr_t*)&fp)) return PRIM_ERROR;
-
-#if WINDOWS_P
-	{
-		HANDLE h;
-		OVERLAPPED ov;
-		int st;
-		h=(HANDLE)_get_osfhandle(_fileno(fp));
-		memset(&ov,0,sizeof(ov));
-		if(lock_p) st=LockFileEx(h,LOCKFILE_EXCLUSIVE_LOCK,0,1,0,&ov);
-		else st=UnlockFileEx(h,0,1,0,&ov);
-		if(!st) return PRIM_ERROR;
-	}
-#endif
-
-#if UNIX_P
-	if(lockf(fileno(fp),lock_p?F_LOCK:F_ULOCK,1)==-1) return PRIM_ERROR;
-#endif
-
+	if(!pf_lock(fp,lock_p)) return PRIM_ERROR;
 	return PRIM_SUCCESS;
 }
 
@@ -367,21 +342,7 @@ DEFPRIM(os_mkdir)
 
 DEFPRIM(os_floattime)
 {
-	double t;
-#if UNIX_P
-	struct timespec ts;
-	clock_gettime(CLOCK_REALTIME,&ts);
-	t=ts.tv_sec+(double)ts.tv_nsec*1.0e-9;
-#endif
-
-#if WINDOWS_P
-	SYSTEMTIME st;
-	FILETIME ft;
-	GetSystemTime(&st);
-	SystemTimeToFileTime(&st,&ft);
-	t=(((uint64_t)ft.dwHighDateTime<<32)|ft.dwLowDateTime)/1.0e7-11644473600;
-#endif
-	*result=p_float(t);
+	*result=p_float(os_floattime());
 	return PRIM_SUCCESS;
 }
 
@@ -389,20 +350,6 @@ DEFPRIM(os_clock)
 {
 	*result=p_float((double)clock()/CLOCKS_PER_SEC);
 	return PRIM_SUCCESS;
-}
-
-static void xsleep(double t)
-{
-#if UNIX_P
-	struct timespec ts,rem;
-	ts.tv_sec=t;
-	ts.tv_nsec=(t-ts.tv_sec)*1000000000;
-	nanosleep(&ts,&rem);
-#endif
-
-#if WINDOWS_P
-	Sleep((int)(t*1000));
-#endif
 }
 
 DEFPRIM(os_sleep)
@@ -415,11 +362,11 @@ DEFPRIM(os_sleep)
 	while(t>POLLING) {
 		ip_intr_check();
 		if(ip_trap_code!=TRAP_NONE) return PRIM_ERROR;
-		xsleep(POLLING);
+		os_sleep(POLLING);
 		t-=POLLING;
 	}
 #endif
-	xsleep(t);
+	os_sleep(t);
 	return PRIM_SUCCESS;
 }
 

@@ -1,6 +1,6 @@
 #
 #	makefile for gnu toolchain.
-#	$Id: mulk makefile 1327 2024-12-08 Sun 11:38:07 kt $
+#	$Id: mulk makefile 1413 2025-04-26 Sat 18:55:59 kt $
 #
 #	make hostos={cygwin,linux,macosx,minix,freebsd,netbsd,illumos,windows}
 #		[dl=on|off] [term=on|off] [view=on|off|sdl] [xft=on|off] 
@@ -74,7 +74,7 @@ else
 toolprefix=x86_64-w64-mingw32-
 endif
 ppflags+=caseInsensitiveFileName
-xcobjs+=pfw.o
+xcobjs+=osw.o pfw.o
 exe=.exe
 termobjs+=termw.o
 termprims+=termw.c
@@ -85,7 +85,7 @@ endif
 
 ifneq ($(filter $(unixen),$(hostos)),)
 ppflags+=unix
-xcobjs+=pfu.o
+xcobjs+=osu.o pfu.o
 termobjs+=termu.o
 endif
 

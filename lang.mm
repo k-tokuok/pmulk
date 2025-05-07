@@ -1,5 +1,5 @@
 mulk language specification
-$Id: mulk lang.mm 1381 2025-02-27 Thu 21:57:34 kt $
+$Id: mulk lang.mm 1417 2025-04-28 Mon 21:44:09 kt $
 #ja Mulk言語仕様書
 
 *#en
@@ -241,8 +241,7 @@ They are declared in the method definition and block notation within the definit
 Local variables are other variables that are declared at the same time as assignment.
 
 Method variable names start with a lowercase letter.
-Method variables have a single scope regardless of the nesting of syntax elements.
-For this reason, you cannot define multiple method variables with the same name in one method.
+Method variables have scope from definition to the end of the method.
 Instance variable and name must not overlap.
 ****#ja メソッド変数
 メソッド変数はメソッドの内部でのみ有効な変数で、self、super、引数、ローカル変数がある。
@@ -256,8 +255,7 @@ superにメッセージを送ると、メソッドを定義したクラスのス
 ローカル変数はそれ以外の変数で、代入と同時に宣言する。
 
 メソッド変数名は英小文字で始める。
-メソッド変数は構文要素の入れ子とは無関係に単一のスコープを持つ。
-この為、一つのメソッド内に同名のメソッド変数を複数定義する事は出来ない。
+メソッド変数は定義からメソッド終端までのスコープを持つ。
 インスタンス変数と名前が重複してはならない。
 
 *Meta language
@@ -384,7 +382,7 @@ floatは倍精度浮動小数点数値で、Floatのインスタンスとなる�
 ****#en
 	char = '\'' (escapeSequence | [~']) '\''
 	hexDigit = digit | [a-f]
-	escapeSequence = '\\' ([~cx] | 'c' [@-_a-z] | 'x' hexDigit hexDigit)
+	escapeSequence = '\\' ([~cx] | 'c' [@a-z\[-_] | 'x' hexDigit hexDigit)
 
 <char> represents one character and can be a character represented by 1 byte (Char instance) or a multi-byte character (WideChar instance).
 
@@ -409,7 +407,7 @@ Control characters are indicated by specifying '\c' followed by an alphabet and 
 ****#ja char(文字)
 	char = '\'' (escapeSequence | [~']) '\''
 	hexDigit = digit | [a-f]
-	escapeSequence = '\\' ([~cx] | 'c' [@-_a-z] | 'x' hexDigit hexDigit)
+	escapeSequence = '\\' ([~cx] | 'c' [@a-z\[-_] | 'x' hexDigit hexDigit)
 
 charは一つの文字を表し、1バイトで表される文字(Charのインスタンス)か、マルチバイト文字(WideCharのインスタンス)となる。
 
@@ -559,7 +557,7 @@ primitiveが指定されているメソッドでは、まず指定のプリミ�
 <statement> is a sequence of <expressions> separated by ';'.
 
 Expressions are evaluated sequentially from the left.
-If the statement ends with '!' (return statement), the method ends with the value of the last expression as the return value of the method.
+If the statement ends with '! the method terminates with the value of the last expression as the return value of the method.
 Otherwise, self is the return value.
 ***#ja statement(文)
 	statement = expression (';' expression)* '!'?
@@ -567,7 +565,7 @@ Otherwise, self is the return value.
 statementは';'で区切られた式の列である。
 
 式は左から順に評価される。
-statementが'!'で終わる(return文)場合、最後の式の値をメソッドの返り値としてメソッドを終了する。
+statementが'!'で終わる場合、最後の式の値をメソッドの返り値としてメソッドを終了する。
 そうでない場合はselfが返り値となる。
 
 **expression
@@ -603,14 +601,14 @@ Descriptions with the same priority are evaluated from left to right.
 ***cascade
 ****#en
 	cascade = ',' cascadeMessage
-	cascadeMessage = unaryMessage+ binaryMessage+ keywordMessage?
-	(However, write at least one message)	
-	
+	cascade = ',' (unaryMessage+ binaryMessage* keywordMessage? 
+		| binaryMessage+ keywordMessage? | keywordMessage)
+
 Cascade continues to send messages for the value of the left-hand side of ','.
 You can send a high priority message to the result of a low priority expression without using parentheses.
 ****#ja cascade(カスケード)
-	cascade = ',' unaryMessage* binaryMessage* keywordMessage?
-	(ただし、少なくとも一つのメッセージを記述する事)
+	cascade = ',' (unaryMessage+ binaryMessage* keywordMessage? 
+		| binaryMessage+ keywordMessage? | keywordMessage)
 	
 カスケードは','の左辺式の値に対し続けてメッセージを送信する。
 括弧を用いずに低優先度の式の結果に高優先度のメッセージを送信する事が出来る。
@@ -658,16 +656,13 @@ literalにはグローバルオブジェクト参照、固定配列、正負の�
 	fixedArray = '#(' literal* ')'
 	
 <fixedArray> is an instance of FixedArray whose literal is an element in '()'.
+The contents of the array must not be manipulated at runtime.
 
-This array is generated at compile time.
-Note that if you change the contents of an array during program execution, the side effects of the change remain in the next reference.
 ****#ja fixedArray(固定配列)
 	fixedArray = '#(' literal* ')'
 	
 固定配列は'()'内のliteralを要素とするFixedArrayのインスタンスである。
-
-この配列はコンパイル時に生成される。
-プログラム実行中に配列の内容を変更した場合、変更の副作用が次の参照に残る事に注意。
+実行時に配列の内容を操作してはならない。
 
 ***fixedByteArray
 ****#en
@@ -675,18 +670,14 @@ fixedByteArray = '#[' integer* ']'
 
 <fixedByteArray> is an instance of FixedByteArray whose elements are the values in '[]'.
 The value must be in the range 0..255.
-
-This array is generated at compile time.
-Note that if the contents of the array are changed during program execution, the side effects of the change will remain in the next reference.
+The contents of the array must not be manipulated at runtime.
 
 ****#ja fixedByteArray(固定バイト配列)
 	fixedByteArray = '#[' integer* ']'
 
 固定バイト配列は'[]'内の値を要素とするFixedByteArrayのインスタンスである。
 数値は0..255の範囲でなくてはならない。
-
-この配列はコンパイル時に生成される。
-プログラム実行中に配列の内容を変更した場合、変更の副作用が次の参照に残る事に注意。
+実行時に配列の内容を操作してはならない。
 
 ***block
 ****#en

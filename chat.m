@@ -1,12 +1,13 @@
 AI chat common interface
-$Id: mulk chat.m 1400 2025-03-31 Mon 20:55:37 kt $
+$Id: mulk chat.m 1419 2025-05-06 Tue 20:26:00 kt $
 #ja AIチャット共通インターフェイス
 
 *[man]
 **#en
 .caption SYNOPSIS
 	COMMAND [options] [CHATFILE]
-	COMMAND.q CHATFILE -- display contents
+	COMMAND.show CHATFILE -- display contents
+	COMMAND.batch [CHATFILE] -- input prompts and output results
 	
 .caption DESCRIPTION
 Chat with the AI indicated by COMMAND.
@@ -17,17 +18,19 @@ Once activated, the chat will be performed using the input line as it is, and th
 	empty string -- enter text mode
 	EOF or "!" -- exit
 	!COMMAND -- execute COMMAND
+	@file [FILE] -- switch CHATFILE.
 	@save [FILE] -- save dialog contents to FILE (or CHATFILE if omitted)
 	@load [FILE] -- load dialog from FILE
 	@show -- show all dialog contents
 	@back -- cancel the last dialog
-	@retry --  change the last prompt in text mode and retry
+	@retry -- redo the last exchange
 	@adjust -- change the last response in text mode
-	@recall -- toggle last prompt recall mode
+	@again -- reenter the prompt you just entered
 
 In text mode, in conjunction with wb, any text between ">>" and "<<" (may include line breaks) can be used as input by typing ENTER at the end of a "<<" line.
 
-CHATFILE is the content to be sent to the endpoint, and is in the target AI's own format.
+The CHATFILE holds the content of the conversation, which can be specified to continue the dialogue.
+It is the content itself that is sent to the endpoint, and is the unique format of the target AI.
 
 .caption OPTION
 	i CHATFILE -- Initial CHATFILE
@@ -41,6 +44,7 @@ CHATFILE is the content to be sent to the endpoint, and is in the target AI's ow
 .caption 書式
 	COMMAND [オプション] [CHATFILE]
 	COMMAND.show CHATFILE -- 内容を表示
+	COMMAND.batch [CHATFILE] -- プロンプトを入力し、結果を出力する
 	
 .caption 説明
 COMMANDで示されたAIとチャットを行う。
@@ -51,17 +55,19 @@ COMMANDで示されたAIとチャットを行う。
 	空文字列 -- テキストモードでプロンプトを入力する
 	EOF又は"!" -- 終了する
 	!COMMAND -- COMMANDを実行する
+	@file [FILE] -- CHATFILEを切り替える。
 	@save [FILE] -- FILE(省略時はCHATFILE)に対話の内容を保存する
 	@load [FILE] -- FILEから対話の内容を読み込む
 	@show -- 全ての対話内容を出力する
 	@back -- 最後の対話を取り消す
-	@retry -- 最後のプロンプトをテキストモードで修正しやり直す
+	@retry -- 直前のやりとりをやり直す
 	@adjust -- 最後の応答の内容をテキストモードで修正する
-	@recall -- 最終プロンプト再入力モードのトグル
-	
+	@again -- 直前に入力したプロンプトを再入力する
+
 テキストモードではwbと連携し、"<<"行の行末でENTERを入力することで">>"と"<<"の間の任意のテキスト(改行を含んでも良い)を入力とすることが出来る。
 
-CHATFILEはendpointに送信する内容そのもので、対象AIの固有の形式となる。
+CHATFILEは会話の内容を保持し、これを指定することで対話を継続できる。
+endpointに送信する内容そのもので、対象AIの固有の形式となる。
 
 .caption オプション
 	i CHATFILE -- 初期CHATFILE
@@ -72,17 +78,17 @@ CHATFILEはendpointに送信する内容そのもので、対象AIの固有の�
 .summary gemini
 
 *import.@
-	Mulk import: #("optparse" "hrlib" "jsonrd" "jsonwr")
+	Mulk import: #("optparse" "hrlib" "jsonrd" "jsonwr" "prompt")
 	
 *Chat class.@
 	Object addSubclass: #Chat instanceVars: 
-		"hr chat chatFile cmdReader wb recall? verbose?"
+		"hr chat chatFile cmdReader wb verbose? lastPrompt quit?"
 	
 **Chat >> init
 	Mulk at: #Wb ifAbsent: [nil] ->wb;
 	wb notNil? ifTrue: [wb get ->wb];
-	false ->recall?;
-	false ->verbose?
+	false ->verbose?;
+	"" ->lastPrompt
 **Chat >> dialogs
 	self shouldBeImplemented
 **Chat >> dialogOf: jsonArg
@@ -92,6 +98,9 @@ CHATFILEはendpointに送信する内容そのもので、対象AIの固有の�
 
 **Chat >> createChat
 	self shouldBeImplemented
+**Chat >> generateMain: arg
+	self shouldBeImplemented
+	
 **Chat >> show: consArg
 	Out put: '<', put: consArg car, putLn: '>', putLn: consArg cdr
 **Chat >> showLastDialog
@@ -122,18 +131,19 @@ CHATFILEはendpointに送信する内容そのもので、対象AIの固有の�
 **Chat >> inputText: default
 	default notNil? ifTrue: [default trim + '\n' -> default];
 	wb inputText: default ->:result, nil? ifTrue: [nil!];
-	result trim!
-**Chat >> more: stringArg
-	[Out putLn: stringArg] pipe: "more"
-	
+	result trim ->result, empty? ifTrue: [nil!];
+	result!
+**Chat >> generate: promptArg
+	promptArg ->lastPrompt;
+	[Out putLn: (self generateMain: promptArg)] pipe: "more"
+		
 **commands.
 ***Chat >> justEnter
-	recall? and: [self dialogs ->:ds, size ->:sz, > 1], ifTrue:
-		[self dialogOf: (ds at: sz - 2), cdr ->:prompt];
-	self inputText: prompt ->prompt, notNil? ifTrue:
-		[self more: (self generateMain: prompt)]
+	self inputText: nil ->:prompt, notNil? ifTrue: [self generate: prompt]
 ***Chat >> getFileArg
 	cmdReader getTokenIfEnd: [chatFile!], asFile!
+***Chat >> cmd.file
+	cmdReader getTokenIfEnd: [Out putLn: chatFile!], asFile ->chatFile
 ***Chat >> cmd.save
 	self saveChat: self getFileArg
 ***Chat >> cmd.load
@@ -146,30 +156,32 @@ CHATFILEはendpointに送信する内容そのもので、対象AIの固有の�
 	ds removeLast removeLast;
 	self showLastDialog
 ***Chat >> cmd.retry
-	self dialogs ->:ds, size < 3 ifTrue: [self error: "no dialog"];
-	self show: (self dialogOf: (ds at: ds size - 3));
-	self dialogOf: (ds at: ds size - 2), cdr ->:prompt;
+	self dialogs ->:ds, size ->:sz, < 2 ifTrue: [self error: "no dialog"];
+	sz >= 3 ifTrue: [self show: (self dialogOf: (ds at: sz - 3))];
+	self dialogOf: (ds at: sz - 2), cdr ->:prompt;
 	self inputText: prompt ->prompt, notNil? ifTrue:
 		[ds removeLast removeLast;
-		self more: (self generateMain: prompt)]
+		self generate: prompt]
 ***Chat >> cmd.adjust
 	self dialogs ->:ds, size < 2 ifTrue: [self error: "no dialog"];
 	self dialogOf: ds last ->:cons;
 	self inputText: cons cdr ->:text, notNil? ifTrue:
 		[ds removeLast;
 		self addDialogRole: cons car text: text]
-***Chat >> cmd.recall
-	recall? not ->recall?;
-	Out putLn: "recall " + (recall? ifTrue: ["on"] ifFalse: ["off"])
-	
+***Chat >> cmd.again
+	self inputText: lastPrompt ->:p, notNil? ifTrue: [self generate: p]
+		
 **Chat >> processLn: arg
+	arg nil? or: [arg = "!"], ifTrue:
+		[chatFile notNil? 
+			or: [Prompt getBoolean: "not saved, sure?"] ->quit?!];
 	arg empty? ifTrue: [self justEnter!];
 	arg first = '!' ifTrue: [arg copyFrom: 1, runCmd!];
 	arg first = '@' ifTrue:
 		[AheadReader new init: arg ->cmdReader;
 		cmdReader skipChar;
 		self perform: ("cmd." + cmdReader getToken) asSymbol!];
-	self more: (self generateMain: arg)
+	self generate: arg
 **Chat >> main: args
 	OptionParser new init: "i:v" ->:op, parse: args ->args;
 	op at: 'i' ->:opt, notNil? ifTrue: [opt asFile ->:initialFile];
@@ -182,9 +194,17 @@ CHATFILEはendpointに送信する内容そのもので、対象AIの固有の�
 			[self loadChat: initialFile;
 			self showLastDialog]
 		ifFalse: [self createChat];
-	[Out put: "chat>"; In getLn ->:p, notNil? and: [p <> "!"]] whileTrue: 
-		[[self processLn: p] on: Error do: [:e Out putLn: e message]];
+	false ->quit?;
+	[quit?] whileFalse:
+		[Out put: "chat>";
+		[self processLn: In getLn] on: Error do: [:e Out putLn: e message]];
 	chatFile notNil? ifTrue: [self saveChat: chatFile]
 **Chat >> main.show: args
 	self loadChat: args first asFile;
 	self cmd.show
+**Chat >> main.batch: args
+	false ->verbose?;
+	args empty? 
+		ifTrue: [self createChat]
+		ifFalse: [self loadChat: args first asFile];
+	Out putLn: (self generateMain: ("cat" pipe contentBytes asString))

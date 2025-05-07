@@ -1,6 +1,6 @@
 #
 #	Makefile for Visual-C
-#	$Id: mulk vc.mak 1327 2024-12-08 Sun 11:38:07 kt $
+#	$Id: mulk vc.mak 1413 2025-04-26 Sat 18:55:59 kt $
 #
 #	nmake /fvc.mak [setup=setup.m]
 #
@@ -39,7 +39,7 @@ mulkprim.wk: $(mulkprimsrc)
 	find "DEFPR" <1.wk >$@
 
 xc.lib: std.obj heap.obj xbarray.obj xctype.obj splay.obj xgetopt.obj log.obj \
-	xarray.obj pfw.obj cqueue.obj iqueue.obj xwchar.obj coord.obj \
+	xarray.obj osw.obj pfw.obj cqueue.obj iqueue.obj xwchar.obj coord.obj \
 	csplit.obj termw.obj view.obj \
 	om.obj omd.obj gc.obj prim.obj ir.obj lex.obj \
 	ip.obj sint.obj lpint.obj os.obj float.obj fbarray.obj \
