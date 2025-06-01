@@ -1,5 +1,5 @@
 chat with Google Gemini
-$Id: mulk gemini.m 1407 2025-04-18 Fri 21:19:20 kt $
+$Id: mulk gemini.m 1428 2025-05-24 Sat 21:14:18 kt $
 #ja Google Geminiとチャットする
 
 *[man]
@@ -7,26 +7,26 @@ $Id: mulk gemini.m 1407 2025-04-18 Fri 21:19:20 kt $
 .caption SYNOPSIS
 Chat with Google Gemini.
 
-For actual operation, please refer to the manual topic chat.
+For actual operation, please refer to the manual topic aichat.
 It is necessary to register https://aistudio.google.com/apikey and API-KEY to Cmd.gemini.apikey in the system dictionary in advance.
 
 .caption SEE ALSO
-.summary chat
+.summary aichat
 
 **#ja
 .caption 説明
 Google Geminiとチャットを行う。
 
-実際の操作についてはマニュアルトピックchatを参照のこと。
+実際の操作についてはマニュアルトピックaichatを参照のこと。
 事前にhttps://aistudio.google.com/apikeyに登録し、API-KEYをシステム辞書のCmd.gemini.apikeyに登録しておく必要がある。
 
 .caption 関連項目
-.summary chat
+.summary aichat
 *import.@
-	Mulk import: "chat"
+	Mulk import: "aichat"
 	
 *driver.@
-	Chat addSubclass: #Cmd.gemini
+	AIChat addSubclass: #Cmd.gemini
 **Cmd.gemini >> dialogs
 	chat at: "contents"!
 **Cmd.gemini >> dialogOf: jsonArg
@@ -53,12 +53,9 @@ Google Geminiとチャットを行う。
 	hr header: "Content-Type" value: "application/json";
 	self runJson: chat ->:json;
 	json at: "candidates", first, at: "content", at: "parts", first at: "text"
-		->:result
 	] on: Error do:
 		[:e
-		self dialogs removeLast;
-		Out putLn: e message;
 		JsonWriter new write: json to: Out;
-		"*error"!];
+		e message] ->:result;
 	self addDialogRole: "model" text: result;
 	result!

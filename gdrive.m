@@ -1,5 +1,5 @@
 Google Drive
-$Id: mulk gdrive.m 1289 2024-10-06 Sun 20:37:22 kt $
+$Id: mulk gdrive.m 1427 2025-05-23 Fri 22:48:03 kt $
 #ja Googleドライブ
 
 *[man]
@@ -335,7 +335,6 @@ Googleドライブをマウントする。
 		ifFalse: [0] ->mtime;
 	jsonArg at: "id" ->id
 **GDrive.File >> id
-	--if id = nil?
 	id!
 	
 **File compatible.
@@ -350,6 +349,7 @@ Googleドライブをマウントする。
 		ifTrue: [1 ->mode]
 		ifFalse: [self json: jsons first]
 ***GDrive.File >> basicRemove
+	id nil? ifTrue: [self stat];
 	GDrive delete: id
 ***GDrive.File >> basicMkdir
 	--Out putLn: "basicMkdir " + self + " parent id = " + parent id;

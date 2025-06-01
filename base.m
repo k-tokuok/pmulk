@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1417 2025-04-28 Mon 21:44:09 kt $
+$Id: mulk base.m 1423 2025-05-16 Fri 15:17:51 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -4772,8 +4772,9 @@ Returns an instance of File whose path name is a string.
 文字列をパス名とするFileのインスタンスを返す。
 
 ****String >> asSystemFileIfNotExist: blockArg
-	Mulk.extraSystemDirectory ->:ext, notNil? ifTrue:
-		[ext + self ->:file, readableFile? ifTrue: [file!]];
+	Mulk.extraSystemDirectories do:
+		[:d
+		d + self ->:file, readableFile? ifTrue: [file!]];
 	Mulk.systemDirectory + self ->file, readableFile? ifTrue: [file!];
 	blockArg value!
 ****String >> asSystemFile
@@ -6812,7 +6813,8 @@ Returns true if the receiver is a root directory.
 	self assert: file + ".." = dir
 
 ****File >> system?
-	parent = Mulk.extraSystemDirectory | (parent = Mulk.systemDirectory)!
+	Mulk.extraSystemDirectories anySatisfy?: [:d parent = d], ifTrue: [true!];
+	parent = Mulk.systemDirectory!
 *****[man.m]
 ******#en
 Returns true if the receiver is a system file.
@@ -8945,7 +8947,7 @@ Skip '*' in the outline line from the beginning of the block.
 	
 	singleton GlobalVar Mulk.defaultMainClass;
 	singleton GlobalVar Mulk.systemDirectory;
-	singleton GlobalVar Mulk.extraSystemDirectory;
+	singleton GlobalVar Mulk.extraSystemDirectories;
 	singleton GlobalVar Mulk.workDirectory;
 	singleton GlobalVar Mulk.lang;
 	
@@ -8974,7 +8976,7 @@ The following global objects hold configuration information.
 
 	Mulk.defaultMainClass -- Class name symbol for objects that are executed at startup. The object must have a main: method.
 	Mulk.systemDirectory -- System directory. Holds system files.
-	Mulk.extraSystemDirectory -- Additional system directory. It is searched before systemDirectory.
+	Mulk.extraSystemDirectories -- additional system directory listings, searched prior to systemDirectory.
 	Mulk.workDirectory -- Work directory. Hold work files.
 	Mulk.lang -- Language settings. "en" or "ja".
 
@@ -9001,7 +9003,7 @@ Mulkはグローバルオブジェクト全てを保持する連想配列で、M
 
 	Mulk.defaultMainClass -- 起動時に実行されるオブジェクトのクラス名シンボル。オブジェクトはmain:メソッドを持つ必要がある。
 	Mulk.systemDirectory -- システムディレクトリ。システムファイルを保持する。
-	Mulk.extraSystemDirectory -- 追加のシステムディレクトリ。systemDirectoryに先行して検索される。
+	Mulk.extraSystemDirectories -- 追加のシステムディレクトリリスト。systemDirectoryに先行して検索される。
 	Mulk.workDirectory -- ワークディレクトリ。ワークファイルを保持する。
 	Mulk.lang -- 言語設定。"en"か"ja"。
 
@@ -9160,7 +9162,8 @@ Quit the system.
 	args at: 1, do: [:symbol SymbolTable add: symbol];
 
 	self initFiles;
-
+	Array new ->Mulk.extraSystemDirectories;
+	
 	MethodCompiler.primitiveTable init;
 	0 ->:no;
 	"mulkprim.wk" asFile openRead ->:reader;
@@ -9243,6 +9246,7 @@ Quit the system.
 	
 	Mulk.systemDirectory nil?
 		ifTrue: [Kernel imageFn asFile parent ->Mulk.systemDirectory];
+	Array new ->Mulk.extraSystemDirectories;
 	Mulk.workDirectory nil?
 		ifTrue: [Mulk.systemDirectory ->Mulk.workDirectory];
 .end

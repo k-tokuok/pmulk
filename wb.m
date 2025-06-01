@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1406 2025-04-17 Thu 21:42:17 kt $
+$Id: mulk wb.m 1432 2025-06-01 Sun 10:59:42 kt $
 #ja テキストエディタ
 
 *[man]
@@ -326,22 +326,22 @@ Each time ^v is entered, the cursor position on the screen is switched to the be
 ****#en
 You can split the screen and reference multiple locations in the buffer at the same time.
 	^s -- Split the screen where the cursor is.
-	^t -- Cancel split.
+	^x + ^s -- Cancel split.
 	^o -- Move the cursor to the next screen.
 	^x + ^o -- move the cursor to the previous screen.
 ****#ja 分割
 画面を分割してバッファ中の複数箇所を同時に参照出来る。
 	^s -- カーソルのある画面を分割する。
-	^t -- 分割を解除する。
+	^x + ^s -- 分割を解除する。
 	^o -- 次画面へカーソルを移動する。
 	^x + ^o -- 前画面にカーソルを移動する。
 
-**Completion (^@)
+**Completion (^t)
 ***#en
 Completing the contents in the middle of input from the contents before and after the cursor.
 
 The next candidate will be displayed if you continue to complement.
-***#ja 補完 (^@)
+***#ja 補完 (^t)
 カーソルの前後の内容から入力途中の内容を補完する。
 
 続けて補完を行うと次の候補が表示される。
@@ -551,6 +551,10 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 **Mulk.newline = #crlf >
 ***@
 	Wb.BytesStream features: #(NewlineCrlfStream)
+**Wb.BytesStream >> removeLastNewline
+	pos <> 0 and: [buf at: pos - 1, = '\n' code], ifTrue:
+		[pos - (Mulk.newline = #crlf ifTrue: [2] ifFalse: [1]) ->pos;
+		pos ->size]
 	
 *Wb.Buffer class.@
 	Object addSubclass: #Wb.Buffer instanceVars:
@@ -1448,7 +1452,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 ****Wb.class >> prevScreenCommand -- ^x^o
 	self focusLeapAndFinish; 
 	self otherScreen: -1
-****Wb.class >> closeScreenCommand
+****Wb.class >> closeScreenCommand -- ^x^s
+	self focusLeapAndFinish;
 	rootLayout screen notNil? ifTrue: [self message: "can not close root"!];
 	true ->drawSplitter?;
 	currentTag ->lastScreenTag;
@@ -1803,9 +1808,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	leap pattern: pat;
 	self leap: leap disp: d
 *****Wb.class >> leapProcessChar: ch
-	leapKeyCodeDict at: ch ifAbsent: [ch print? ifTrue: [#char] ifFalse: [nil]]
-		->:code, nil? ifTrue: [false!];
-	code = #char
+	leapKeyCodeDict at: ch ifAbsent: [ch print? ifFalse: [false!]; #char]
+			->:code, = #char
 		ifTrue: [self leapAddPattern: ch]
 		ifFalse: [self perform: code];
 	true!
@@ -2196,8 +2200,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 			] on: Error do:
 				[:e Out put: ' ', put: e message]
 		] to: wr;
-	wr seek: 0, contentBytes ->:bytes, size <> 0 
-		ifTrue: [self at: endPos insert: bytes]
+	wr tell <> 0 ifTrue: [self at: endPos insert: (wr seek: 0, contentBytes)]
 ***Wb.class >> execCmd
 	buffer stringFrom: startPos until: endPos ->:str;
 	str includes?: '\n', ifTrue: [self error: "require single line"];
@@ -2206,11 +2209,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	Wb.DummyConsole new init: self ->Console;
 	[str copyFrom: 1, pipeTo: (Wb.BytesStream new ->:rd)] finally:
 		[savedConsole ->Console];
-	rd seek: 0, contentBytes ->:bytes;
-	bytes size ->:sz, <> 0 and: [bytes at: sz - 1, = '\n' code], ifTrue:
-		[sz - (Mulk.newline = #crlf ifTrue: [2] ifFalse: [1]) ->sz;
-		bytes copyUntil: sz ->bytes];
-	self at: cursor insert: bytes
+	rd removeLastNewline;
+	self at: cursor insert: (rd seek: 0, contentBytes)
 ***Wb.class >> errorInsertPos: ex
 	ex memberOf?: MethodCompiler.Error, ifFalse: [startPos!];
 	ex file notNil? ifTrue: [startPos!];
@@ -2305,8 +2305,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	-- intitialize statics.
 	Dictionary new ->keyCodeDict;
 	Dictionary new ->leapKeyCodeDict;
-	#(	'\c@'	#abbrevCommand			nil
-		'\ca'	#leapAgainCommand		#leapAgainCommand
+	#(	'\ca'	#leapAgainCommand		#leapAgainCommand
 		'\cb'	#leapBackwardCommand	#leapBackwardCommand
 		--'\cc'	interrupt				
 		'\cd'	#docCommand				nil
@@ -2315,9 +2314,9 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		'\cg'	nil						#leapFinishCommand
 		'\ch'	#backspaceCommand		nil
 		'\ci'	#char					#char --tab
-		'\n'	#enterCommand			#char --lf/jim hiragana
-		--'\ck'	jim katakana
-		--'\cl' jim latin
+		'\n'	#enterCommand			#char --lf/im hiragana
+		--'\ck'	im katakana
+		--'\cl' im latin
 		--'\cm' enter convert to ^j
 		'\cn'	#nextCharCommand		#nextCharCommand
 		'\co'	#nextScreenCommand		nil
@@ -2325,7 +2324,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		'\cq'	#prevLineCommand		#prevLineCommand
 		'\cr'	#redoCommand			#leapRedoCommand
 		'\cs'	#splitScreenCommand		nil
-		'\ct'	#closeScreenCommand		nil
+		'\ct'	#abbrevCommand			nil
 		'\cu'	#undoCommand			#leapUndoCommand
 		'\cv'	#redrawCommand			#char --leap veto
 		'\cw'	#wedgeCommand			#leapWedgeCommand
@@ -2353,6 +2352,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		'\cf'	#leapStringCommand
 		'\cg'	#gotoLineCommand
 		'\co'	#prevScreenCommand
+		'\cs'	#closeScreenCommand
 		) ->ar;
 	0 until: ar size by: 2, do:
 		[:i2

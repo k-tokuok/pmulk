@@ -1,5 +1,5 @@
-;Mulk package std+skk (1420)
-;2025-05-07 Wed 21:28:45
+;Mulk package std+skk (1432)
+;2025-06-01 Sun 11:00:31
 osw.c,1413,vm
 k-us.d,1182,lib
 bg.m,1329,tool
@@ -22,6 +22,7 @@ onquit.m,1356,tool
 touch.m,475,tool
 prim.h,1299,vm
 ar.m,1055,tool
+wbai.m,1431,tool
 oauthlr.c,868,vm
 view.c,1347,vm
 inst.h,1246,vm
@@ -45,12 +46,12 @@ grep.m,1125,tool
 os.c,1413,vm
 diffdir.m,932,tool
 coord.h,644,vm
-gsync.m,1197,tool
+gsync.m,1427,tool
 os.h,1413,vm
 coord.m,1347,lib
 xorshift.m,418,lib
 jsonrd.m,1397,lib
-skkut.m,1402,skk
+skkut.m,1431,skk
 os.m,1339,tool
 cliplib.m,956,lib
 config.h,1318,vm
@@ -107,7 +108,7 @@ xarray.h,406,vm
 mem.h,406,vm
 uniq.m,1148,tool
 term.c,850,vm
-wb.m,1406,tool
+wb.m,1432,tool
 wcarray.m,406,lib
 term.h,636,vm
 tr.m,1129,tool
@@ -134,8 +135,8 @@ omd.h,406,vm
 ir.h,406,vm
 crlf.m,1193,lib
 ctrlib.m,1289,lib
-skkchunk.d,1420,skk
-gemini.m,1407,tool
+skkchunk.d,1431,skk
+gemini.m,1428,tool
 tempfile.m,1394,lib
 xbarray.c,406,vm
 viewx.c,1347,vm
@@ -156,13 +157,12 @@ du.m,1259,tool
 csv.m,1266,tool
 icmd.m,1216,tool
 cmp.m,1145,tool
-base.m,1417,lib
+base.m,1423,lib
 xctype.c,1193,vm
 xctype.h,1191,vm
 numlnwr.m,1145,lib
 delang.m,1369,tool
 cut.m,932,tool
-chat.m,1419,tool
 urlenc.m,1104,lib
 fbdata.m,1339,lib
 zip.m,1399,tool
@@ -177,7 +177,7 @@ dl.m,1339,lib
 multicol.m,932,tool
 csplit.c,859,vm
 diff.m,1163,tool
-gdrive.m,1289,tool
+gdrive.m,1427,tool
 csplit.h,859,vm
 console.m,1346,lib
 osu.c,1413,vm
@@ -203,7 +203,7 @@ base64.m,932,tool
 lex.c,1330,vm
 ld.m,406,tool
 pf.h,1413,vm
-chatgpt.m,1407,tool
+chatgpt.m,1428,tool
 lex.h,1330,vm
 git.m,1339,tool
 terms.c,636,vm
@@ -211,6 +211,7 @@ dup.m,1148,tool
 mv.m,1056,tool
 tee.m,417,tool
 sconsole.m,1353,lib
+aichat.m,1428,tool
 azik.mm,953,skk
 backup.m,1259,tool
 oldchars.m,1141,ja,lib
@@ -234,7 +235,7 @@ trz.m,1141,tool,ja
 hidecnsl.m,1318,tool
 cp932.m,1415,lib
 tail.m,932,tool
-package.d,1420,tool
+package.d,1432,tool
 clean.m,907,tool
 lpint.c,622,vm
 unittest.m,1346,tool

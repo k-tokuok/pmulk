@@ -1,5 +1,5 @@
 chat with ChatGPT
-$Id: mulk chatgpt.m 1407 2025-04-18 Fri 21:19:20 kt $
+$Id: mulk chatgpt.m 1428 2025-05-24 Sat 21:14:18 kt $
 #ja ChatGPTとチャットする
 
 *[man]
@@ -7,27 +7,27 @@ $Id: mulk chatgpt.m 1407 2025-04-18 Fri 21:19:20 kt $
 .caption SYNOPSIS
 Chat with ChatGPT.
 
-For actual operation, please refer to the manual topic chat.
+For actual operation, please refer to the manual topic aichat.
 It is necessary to register https://platform.openai.com/ and API-KEY to Cmd.chatgpt.apikey in the system dictionary in advance.
 
 .caption SEE ALSO
-.summary chat
+.summary aichat
 
 **#ja
 .caption 説明
 ChatGPTとチャットを行う。
 
-実際の操作についてはマニュアルトピックchatを参照のこと。
+実際の操作についてはマニュアルトピックaichatを参照のこと。
 事前にhttps://platform.openai.com/に登録し、API-KEYをシステム辞書のCmd.chatgpt.apikeyに登録しておく必要がある。
 
 .caption 関連項目
-.summary chat
+.summary aichat
 
 *import.@
-	Mulk import: "chat"
+	Mulk import: "aichat"
 	
 *driver.@
-	Chat addSubclass: #Cmd.chatgpt
+	AIChat addSubclass: #Cmd.chatgpt
 **Cmd.chatgpt >> dialogs
 	chat at: "messages"!
 **Cmd.chatgpt >> dialogOf: jsonArg
@@ -53,12 +53,10 @@ ChatGPTとチャットを行う。
 	hr header: "Authorization" 
 		value: "Bearer " + (Mulk at: #Cmd.chatgpt.apikey);
 	self runJson: chat ->:json;
-	json at: "choices", first at: "message", at: "content" ->:result
+	json at: "choices", first at: "message", at: "content"
 	] on: Error do:
 		[:e
-		self dialogs removeLast;
-		Out putLn: e message;
 		JsonWriter new write: json to: Out;
-		"*error"!];
+		e message] ->:result;
 	self addDialogRole: "assistant" text: result;
 	result!	

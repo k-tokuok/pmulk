@@ -1,5 +1,5 @@
 AI chat common interface
-$Id: mulk chat.m 1419 2025-05-06 Tue 20:26:00 kt $
+$Id: mulk aichat.m 1428 2025-05-24 Sat 21:14:18 kt $
 #ja AIチャット共通インターフェイス
 
 *[man]
@@ -34,7 +34,8 @@ It is the content itself that is sent to the endpoint, and is the unique format 
 
 .caption OPTION
 	i CHATFILE -- Initial CHATFILE
-    v -- Display processings verbosely.
+    v -- Display processings verbosely
+    a -- Save the CHATFILE for each interaction
 	
 .caption SEE ALSO
 .summary chatgpt
@@ -72,7 +73,7 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 .caption オプション
 	i CHATFILE -- 初期CHATFILE
 	v -- 処理を詳細に表示する
-	
+	a -- 対話の都度、CHATFILEを保存する	
 .caption 関連項目
 .summary chatgpt
 .summary gemini
@@ -80,38 +81,39 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 *import.@
 	Mulk import: #("optparse" "hrlib" "jsonrd" "jsonwr" "prompt")
 	
-*Chat class.@
-	Object addSubclass: #Chat instanceVars: 
-		"hr chat chatFile cmdReader wb verbose? lastPrompt quit?"
+*AIChat class.@
+	Object addSubclass: #AIChat instanceVars: 
+		"hr chat chatFile cmdReader wb verbose? lastPrompt quit? autosave?"
 	
-**Chat >> init
+**AIChat >> init
 	Mulk at: #Wb ifAbsent: [nil] ->wb;
 	wb notNil? ifTrue: [wb get ->wb];
 	false ->verbose?;
+	false ->autosave?;
 	"" ->lastPrompt
-**Chat >> dialogs
+**AIChat >> dialogs
 	self shouldBeImplemented
-**Chat >> dialogOf: jsonArg
+**AIChat >> dialogOf: jsonArg
 	self shouldBeImplemented
-**Chat >> addDialogRole: roleArg text: textArg
+**AIChat >> addDialogRole: roleArg text: textArg
 	self shouldBeImplemented
 
-**Chat >> createChat
+**AIChat >> createChat
 	self shouldBeImplemented
-**Chat >> generateMain: arg
+**AIChat >> generateMain: arg
 	self shouldBeImplemented
 	
-**Chat >> show: consArg
+**AIChat >> show: consArg
 	Out put: '<', put: consArg car, putLn: '>', putLn: consArg cdr
-**Chat >> showLastDialog
+**AIChat >> showLastDialog
 	self dialogs ->:ds, size ->:sz;
 	sz - 2 max: 0, until: sz, do: [:i self show: (self dialogOf: (ds at: i))]
-**Chat >> loadChat: fileArg
+**AIChat >> loadChat: fileArg
 	fileArg readDo: [:s JsonReader new read: s ->chat]
-**Chat >> saveChat: fileArg
+**AIChat >> saveChat: fileArg
 	fileArg writeDo: [:s JsonWriter new write: chat to: s]
 
-**Chat >> runJson: dataArg
+**AIChat >> runJson: dataArg
 	hr openData;
 	Mulk.charset = #sjis 
 		ifTrue:
@@ -128,50 +130,50 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 	verbose? ifTrue: [JsonWriter new write: result to: Out];
 	result!
 	
-**Chat >> inputText: default
+**AIChat >> inputText: default
 	default notNil? ifTrue: [default trim + '\n' -> default];
 	wb inputText: default ->:result, nil? ifTrue: [nil!];
 	result trim ->result, empty? ifTrue: [nil!];
 	result!
-**Chat >> generate: promptArg
+**AIChat >> generate: promptArg
 	promptArg ->lastPrompt;
-	[Out putLn: (self generateMain: promptArg)] pipe: "more"
+	[Out putLn: (self generateMain: promptArg)] pipe: "more";
+	chatFile notNil? & autosave? ifTrue: [self saveChat: chatFile]
 		
 **commands.
-***Chat >> justEnter
+***AIChat >> justEnter
 	self inputText: nil ->:prompt, notNil? ifTrue: [self generate: prompt]
-***Chat >> getFileArg
+***AIChat >> getFileArg
 	cmdReader getTokenIfEnd: [chatFile!], asFile!
-***Chat >> cmd.file
+***AIChat >> cmd.file
 	cmdReader getTokenIfEnd: [Out putLn: chatFile!], asFile ->chatFile
-***Chat >> cmd.save
+***AIChat >> cmd.save
 	self saveChat: self getFileArg
-***Chat >> cmd.load
+***AIChat >> cmd.load
 	self loadChat: self getFileArg;
 	self showLastDialog
-***Chat >> cmd.show
+***AIChat >> cmd.show
 	self dialogs do: [:d self show: (self dialogOf: d)]
-***Chat >> cmd.back
+***AIChat >> cmd.back
 	self dialogs ->:ds, size < 2 ifTrue: [self error: "no dialog"];
 	ds removeLast removeLast;
 	self showLastDialog
-***Chat >> cmd.retry
+***AIChat >> cmd.retry
 	self dialogs ->:ds, size ->:sz, < 2 ifTrue: [self error: "no dialog"];
-	sz >= 3 ifTrue: [self show: (self dialogOf: (ds at: sz - 3))];
 	self dialogOf: (ds at: sz - 2), cdr ->:prompt;
 	self inputText: prompt ->prompt, notNil? ifTrue:
 		[ds removeLast removeLast;
 		self generate: prompt]
-***Chat >> cmd.adjust
+***AIChat >> cmd.adjust
 	self dialogs ->:ds, size < 2 ifTrue: [self error: "no dialog"];
 	self dialogOf: ds last ->:cons;
 	self inputText: cons cdr ->:text, notNil? ifTrue:
 		[ds removeLast;
 		self addDialogRole: cons car text: text]
-***Chat >> cmd.again
+***AIChat >> cmd.again
 	self inputText: lastPrompt ->:p, notNil? ifTrue: [self generate: p]
 		
-**Chat >> processLn: arg
+**AIChat >> processLn: arg
 	arg nil? or: [arg = "!"], ifTrue:
 		[chatFile notNil? 
 			or: [Prompt getBoolean: "not saved, sure?"] ->quit?!];
@@ -182,10 +184,11 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 		cmdReader skipChar;
 		self perform: ("cmd." + cmdReader getToken) asSymbol!];
 	self generate: arg
-**Chat >> main: args
-	OptionParser new init: "i:v" ->:op, parse: args ->args;
+**AIChat >> main: args
+	OptionParser new init: "i:va" ->:op, parse: args ->args;
 	op at: 'i' ->:opt, notNil? ifTrue: [opt asFile ->:initialFile];
 	op at: 'v', ifTrue: [true ->verbose?];
+	op at: 'a' ->autosave?;
 	args empty? ifFalse:
 		[args first asFile ->chatFile;
 		chatFile readableFile? ifTrue: [chatFile ->initialFile]];
@@ -197,12 +200,13 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 	false ->quit?;
 	[quit?] whileFalse:
 		[Out put: "chat>";
-		[self processLn: In getLn] on: Error do: [:e Out putLn: e message]];
+		In getLn ->:ln;
+		[self processLn: ln] on: Error do: [:e Out putLn: e message]];
 	chatFile notNil? ifTrue: [self saveChat: chatFile]
-**Chat >> main.show: args
+**AIChat >> main.show: args
 	self loadChat: args first asFile;
 	self cmd.show
-**Chat >> main.batch: args
+**AIChat >> main.batch: args
 	false ->verbose?;
 	args empty? 
 		ifTrue: [self createChat]

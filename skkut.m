@@ -1,5 +1,5 @@
 skkユーティリティ
-$Id: mulk skkut.m 1402 2025-04-03 Thu 20:17:23 kt $
+$Id: mulk skkut.m 1431 2025-05-31 Sat 21:36:34 kt $
 
 *[man]
 .caption 書式
@@ -190,11 +190,14 @@ DICTが存在しない場合頻度情報のみから辞書を生成する。
 		
 **Cmd.skkut >> main.checkfreq: args
 	self setupInvalidChars;
+	#("市ヶ谷") ->:oklist;
 	self csvs: In, do: 
 		[:ar
-		WideCharArray new addString: (ar at: 1),
-			allSatisfy?: [:ch invalidCharSet includes?: ch, not], 
-			ifFalse: [Out putLn: "illegal henkan " + (ar at: 1)]]
+		ar at: 1 ->:s;
+		WideCharArray new addString: s,
+				anySatisfy?: [:ch invalidCharSet includes?: ch],
+			and: [oklist includes?: s, not],
+			ifTrue: [Out putLn: "illegal henkan " + s]]
 
 **merge.
 ***Cmd.skkut >> henkanAt: keyArg
