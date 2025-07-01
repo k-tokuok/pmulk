@@ -1,10 +1,10 @@
 #.gitignore
 #$Id: mulk .gitignore 1382 2025-03-01 Sat 21:56:24 kt $
+/mulk/ib
+/mulk/mtoib
+/mulk/mulk
+/mulk/pp
 *.exe
-/ib
-/mtoib
-/mulk
-/pp
 *.bak
 *.o
 *.a
@@ -22,9 +22,5 @@
 *.stackdump
 *.run
 *.log
-/android/Mulk/app/release
-/android/mulka0
-/android/Mulk/app/src/main/assets/
-/msite/_sync
-/pascal/*.p4
+*.prv
 .gitattributes
