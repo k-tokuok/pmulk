@@ -1,5 +1,5 @@
 ;skk chunk dict
-;$Id:$
+;$Id: mulk skkchunk.d 1447 2025-07-01 Tue 10:09:21 kt $
 あ,亜,阿,唖,娃
 あ;,合,会,遭,有
 あb,浴
