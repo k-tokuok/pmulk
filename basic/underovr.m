@@ -1,0 +1,75 @@
+under or over dice game
+$Id: mulk/basic underovr.m 1442 2025-06-12 Thu 10:05:28 kt $
+
+*[man]
+.caption SYNOPSIS
+	underovr
+.caption DESCRIPTION
+This is a funny little dice game in which you're betting on the outcome of rolling two dice.
+You may bet on any number from two to twelve.
+If your number is exactly the same as shown on the sum of the dice, you win at four to one odds.
+If your number is under seven and the roll of the dice is under seven, you win even money.
+If your number is over seven, you also win even money.
+Only a bet on seven itself can win at four to one.
+The program goes on until you run out of money or until you interrupt it.
+.caption ORIGIN
+More basic computer games.
+.
+source from https://www.roug.org/
+.caption AUTHOR
+Unknown.
+
+*entry.@
+	Mulk import: "basic";
+	Object addSubclass: #Cmd.underovr
+**Cmd.underovr >> main: args
+	Basic new run: #Cmd.underovr.source
+	
+*->Cmd.underovr.source
+100 PRINT TAB(22);"UNDER OR OVER"
+110 PRINT TAB(20);"CREATIVE COMPUTING"
+120 PRINT TAB(18);"MORRISTOWN, NEW JERSEY"
+130 PRINT:PRINT:PRINT
+140 PRINT"THIS IS A GAME OF UNDER AND OVER. IF YOU PICK"
+150 PRINT"UNDER OR OVER SEVEN, YOU WILL WIN EVEN MONEY."
+160 PRINT"IF YOU PICK EVEN YOU WILL WIN MONEY AT FOUR TO ONE"
+170 PRINT"ODDS. YOU HAVE $100 TO START WITH. GOOD LUCK!":PRINT:PRINT
+180 A=100
+190 RESTORE
+200 REM
+210 READ A$,B$,C$
+220 DATA "UNDER","OVER","EVEN"
+230 PRINT"WHAT NUMBER DO YOU WISH TO PLAY AND HOW MUCH"
+240 PRINT"DO YOU WANT TO BET ON THE NUMBER";:INPUT B,C
+250 PRINT:PRINT"THE DICE HAVE NOW BEEN THROWN. THE RESULTS"
+260 PRINT"ARE AS FOLLOWS:"
+270 Q=INT(6*RND(1)+1):R=INT(6*RND(1)+1)
+280 PRINT " DIE #1","DIE #2","SUM","YOUR#","TOSS"
+290 IF Q+R>7 THEN 310
+295 IF Q+R=7 THEN 320
+300 PRINT Q,R,Q+R,B,A$:PRINT
+303 IF B=Q+R THEN 350
+305 IF B<7 THEN 380
+307 GOTO 410
+310 PRINT Q,R,Q+R,B,B$:PRINT
+313 IF B=Q+R THEN 350
+315 IF B>7 THEN 380
+317 GOTO 410
+320 PRINT Q,R,Q+R,B,C$:PRINT
+330 IF B=Q+R THEN 350
+340 GOTO 420
+350 A=A+(4*C)
+360 PRINT TAB(20)"********YOU WIN 4 TO 1********"
+370 PRINT"THE AMOUNT YOU NOW HAVE IS" A :PRINT:GOTO 440
+380 A=A+C
+390 PRINT TAB(20)"********YOU WIN EVEN MONEY********"
+400 PRINT"THE AMOUNT YOU NOW HAVE IS" A :PRINT:GOTO 440
+410 A=A-C
+420 PRINT TAB(20)"!!!!!YOU LOSE!!!!!"
+430 PRINT"THE AMOUNT YOU NOW HAVE IS" A :PRINT
+440 IF A>0 THEN 190
+450 PRINT"THE GAME IS OVER AND YOU ARE FLAT BROKE. SORRY CHARLIE"
+460 PRINT"THIS PROVES THAT IT IS NOT GOOD TO GAMBLE"
+470 PRINT"DO YOU WANT TO PLAY AGAIN";:INPUT W$
+480 IF LEFT$(W$,1)="Y" THEN 180
+490 END

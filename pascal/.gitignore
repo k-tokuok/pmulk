@@ -1,0 +1,4 @@
+#pascal/.gitignore
+#$Id: mulk/pascal .gitignore 1442 2025-06-12 Thu 10:05:28 kt $
+*.p4
+!pcom.p4

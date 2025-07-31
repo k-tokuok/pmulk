@@ -1,0 +1,96 @@
+実装メモ
+$Id: mulk/pascal note.txt 1457 2025-07-31 Thu 09:17:22 kt $
+
+mulkによるp-codeインタプリタ上で、p-codeのコンパイラを用いてpascalプログラムのコンパイルを行い実行する。
+
+*コンパイラの変更
+p4以外でコンパイルするための記述の除去。
+
+ordmaxchar -- ASCIIコードセットに対応するため、255に変更。
+maxint -- ShortIntegerの最大値として1073741823に変更。これはnilとしても使用される。
+
+コード生成部で数値幅を指定しているため、maxintの拡大に伴い数字が連続して出力されていた点を修正。
+
+mark/restoreはmulk版pcode machineでは正しく動作するためスタブを除去
+
+mulk版pcode machineはlcaの文字列を可変長で解釈出来るので、gen1で余分な空白を出力する処理を除去。
+これにより、pintでは解釈出来なくなる。
+
+文字列リテラル長(strglgth)を128文字に拡張。
+
+コンパイル中に見つけたエラーの総数を数え、最後に出力する。
+
+nextchがeol時の処理として改行を出力する他、eolnがtrueの場合もこれを読み取って出力している。このためlistingで改行が常に重複して出力される。
+eol時の改行出力を削除。
+
+*bootstrapについて
+https://sourceforge.net/projects/pascalp4/
+pascal-p4_20161119.tar.gz
+
+のsource/pcomOrg.pasをベースにしている。
+アーカイブにsource/pcom.pasとこれをコンパイルしたbin/pcom.exeがあるが、これはgnu pascal?でコンパイル可能なように修正が行われている他、いくつかの変更が行われている。
+
+特に、
+1) mark/releaseがstabにされているため、newで確保した領域は決して解放されない。
+2) strglgthが200に拡張されており、lcaは固定長で読み取りメモリに展開するため、いかなる文字列リテラルも200セルが必要。
+との問題があり、
+
+	pcom.exe <pcom.pas
+
+で出来たpcodeは非常にメモリ効率が悪い。
+このため、自身をコンパイルするには
+
+	copy prr 1.wk
+	mulk pascal -s70000 -wpcom.p4 1.wk <pcom.pas
+	
+のようにstoreを大幅に拡張する必要があるが、これで出来たpcom.p4はかなり改善される。
+現状のpcom.p4はこの版を用い、package向けにrevision番号行を
+
+	i $Id: mulk/pascal note.txt 1457 2025-07-31 Thu 09:17:22 kt $
+	
+のように付加している。
+
+*参考URL
+**ht_deko
+https://qiita.com/ht_deko/items/adab81f28295a124e9eb
+Pascal-P シリーズについて
+
+https://qiita.com/ht_deko/items/091661d6fa3d72700a56
+標準 Pascal の規格票と解説書を読んでみる
+
+**Scott A. Moore
+https://www.standardpascaline.org/PascalP.html
+https://github.com/samiam95124
+pascal-p2, p4のメンテナンス。
+p5, p6の開発者
+
+https://sourceforge.net/projects/pascalp4/
+https://github.com/samiam95124/Pascal-P4
+p4処理系
+
+https://www.standardpascaline.org/p5.html
+p5についてのメモ?
+
+**Steven Pemberton
+https://homepages.cwi.nl/~steven/pascal/
+p4ソースコード解説書の執筆者
+
+https://homepages.cwi.nl/~steven/pascal/book/pascalimplementation.html
+解説書本文
+
+**仕様書/ドキュメント
+https://www.research-collection.ethz.ch/handle/20.500.11850/68666Q
+The pascal "p" compiler
+eth-3054-01.pdf
+ethによるimplementation memo
+
+https://www.research-collection.ethz.ch/handle/20.500.11850/68712
+The programming language Pascal
+eth-3290-01.pdf
+wirthによる最初の言語仕様
+
+https://www.research-collection.ethz.ch/handle/20.500.11850/68910
+The programming language Pascal (Revised Report)
+eth-3059-01.pdf
+wirthのよる最終的な言語仕様。この後はANSIやISOによる拡張になる。
+
