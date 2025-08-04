@@ -1,12 +1,14 @@
 execute host OS commands
-$Id: mulk os.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk os.m 1451 2025-07-06 Sun 20:47:38 kt $
 #ja ホストOSのコマンドを実行
 
 *[man]
 **#en
 .caption SYNOPSIS
 	os [OPTION] ARG...
-	os.path [-s] ARG... -- Add ARG... to the beginning of the PATH environment variable
+	os.path [-s] [ARG...] -- ARG... to the beginning of the PATH environment variable. If the argument is omitted, a list of PATHs is displayed.
+	os.which ARG -- Search the PATH column for the file indicated by the ARG and display the full path.
+	os.rmpath ARG. -- Remove the ARG path from the PATH column.
 .caption DESCRIPTION
 Execute host OS commands.
 
@@ -21,7 +23,9 @@ The output of the command is output to the standard output of Mulk in text mode,
 **#ja
 .caption 書式
 	os [OPTION] ARG...
-	os.path [-s] ARG... -- ARG...をPATH環境変数の先頭に追加する。
+	os.path [-s] [ARG...] -- ARG...をPATH環境変数の先頭に追加する。引数省略時はPATHの一覧を表示する。
+	os.which ARG -- PATH列からARGで示されたファイルを検索し、フルパスを表示する。
+	os.rmpath ARG.. -- PATH列からARGのパスを削除する。
 .caption 説明
 ホストOSのコマンドを実行する。
 
@@ -103,18 +107,47 @@ ARGはそれぞれがquoteされたコマンド及び引数列として解釈さ
 		outFile remove]
 
 **path
-***Cmd.os >> addSeparater: wr
-	wr put: (Mulk.hostOS = #windows ifTrue: [';'] ifFalse: [':'])
+***Cmd.os >> pathSeparator
+	Mulk.hostOSUnix? ifTrue: [':'] ifFalse: [';']!
+***Cmd.os >> value: fnArg on: blockArg
+	fnArg empty? ifTrue: [self!];
+	blockArg value: (OS fileFromHostPath: fnArg)
+***Cmd.os >> paths
+	self pathSeparator ->:sepr;
+	Iterator new init:
+		[:b
+		OS getenv: "PATH" ->:path;
+		[path indexOf: sepr ->:pos, notNil?] whileTrue:
+			[self value: (path copyUntil: pos) on: b;
+			path copyFrom: pos + 1 ->path];
+		self value: path on: b]!
 ***Cmd.os >> main.path: args
 	OptionParser new init: "s" ->:op, parse: args ->args;
+	args empty? ifTrue:
+		[self paths do: [:p Out putLn: p path]!];
+	self pathSeparator ->:sepr;
 	StringWriter new ->:wr;
 	wr put: "PATH=";
-	
 	args size timesDo:
 		[:i
-		i <> 0 ifTrue: [self addSeparater: wr];
+		i <> 0 ifTrue: [wr put: sepr];
 		wr put: (args at: i) asFile hostPath];
 	op at: 's', ifFalse:
-		[self addSeparater: wr;
+		[wr put: sepr;
 		wr put: (OS getenv: "PATH")];
 	OS putenv: wr asString
+***Cmd.os >> main.which: args
+	args first ->:fn;
+	Mulk.hostOSUnix? ifFalse:
+		[fn asFile ->:f, readableFile? ifTrue: [Out putLn: f path!]];
+	self paths do:
+		[:path
+		path + fn ->f, readableFile? ifTrue: [Out putLn: f path!]]
+***Cmd.os >> main.rmpath: args
+	self paths asArray ->:paths;
+	args do: [:arg paths remove: arg asFile];
+	self pathSeparator ->:sepr;
+	StringWriter new ->:w;
+	w put: "PATH=";
+	paths do: [:path w put: path hostPath] separatedBy: [w put: sepr];
+	OS putenv: w asString

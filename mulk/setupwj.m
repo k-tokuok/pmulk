@@ -1,5 +1,5 @@
 building a minimal image file for Windows/Japanese
-$Id: mulk setupwj.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk setupwj.m 1452 2025-07-13 Sun 21:19:36 kt $
 #ja 最小構成のイメージファイルの構築 (Windows/日本語版)
 
 *[man]
@@ -26,4 +26,4 @@ Windows/日本語環境用の最小構成のイメージファイルを構築す
 	Mulk import: #("cp932" "crlf" "icmd");
 	"ja" ->Mulk.lang;
 	#Cmd.icmd ->Mulk.defaultMainClass;
-	nil ->Mulk.systemDirectory ->Mulk.workDirectory ->File.home
+	nil ->Mulk.systemDirectory ->Mulk.workDirectory

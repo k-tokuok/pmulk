@@ -1,5 +1,5 @@
 chat with Google Gemini
-$Id: mulk gemini.m 1446 2025-06-21 Sat 21:15:30 kt $
+$Id: mulk gemini.m 1455 2025-07-28 Mon 21:33:36 kt $
 #ja Google Geminiとチャットする
 
 *[man]
@@ -27,6 +27,8 @@ Google Geminiとチャットを行う。
 	
 *driver.@
 	AIChat addSubclass: #Cmd.gemini
+**Cmd.gemini >> suffix
+	"gem"!
 **Cmd.gemini >> dialogs
 	chat at: "contents"!
 **Cmd.gemini >> dialogOf: jsonArg

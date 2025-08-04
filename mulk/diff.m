@@ -1,5 +1,5 @@
 find differences in text files
-$Id: mulk diff.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk diff.m 1448 2025-07-03 Thu 14:21:56 kt $
 #ja テキストファイルの差分を求める
 
 *[man]
@@ -145,7 +145,7 @@ Based on "An O(NP) Sequence Comparison Algorithm" by Sun Wu, Udi Manber, Gene My
 		[self solveFp: k;
 		k - 1 ->k];
 	self solveFp: delta;
-	pathCord size > 100000 ifTrue: [Out putLn: "TOO MANY DIFFS."!];
+	pathCord size > 1000000 ifTrue: [Out putLn: "TOO MANY DIFFS."!];
 	self fp: delta, <> n] whileTrue;
 
 	self path: delta ->:r;

@@ -1,5 +1,5 @@
 building a minimal image file
-$Id: mulk setup.m 1445 2025-06-19 Thu 21:29:00 kt $
+$Id: mulk setup.m 1452 2025-07-13 Sun 21:19:36 kt $
 #ja 最小構成のイメージファイルの構築
 
 *[man]
@@ -45,4 +45,4 @@ Mulk.systemDirectoryとMulk.workDirectoryはイメージファイルのディレ
 		ifTrue: [Mulk import: "crlf"];
 	Mulk import: "icmd";
 	#Cmd.icmd ->Mulk.defaultMainClass;
-	nil ->Mulk.systemDirectory ->Mulk.workDirectory ->File.home
+	nil ->Mulk.systemDirectory ->Mulk.workDirectory

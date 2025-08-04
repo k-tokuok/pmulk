@@ -1,5 +1,5 @@
 revision control system
-$Id: mulk git.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk git.m 1458 2025-08-03 Sun 21:21:55 kt $
 #ja 改訂管理システム
 
 *[man]
@@ -13,6 +13,7 @@ Execute git on the host OS as a command.
 	n N -- Display N lines of log. The default is 10. Specify '-' to display all.
 	a yyyy-mm-dd -- Display logs after the date.
 	b yyyy-mm-dd -- Display logs before the date.
+	f -- Add follow option. Follows a directory move for a single file.
 **#ja
 .caption 書式
 	git ARGS... -- ARGSを引数のgitを実行する。
@@ -23,7 +24,7 @@ Execute git on the host OS as a command.
 	n N -- ログをN行表示する。デフォルトは10。'-'を指定すると全て表示。
 	a yyyy-mm-dd -- 日付以降のログを表示する。
 	b yyyy-mm-dd -- 日付以前のログを表示する。
-	
+	f -- followオプションを付加。単一ファイルに対しディレクトリ移動を追尾する。
 *git tool.@
 	Mulk import: #("os" "optparse" "cmdstr");
 	Object addSubclass: #Cmd.git
@@ -32,7 +33,7 @@ Execute git on the host OS as a command.
 **Cmd.git >> main: args
 	self runGit: args asCmdString
 **Cmd.git >> main.log: args
-	OptionParser new init: "n:a:b:" ->:op, parse: args ->args;
+	OptionParser new init: "n:a:b:f" ->:op, parse: args ->args;
 	
 	"log --date=short --oneline \"--pretty=format:%cd %h %s\""->:ln;
 	op at: 'n' ->:opt, nil?
@@ -41,5 +42,6 @@ Execute git on the host OS as a command.
 	opt notNil? ifTrue: [ln + " -n " + opt ->ln];
 	op at: 'a' ->opt, notNil? ifTrue: [ln + " --after " + opt ->ln];
 	op at: 'b' ->opt, notNil? ifTrue: [ln + " --before " + opt ->ln];
+	op at: 'f', ifTrue: [ln + " --follow" ->ln];
 	args empty? ifFalse: [ln + ' ' + args first ->ln];
 	self runGit: ln

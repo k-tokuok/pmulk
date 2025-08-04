@@ -1,5 +1,5 @@
 AI chat common interface
-$Id: mulk aichat.m 1439 2025-06-09 Mon 21:54:27 kt $
+$Id: mulk aichat.m 1455 2025-07-28 Mon 21:33:36 kt $
 #ja AIチャット共通インターフェイス
 
 *[man]
@@ -91,6 +91,8 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 	false ->verbose?;
 	false ->autosave?;
 	"" ->lastPrompt
+**AIChat >> suffix
+	self shouldBeImplemented
 **AIChat >> dialogs
 	self shouldBeImplemented
 **AIChat >> dialogOf: jsonArg
@@ -102,7 +104,7 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 	self shouldBeImplemented
 **AIChat >> generateMain: arg
 	self shouldBeImplemented
-	
+
 **AIChat >> show: consArg
 	Out put: '<', put: consArg car, putLn: '>', putLn: consArg cdr
 **AIChat >> showLastDialog
@@ -174,9 +176,7 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 	self inputText: lastPrompt ->:p, notNil? ifTrue: [self generate: p]
 		
 **AIChat >> processLn: arg
-	arg nil? or: [arg = "!"], ifTrue:
-		[chatFile notNil? 
-			or: [Prompt getBoolean: "not saved, sure?"] ->quit?!];
+	arg nil? or: [arg = "!"], ifTrue: [true ->quit?!];
 	arg empty? ifTrue: [self justEnter!];
 	arg first = '!' ifTrue: [arg copyFrom: 1, runCmd!];
 	arg first = '@' ifTrue:
@@ -202,7 +202,14 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 		[Out put: "chat>";
 		In getLn ->:ln;
 		[self processLn: ln] on: Error do: [:e Out putLn: e message]];
-	chatFile notNil? ifTrue: [self saveChat: chatFile]
+	chatFile nil? ifTrue:
+		[DateAndTime new initNow ->:now;
+		(now year asString0: 4) + (now month asString0: 2) 
+			+ (now day asString0: 2) + '-' + (now hour asString0: 2) 
+			+ (now minute asString0: 2) + '.' + self suffix, asWorkFile 
+			->chatFile;
+		Out putLn: "chatFile: " + chatFile path];
+	self saveChat: chatFile
 **AIChat >> main.show: args
 	self loadChat: args first asFile;
 	self cmd.show

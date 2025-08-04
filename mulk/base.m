@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk base.m 1452 2025-07-13 Sun 21:19:36 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -1239,6 +1239,25 @@ envArgは"変数名=値"の文字列とする。
 Close all file streams.
 *****#ja
 全てのファイルストリームを閉じる。
+
+***OS.class >> fileFromHostPath: arg
+.if windows|dos
+	StringWriter new ->:w;
+	StringReader new init: arg ->:r;
+	w put: '/', put: r getChar;
+	self assert: r getChar = ':';
+	nil ->:pch;
+	[r getWideChar ->:ch, notNil?] whileTrue:
+		[ch = '\\' 
+			ifTrue: 
+				['/' ->ch;
+				pch <> '/' ifTrue: [w put: ch]]
+			ifFalse: [w put: ch];
+		ch ->pch];
+	w asString asFile!
+.else
+	arg asFile!
+.end
 	
 **Method class.#
 	class Method Object : belongClass selector attr bytecodeSize;
@@ -6631,7 +6650,6 @@ It should not be construct by new.
 Pathnames are expressed in POSIX format regardless of the host OS.
 In case of DOS/Windows, the drive is treated as a directory directly under the root directory.
 Specifying "~" at the beginning of the path name makes it a relative path from the global variable File.home.
-This is initialized at boot time with the value of the HOME environment variable if it is not set in the image.
 
 The current directory is obtained with "." asFile.
 ****#ja
@@ -6643,7 +6661,6 @@ newによって構築してはならない。
 パス名はホストOSに関係なくPOSIX形式で表す。
 DOS/Windowsの場会、ドライブはルートディレクトリ直下のディレクトリとして扱う。
 パス名の先頭に"~"を指定すると大域変数File.homeからの相対パスとなる。
-これはイメージ内で設定されていなければ起動時に環境変数HOMEの値で初期化される
 
 カレントディレクトリは"." asFileで収得する。
 
@@ -9131,20 +9148,7 @@ Quit the system.
 	OS init;
 	FileStream new init: (Kernel propertyAt: 100) ->In ->In0;
 	FileStream new init: (Kernel propertyAt: 101) ->Out ->Out0;
-	File new fileOfPath: (Kernel propertyAt: 102) ->File.current;
-	File.home nil? and: [OS getenv: "HOME" ->:home, notNil?], ifTrue:
-.if windows|dos
-		[StringWriter new ->:w;
-		StringReader new init: home ->:r;
-		w put: '/', put: r getChar;
-		r getChar;
-		[r getWideChar ->:ch, notNil?] whileTrue:
-			[ch = '\\' ifTrue: ['/' ->ch];
-			w put: ch];
-		w asString asFile ->File.home]
-.else
-		[home asFile ->File.home]
-.end
+	File new fileOfPath: (Kernel propertyAt: 102) ->File.current
 
 **Mulk.class >> boot: args
 .if ib
