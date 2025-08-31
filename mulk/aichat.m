@@ -1,5 +1,5 @@
 AI chat common interface
-$Id: mulk aichat.m 1455 2025-07-28 Mon 21:33:36 kt $
+$Id: mulk aichat.m 1470 2025-08-29 Fri 23:04:09 kt $
 #ja AIチャット共通インターフェイス
 
 *[man]
@@ -184,8 +184,7 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 		cmdReader skipChar;
 		self perform: ("cmd." + cmdReader getToken) asSymbol!];
 	self generate: arg
-**AIChat >> main: args
-	OptionParser new init: "i:va" ->:op, parse: args ->args;
+**AIChat >> main: args option: op
 	op at: 'i' ->:opt, notNil? ifTrue: [opt asFile ->:initialFile];
 	op at: 'v', ifTrue: [true ->verbose?];
 	op at: 'a' ->autosave?;
@@ -210,6 +209,9 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 			->chatFile;
 		Out putLn: "chatFile: " + chatFile path];
 	self saveChat: chatFile
+**AIChat >> main: args
+	OptionParser new init: "i:va" ->:op, parse: args ->args;
+	self main: args option: op
 **AIChat >> main.show: args
 	self loadChat: args first asFile;
 	self cmd.show

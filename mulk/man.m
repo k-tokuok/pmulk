@@ -1,15 +1,15 @@
 manual
-$Id: mulk man.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk man.m 1471 2025-08-31 Sun 21:19:45 kt $
 #ja マニュアル
 
 *[man]
 **#en
 .caption SYNOPSIS
-	man [OPTION] PAGE
+	man [OPTION] [TOPIC]
 	man.whatis [OPTION] [PATTERN] -- Display an summary of all items. If you specify PATTERN, only lines matching the regular expression will be displayed.
 
 .caption DESCRIPTION
-Display the specified PAGE manual.
+Displays the manual for the specified TOPIC.
 
 If it does not fit on one screen, it is paged in screen size.
 
@@ -58,11 +58,11 @@ When creating from a mm file, reshape the third and subsequent lines as they are
 
 **#ja
 .caption 書式
-	man [OPTION] PAGE
+	man [OPTION] [TOPIC]
 	man.whatis [OPTION] [PATTERN] -- 全項目の概要を表示する。PATTERNを指定すると正規表現にマッチする行のみが表示される。
 	
 .caption 説明
-指定ページのマニュアルを表示する。
+指定されたトピックのマニュアルを表示する。
 
 一画面に収まらない場合は画面サイズでページングされる。
 
@@ -255,6 +255,7 @@ mmファイルから生成する場合は、3行目以降をそのまま整形�
 	op at: 'm', ifFalse: [pipes addLast: "more"]
 **Cmd.man >> main: args
 	OptionParser new init: "fml:" ->op, parse: args ->args;
+	args empty? ifTrue: [args addLast: "intro"];
 	self setLang;
 	Array new ->pipes;
 	pipes addLast: [ManualGenerator new init: lang, generate: args first];

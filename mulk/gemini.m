@@ -1,5 +1,5 @@
 chat with Google Gemini
-$Id: mulk gemini.m 1455 2025-07-28 Mon 21:33:36 kt $
+$Id: mulk gemini.m 1470 2025-08-29 Fri 23:04:09 kt $
 #ja Google Geminiとチャットする
 
 *[man]
@@ -10,6 +10,9 @@ Chat with Google Gemini.
 For actual operation, please refer to the manual topic aichat.
 It is necessary to register https://aistudio.google.com/apikey and API-KEY to Cmd.gemini.apikey in the system dictionary in advance.
 
+.caption OPTION
+	p -- use gemini-2.5-pro as the model.
+	
 .caption SEE ALSO
 .summary aichat
 
@@ -20,13 +23,17 @@ Google Geminiとチャットを行う。
 実際の操作についてはマニュアルトピックaichatを参照のこと。
 事前にhttps://aistudio.google.com/apikeyに登録し、API-KEYをシステム辞書のCmd.gemini.apikeyに登録しておく必要がある。
 
+.caption オプション
+	p -- モデルとしてgemini-2.5-proを使用する。
+	
 .caption 関連項目
 .summary aichat
+
 *import.@
 	Mulk import: "aichat"
 	
 *driver.@
-	AIChat addSubclass: #Cmd.gemini
+	AIChat addSubclass: #Cmd.gemini instanceVars: "model"
 **Cmd.gemini >> suffix
 	"gem"!
 **Cmd.gemini >> dialogs
@@ -49,8 +56,8 @@ Google Geminiとチャットを行う。
 **Cmd.gemini >> generateMain: arg
 	self addDialogRole: "user" text: arg;
 	[HttpRequestFactory new create ->hr;
-	"gemini-2.5-flash" ->:model;
-	hr url: "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + Cmd.gemini.apikey;
+	hr url: "https://generativelanguage.googleapis.com/v1beta/models/" + model 
+		+ ":generateContent?key=" + Cmd.gemini.apikey;
 	hr header: "Content-Type" value: "application/json";
 	self runJson: chat ->:json;
 	json at: "candidates", first, at: "content", at: "parts", first at: "text"
@@ -60,3 +67,8 @@ Google Geminiとチャットを行う。
 		e message] ->:result;
 	self addDialogRole: "model" text: result;
 	result!
+**Cmd.gemini >> main: args
+	OptionParser new init: "i:vap" ->:op, parse: args ->args;
+	op at: 'p', ifTrue: ["gemini-2.5-pro"] ifFalse: ["gemini-2.5-flash"]
+		->model;
+	self main: args option: op

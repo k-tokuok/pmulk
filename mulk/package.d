@@ -1,5 +1,5 @@
-;Mulk package std+skk (1459)
-;2025-08-04 Mon 20:53:02
+;Mulk package std+skk (1471)
+;2025-09-01 Mon 04:41:34
 crlf.m,1433,lib
 urlenc.m,1433,lib
 fbdata.m,1433,lib
@@ -7,7 +7,7 @@ csv.m,1433,tool
 mulkprim.c,1433,vm
 cmp.m,1433,tool
 viewx.c,1433,vm
-package.d,1459,tool
+package.d,1471,tool
 package.m,1433,tool
 cut.m,1433,tool
 csplit.c,1433,vm
@@ -33,11 +33,11 @@ bytec.m,1433,tool
 echo.m,1433,tool
 clip.m,1433,tool
 calc.m,1433,tool
-aichat.m,1455,tool
+aichat.m,1470,tool
 backup.m,1433,tool
 splay.c,1433,vm
 lex.c,1433,vm
-skkchunk.d,1459,skk
+skkchunk.d,1470,skk
 bg.m,1433,tool
 diff.m,1448,tool
 splay.h,1433,vm
@@ -80,7 +80,7 @@ os.h,1433,vm
 std.h,1433,vm
 vieww.c,1433,vm
 pfs.m,1433,lib
-os.m,1451,tool
+os.m,1468,tool
 prompt.m,1433,lib
 multicol.m,1433,tool
 open.m,1433,tool
@@ -89,7 +89,7 @@ lang.mm,1433,etc
 mtoib.c,1433,vm
 om.c,1433,vm
 mkmulks.m,1433,vm
-path.m,1435,tool
+path.m,1468,tool
 hrc.m,1444,lib
 pause.m,1433,tool
 om.h,1433,vm
@@ -166,6 +166,7 @@ random.m,1433,lib
 view.h,1433,vm
 ir.h,1433,vm
 readme.txt,1433,etc
+intro.mm,1471,etc
 gres.m,1433,tool
 pfu.c,1433,vm
 k-jp.d,1433,lib
@@ -194,7 +195,7 @@ ed.m,1433,tool
 crypt.m,1433,tool
 repl.m,1433,tool
 ol.m,1434,tool
-man.m,1433,tool
+man.m,1471,tool
 log.h,1433,vm
 mkdir.m,1433,tool
 du.m,1433,tool
@@ -214,7 +215,7 @@ ctrlib.m,1433,lib
 dl.m,1433,lib
 entab.m,1433,tool
 ctrw.m,1433,lib
-gemini.m,1455,tool
+gemini.m,1470,tool
 omd.c,1433,vm
 randgen.m,1433,lib
 clipx.m,1433,npw,lib
