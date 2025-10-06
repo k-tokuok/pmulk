@@ -1,5 +1,5 @@
-;Mulk package std+skk (1471)
-;2025-09-01 Mon 04:41:34
+;Mulk package std+skk (1475)
+;2025-10-06 Mon 21:01:16
 crlf.m,1433,lib
 urlenc.m,1433,lib
 fbdata.m,1433,lib
@@ -7,7 +7,7 @@ csv.m,1433,tool
 mulkprim.c,1433,vm
 cmp.m,1433,tool
 viewx.c,1433,vm
-package.d,1471,tool
+package.d,1475,tool
 package.m,1433,tool
 cut.m,1433,tool
 csplit.c,1433,vm
@@ -37,7 +37,7 @@ aichat.m,1470,tool
 backup.m,1433,tool
 splay.c,1433,vm
 lex.c,1433,vm
-skkchunk.d,1470,skk
+skkchunk.d,1475,skk
 bg.m,1433,tool
 diff.m,1448,tool
 splay.h,1433,vm
@@ -134,7 +134,7 @@ oldchars.m,1433,ja,lib
 ctr.m,1433,tool
 eval.mm,1433,tool
 cat.m,1433,tool
-wb.m,1433,tool
+wb.m,1474,tool
 config.h,1445,vm
 charc.m,1433,tool
 cmdstr.m,1433,lib

@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk wb.m 1474 2025-10-04 Sat 21:15:41 kt $
 #ja テキストエディタ
 
 *[man]
@@ -1640,7 +1640,10 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	[buffer at: lh ->:ch, = ' ' | (ch = '\t') & (lh < cursor)] whileTrue:
 		[wr put: ch;
 		lh + 1 ->lh];
-	self at: cursor insert: (wr seek: 0, contentBytes)
+	self at: cursor insert: (wr seek: 0, contentBytes);
+	cursor ->:pos;
+	[buffer at: pos ->ch, = ' ' | (ch = '\t')] whileTrue: [pos + 1 ->pos];
+	self at: cursor remove: pos - cursor
 ****Wb.class >> insertCharCommand: ch
 	self at: cursor insert: (self bytes: ch)
 ****Wb.class >> backspaceCommand
