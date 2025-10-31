@@ -1,13 +1,13 @@
 AI chat common interface
-$Id: mulk aichat.m 1470 2025-08-29 Fri 23:04:09 kt $
+$Id: mulk aichat.m 1479 2025-10-18 Sat 21:05:23 kt $
 #ja AIチャット共通インターフェイス
 
 *[man]
 **#en
 .caption SYNOPSIS
-	COMMAND [options] [CHATFILE]
+	COMMAND [OPTION] [CHATFILE]
 	COMMAND.show CHATFILE -- display contents
-	COMMAND.batch [CHATFILE] -- input prompts and output results
+	COMMAND.batch [OPTION] [CHATFILE] -- input prompts and output results
 	
 .caption DESCRIPTION
 Chat with the AI indicated by COMMAND.
@@ -33,6 +33,8 @@ The CHATFILE holds the content of the conversation, which can be specified to co
 It is the content itself that is sent to the endpoint, and is the unique format of the target AI.
 
 .caption OPTION
+	2 -- Use the second AI model that has already been set (chat/batch)
+	m MODEL -- Specify the AI model explicitly (chat/batch)
 	i CHATFILE -- Initial CHATFILE
     v -- Display processings verbosely
     a -- Save the CHATFILE for each interaction
@@ -40,12 +42,13 @@ It is the content itself that is sent to the endpoint, and is the unique format 
 .caption SEE ALSO
 .summary chatgpt
 .summary gemini
+.summary grok
 
 **#ja
 .caption 書式
 	COMMAND [オプション] [CHATFILE]
 	COMMAND.show CHATFILE -- 内容を表示
-	COMMAND.batch [CHATFILE] -- プロンプトを入力し、結果を出力する
+	COMMAND.batch [オプション] [CHATFILE] -- プロンプトを入力し、結果を出力する
 	
 .caption 説明
 COMMANDで示されたAIとチャットを行う。
@@ -71,19 +74,23 @@ CHATFILEは会話の内容を保持し、これを指定することで対話を
 endpointに送信する内容そのもので、対象AIの固有の形式となる。
 
 .caption オプション
+	2 -- 設定済みの2番目のAIモデルを使用する (chat/batch)
+	m MODEL -- AIモデルを明に指定する (chat/batch)
 	i CHATFILE -- 初期CHATFILE
 	v -- 処理を詳細に表示する
 	a -- 対話の都度、CHATFILEを保存する	
 .caption 関連項目
 .summary chatgpt
 .summary gemini
+.summary grok
 
 *import.@
 	Mulk import: #("optparse" "hrlib" "jsonrd" "jsonwr" "prompt")
 	
 *AIChat class.@
 	Object addSubclass: #AIChat instanceVars: 
-		"hr chat chatFile cmdReader wb verbose? lastPrompt quit? autosave?"
+		"hr model chat chatFile"
+		+ " cmdReader wb verbose? lastPrompt quit? autosave?"
 	
 **AIChat >> init
 	Mulk at: #Wb ifAbsent: [nil] ->wb;
@@ -92,6 +99,8 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 	false ->autosave?;
 	"" ->lastPrompt
 **AIChat >> suffix
+	self shouldBeImplemented
+**AIChat >> models
 	self shouldBeImplemented
 **AIChat >> dialogs
 	self shouldBeImplemented
@@ -102,6 +111,8 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 
 **AIChat >> createChat
 	self shouldBeImplemented
+**AIChat >> apikey
+	Mulk at: (self class asString + ".apikey") asSymbol!
 **AIChat >> generateMain: arg
 	self shouldBeImplemented
 
@@ -184,9 +195,17 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 		cmdReader skipChar;
 		self perform: ("cmd." + cmdReader getToken) asSymbol!];
 	self generate: arg
-**AIChat >> main: args option: op
+**AIChat >> setModel: opArg
+	opArg at: '2', ifTrue: [self models at: 1 ->model!];
+	opArg at: 'm' ->:opt, notNil? ifTrue: [opt ->model!];
+	self models first ->model
+**AIChat >> main: args
+	OptionParser new init: "2m:i:va" ->:op, parse: args ->args;
+	self setModel: op;
 	op at: 'i' ->:opt, notNil? ifTrue: [opt asFile ->:initialFile];
-	op at: 'v', ifTrue: [true ->verbose?];
+	op at: 'v', ifTrue: 
+		[true ->verbose?;
+		Out putLn: "model: " + model];
 	op at: 'a' ->autosave?;
 	args empty? ifFalse:
 		[args first asFile ->chatFile;
@@ -209,13 +228,12 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 			->chatFile;
 		Out putLn: "chatFile: " + chatFile path];
 	self saveChat: chatFile
-**AIChat >> main: args
-	OptionParser new init: "i:va" ->:op, parse: args ->args;
-	self main: args option: op
 **AIChat >> main.show: args
 	self loadChat: args first asFile;
 	self cmd.show
 **AIChat >> main.batch: args
+	OptionParser new init: "2m:" ->:op, parse: args ->args;
+	self setModel: op;
 	false ->verbose?;
 	args empty? 
 		ifTrue: [self createChat]

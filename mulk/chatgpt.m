@@ -1,5 +1,5 @@
 chat with ChatGPT
-$Id: mulk chatgpt.m 1455 2025-07-28 Mon 21:33:36 kt $
+$Id: mulk chatgpt.m 1479 2025-10-18 Sat 21:05:23 kt $
 #ja ChatGPTとチャットする
 
 *[man]
@@ -30,6 +30,8 @@ ChatGPTとチャットを行う。
 	AIChat addSubclass: #Cmd.chatgpt
 **Cmd.chatgpt >> suffix
 	"chat"!
+**Cmd.chatgpt >> models
+	#("gpt-5-mini")!
 **Cmd.chatgpt >> dialogs
 	chat at: "messages"!
 **Cmd.chatgpt >> dialogOf: jsonArg
@@ -44,16 +46,17 @@ ChatGPTとチャットを行う。
 	self dialogs addLast: message
 **Cmd.chatgpt >> createChat
 	Dictionary new ->chat;
-	chat at: "model" put: "gpt-4o-mini";
 	chat at: "messages" put: Array new;
 	self addDialogRole: "system" text: "You are a helpful assistant."
+**Cmd.chatgpt >> endpoint
+	"https://api.openai.com/v1/chat/completions"!
 **Cmd.chatgpt >> generateMain: arg
+	chat at: "model" put: model;
 	self addDialogRole: "user" text: arg;
 	[HttpRequestFactory new create ->hr;
-	hr url: "https://api.openai.com/v1/chat/completions";
+	hr url: self endpoint;
 	hr header: "Content-Type" value: "application/json";
-	hr header: "Authorization" 
-		value: "Bearer " + (Mulk at: #Cmd.chatgpt.apikey);
+	hr header: "Authorization" value: "Bearer " + self apikey;
 	self runJson: chat ->:json;
 	json at: "choices", first at: "message", at: "content"
 	] on: Error do:

@@ -1,5 +1,5 @@
-;Mulk package std+skk (1475)
-;2025-10-06 Mon 21:01:16
+;Mulk package std+skk (1480)
+;2025-11-01 Sat 05:58:01
 crlf.m,1433,lib
 urlenc.m,1433,lib
 fbdata.m,1433,lib
@@ -7,7 +7,7 @@ csv.m,1433,tool
 mulkprim.c,1433,vm
 cmp.m,1433,tool
 viewx.c,1433,vm
-package.d,1475,tool
+package.d,1480,tool
 package.m,1433,tool
 cut.m,1433,tool
 csplit.c,1433,vm
@@ -25,6 +25,7 @@ pagewr.m,1433,lib
 ib.c,1433,vm
 cmd.m,1433,tool
 icmd.m,1433,tool
+grok.m,1479,tool
 base.m,1452,lib
 intconv.m,1433,lib
 base64.m,1433,tool
@@ -33,11 +34,11 @@ bytec.m,1433,tool
 echo.m,1433,tool
 clip.m,1433,tool
 calc.m,1433,tool
-aichat.m,1470,tool
+aichat.m,1479,tool
 backup.m,1433,tool
 splay.c,1433,vm
 lex.c,1433,vm
-skkchunk.d,1475,skk
+skkchunk.d,1480,skk
 bg.m,1433,tool
 diff.m,1448,tool
 splay.h,1433,vm
@@ -215,7 +216,7 @@ ctrlib.m,1433,lib
 dl.m,1433,lib
 entab.m,1433,tool
 ctrw.m,1433,lib
-gemini.m,1470,tool
+gemini.m,1479,tool
 omd.c,1433,vm
 randgen.m,1433,lib
 clipx.m,1433,npw,lib
@@ -223,7 +224,7 @@ omd.h,1433,vm
 gtrans.m,1433,tool
 xorshift.m,1433,lib
 gzip.m,1433,tool
-chatgpt.m,1455,tool
+chatgpt.m,1479,tool
 uniq.m,1433,tool
 term.c,1433,vm
 setup.m,1452,vm
