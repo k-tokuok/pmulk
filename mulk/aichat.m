@@ -1,5 +1,5 @@
 AI chat common interface
-$Id: mulk aichat.m 1479 2025-10-18 Sat 21:05:23 kt $
+$Id: mulk aichat.m 1484 2025-11-30 Sun 21:11:43 kt $
 #ja AIチャット共通インターフェイス
 
 *[man]
@@ -7,7 +7,7 @@ $Id: mulk aichat.m 1479 2025-10-18 Sat 21:05:23 kt $
 .caption SYNOPSIS
 	COMMAND [OPTION] [CHATFILE]
 	COMMAND.show CHATFILE -- display contents
-	COMMAND.batch [OPTION] [CHATFILE] -- input prompts and output results
+	COMMAND.batch [OPTION] -- input prompts and output results
 	
 .caption DESCRIPTION
 Chat with the AI indicated by COMMAND.
@@ -32,12 +32,18 @@ In text mode, in conjunction with wb, any text between ">>" and "<<" (may includ
 The CHATFILE holds the content of the conversation, which can be specified to continue the dialogue.
 It is the content itself that is sent to the endpoint, and is the unique format of the target AI.
 
+The api key must be registered in Cmd.COMMAND.apikey in advance.
+If you set up a Dictionary with the AI model name as the key, you can switch the api key to be used depending on the model.
+The key with "*" as the key is referred to as the default.
+
 .caption OPTION
 	2 -- Use the second AI model that has already been set (chat/batch)
+	3 -- Use the third AI model that has already been set (chat/batch)
 	m MODEL -- Specify the AI model explicitly (chat/batch)
-	i CHATFILE -- Initial CHATFILE
+	i CHATFILE -- Initial CHATFILE (chat/batch)
     v -- Display processings verbosely
     a -- Save the CHATFILE for each interaction
+	s CHATFILE -- Save CHATFILE on exit (batch)
 	
 .caption SEE ALSO
 .summary chatgpt
@@ -48,7 +54,7 @@ It is the content itself that is sent to the endpoint, and is the unique format 
 .caption 書式
 	COMMAND [オプション] [CHATFILE]
 	COMMAND.show CHATFILE -- 内容を表示
-	COMMAND.batch [オプション] [CHATFILE] -- プロンプトを入力し、結果を出力する
+	COMMAND.batch [オプション] -- プロンプトを入力し、結果を出力する
 	
 .caption 説明
 COMMANDで示されたAIとチャットを行う。
@@ -73,12 +79,18 @@ COMMANDで示されたAIとチャットを行う。
 CHATFILEは会話の内容を保持し、これを指定することで対話を継続できる。
 endpointに送信する内容そのもので、対象AIの固有の形式となる。
 
+事前にapi keyをCmd.COMMAND.apikeyに登録しておく必要がある。
+AIモデル名称をキーとするDictionaryとして設定すると、モデルによって使用するapi keyを切り替えることができる。
+キーとして"*"を指定したものがデフォルトとして参照される。
+
 .caption オプション
 	2 -- 設定済みの2番目のAIモデルを使用する (chat/batch)
+	3 -- 設定済みの3番目のAIモデルを使用する (chat/batch)
 	m MODEL -- AIモデルを明に指定する (chat/batch)
-	i CHATFILE -- 初期CHATFILE
+	i CHATFILE -- 初期CHATFILE (chat/batch)
 	v -- 処理を詳細に表示する
 	a -- 対話の都度、CHATFILEを保存する	
+	s CHATFILE -- 終了時にCHATFILEを保存する (batch)
 .caption 関連項目
 .summary chatgpt
 .summary gemini
@@ -112,7 +124,9 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 **AIChat >> createChat
 	self shouldBeImplemented
 **AIChat >> apikey
-	Mulk at: (self class asString + ".apikey") asSymbol!
+	Mulk at: (self class asString + ".apikey") asSymbol ->:result;
+	result kindOf?: String, ifTrue: [result!];
+	result at: model ifAbsent: [result at: "*"]!
 **AIChat >> generateMain: arg
 	self shouldBeImplemented
 
@@ -197,10 +211,11 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 	self generate: arg
 **AIChat >> setModel: opArg
 	opArg at: '2', ifTrue: [self models at: 1 ->model!];
+	opArg at: '3', ifTrue: [self models at: 2 ->model!];
 	opArg at: 'm' ->:opt, notNil? ifTrue: [opt ->model!];
 	self models first ->model
 **AIChat >> main: args
-	OptionParser new init: "2m:i:va" ->:op, parse: args ->args;
+	OptionParser new init: "23m:i:va" ->:op, parse: args ->args;
 	self setModel: op;
 	op at: 'i' ->:opt, notNil? ifTrue: [opt asFile ->:initialFile];
 	op at: 'v', ifTrue: 
@@ -232,10 +247,11 @@ endpointに送信する内容そのもので、対象AIの固有の形式とな�
 	self loadChat: args first asFile;
 	self cmd.show
 **AIChat >> main.batch: args
-	OptionParser new init: "2m:" ->:op, parse: args ->args;
+	OptionParser new init: "23m:i:s:" ->:op, parse: args ->args;
 	self setModel: op;
 	false ->verbose?;
-	args empty? 
+	op at: 'i' ->:opt, nil? 
 		ifTrue: [self createChat]
-		ifFalse: [self loadChat: args first asFile];
-	Out putLn: (self generateMain: ("cat" pipe contentBytes asString))
+		ifFalse: [self loadChat: opt asFile];
+	Out putLn: (self generateMain: ("cat" pipe contentBytes asString));
+	op at: 's' ->opt, notNil? ifTrue: [self saveChat: opt asFile]
