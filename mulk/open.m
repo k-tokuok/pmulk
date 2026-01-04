@@ -1,5 +1,5 @@
 opens a file or url in the host OS
-$Id: mulk open.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk open.m 1492 2025-12-12 Fri 21:47:20 kt $
 #ja ホストOSでファイルまたはURLを開く
 
 *[man]
@@ -33,7 +33,7 @@ AndroidではURLのみ対応。
 ***@
 	Android method: #openUrl signature: "VS"
 ***Cmd.open >> main: args
-	args first ->:url;
+	args first trim ->:url;
 	self url?: url, ifFalse: [self error: "Android supports only url"];
 	Android call: #openUrl with: url
 
@@ -44,7 +44,7 @@ AndroidではURLのみ対応。
 	Mulk.hostOS = #macosx ifTrue: ["open"!];
 	self error: "no open command"
 ***Cmd.open >> main: args
-	args empty? ifTrue: ["."] ifFalse: [args first] ->:arg;
+	args empty? ifTrue: ["."] ifFalse: [args first trim] ->:arg;
 	self url?: arg, ifFalse: [arg asFile hostPath ->arg];
 	
 	OS system: self openCmd + " \"" + arg + '"'

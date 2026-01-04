@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1452 2025-07-13 Sun 21:19:36 kt $
+$Id: mulk base.m 1512 2026-01-03 Sat 13:02:28 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -1689,8 +1689,8 @@ In principle, this exception is not caught and terminates the Mulk system itself
 	interruptBlock notNil? ifTrue: [interruptBlock value]
 ***Process >> trap: codeArg sp: curSpArg
 	-- code = ip_trap_code : see ip.h
-	codeArg = 2 ifTrue: [self interrupt];
-	codeArg = 3 ifTrue: [Mulk quit];
+	codeArg = 1 ifTrue: [self interrupt];
+	codeArg = 2 ifTrue: [Mulk quit];
 	self resumesp: curSpArg
 
 **Global variables.
@@ -8394,9 +8394,11 @@ Skip '*' in the outline line from the beginning of the block.
 
 	stmts car ->:cond;
 	self literal?: cond, ifTrue:
-		[cond cdar = (selector = #ifTrue:)
+		[cond cdar ->:bool, kindOf?: Boolean, ifFalse:
+			[self error: "illegal literal for conditional expr"];
+		bool = (selector = #ifTrue:)
 			ifTrue: [self unblock: stmts cdar]
-			ifFalse: [Cons new car: #literal, add: cond cdar] ->:c;
+			ifFalse: [Cons new car: #literal, add: bool] ->:c;
 		tr car: #statement;
 		tr cdr car: c;
 		tr cdr cdr: nil!];

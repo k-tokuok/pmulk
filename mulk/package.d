@@ -1,5 +1,5 @@
-;Mulk package std+skk (1486)
-;2025-12-04 Thu 18:06:51
+;Mulk package std+skk (1514)
+;2026-01-04 Sun 17:34:10
 crlf.m,1433,lib
 urlenc.m,1433,lib
 fbdata.m,1433,lib
@@ -7,7 +7,7 @@ csv.m,1433,tool
 mulkprim.c,1433,vm
 cmp.m,1433,tool
 viewx.c,1433,vm
-package.d,1486,tool
+package.d,1514,tool
 package.m,1433,tool
 cut.m,1433,tool
 csplit.c,1433,vm
@@ -25,8 +25,8 @@ pagewr.m,1433,lib
 ib.c,1433,vm
 cmd.m,1433,tool
 icmd.m,1433,tool
-grok.m,1479,tool
-base.m,1452,lib
+grok.m,1490,tool
+base.m,1512,lib
 intconv.m,1433,lib
 base64.m,1433,tool
 detab.m,1433,tool
@@ -34,11 +34,11 @@ bytec.m,1433,tool
 echo.m,1433,tool
 clip.m,1433,tool
 calc.m,1433,tool
-aichat.m,1484,tool
+aichat.m,1514,tool
 backup.m,1433,tool
 splay.c,1433,vm
 lex.c,1433,vm
-skkchunk.d,1486,skk
+skkchunk.d,1505,skk
 bg.m,1433,tool
 diff.m,1448,tool
 splay.h,1433,vm
@@ -63,7 +63,7 @@ icd.m,1433,tool
 ctriconv.m,1433,npw,lib
 diffdir.m,1433,tool
 ar.m,1433,tool
-vc.mak,1433,vm
+vc.mak,1510,vm
 edict.m,1433,tool,ja
 cliplib.m,1433,lib
 cal.m,1433,tool
@@ -72,9 +72,9 @@ cp.m,1433,tool
 trz.m,1433,tool,ja
 terms.c,1433,vm
 fbarray.c,1433,vm
-ip.c,1433,vm
+ip.c,1511,vm
 azik.mm,1433,skk
-ip.h,1433,vm
+ip.h,1510,vm
 os.c,1433,vm
 std.c,1433,vm
 os.h,1433,vm
@@ -84,13 +84,13 @@ pfs.m,1433,lib
 os.m,1468,tool
 prompt.m,1433,lib
 multicol.m,1433,tool
-open.m,1433,tool
+open.m,1492,tool
 fbdatab.m,1433,npw,lib
-lang.mm,1433,etc
+lang.mm,1487,etc
 mtoib.c,1433,vm
 om.c,1433,vm
 mkmulks.m,1433,vm
-path.m,1468,tool
+path.m,1495,tool
 hrc.m,1444,lib
 pause.m,1433,tool
 om.h,1433,vm
@@ -135,8 +135,8 @@ oldchars.m,1433,ja,lib
 ctr.m,1433,tool
 eval.mm,1433,tool
 cat.m,1433,tool
-wb.m,1474,tool
-config.h,1445,vm
+wb.m,1493,tool
+config.h,1511,vm
 charc.m,1433,tool
 cmdstr.m,1433,lib
 tr.m,1433,tool
@@ -166,8 +166,8 @@ inst.h,1433,vm
 random.m,1433,lib
 view.h,1433,vm
 ir.h,1433,vm
-readme.txt,1433,etc
-intro.mm,1471,etc
+readme.txt,1508,etc
+intro.mm,1489,etc
 gres.m,1433,tool
 pfu.c,1433,vm
 k-jp.d,1433,lib
@@ -176,11 +176,11 @@ makefile,1435,vm
 view.m,1433,lib
 coord.c,1433,vm
 coord.h,1433,vm
-gsync.m,1433,tool
+gsync.m,1499,tool
 grep.m,1433,tool
 coord.m,1433,lib
 c-term.m,1433,lib
-skkut.m,1433,skk
+skkut.m,1505,skk
 mtr.m,1433,skk,ja
 optparse.m,1433,lib
 csvrd.m,1433,lib
@@ -216,7 +216,7 @@ ctrlib.m,1433,lib
 dl.m,1433,lib
 entab.m,1433,tool
 ctrw.m,1433,lib
-gemini.m,1483,tool
+gemini.m,1497,tool
 omd.c,1433,vm
 randgen.m,1433,lib
 clipx.m,1433,npw,lib
@@ -224,7 +224,7 @@ omd.h,1433,vm
 gtrans.m,1433,tool
 xorshift.m,1433,lib
 gzip.m,1433,tool
-chatgpt.m,1479,tool
+chatgpt.m,1496,tool
 uniq.m,1433,tool
 term.c,1433,vm
 setup.m,1452,vm

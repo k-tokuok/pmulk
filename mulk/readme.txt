@@ -1,7 +1,7 @@
-$Id: mulk readme.txt 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk readme.txt 1508 2026-01-01 Thu 21:32:38 kt $
 
 								  Mulk system.
-		 Copyright (C) 2009-2025 Ken'ichi Tokuoka. All rights reserved.
+		 Copyright (C) 2009-2026 Ken'ichi Tokuoka. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

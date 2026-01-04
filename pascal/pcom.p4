@@ -1,4 +1,4 @@
-i $Id: mulk/pascal pcom.p4 1442 2025-06-12 Thu 10:05:28 kt $
+i $Id: mulk/pascal pcom.p4 1504 2025-12-28 Sun 21:47:47 kt $
 l3
  ent 1 l4
  ent 2 l5
@@ -20120,11 +20120,38 @@ i16710
  ldci 8
  chki 0 10
  stoi
+ ldcc 'A'
+ ordc
+ stri 0 5
+ ldcc 'Z'
+i16720
+ ordc
+ stri 0 6
+l1743
+ lodi 0 5
+ lodi 0 6
+ leqi
+ fjp l1744
+ lao 194
+ lodi 0 5
+ chr
+ ordc
+i16730
+ chki 0 255
+ ixa 1
+ ldci 0
+ chki 0 10
+ stoi
+ lodi 0 5
+ inci 1
+ stri 0 5
+ ujp l1743
+l1744
  lao 2021
+i16740
  ldcc '0'
  ordc
  chki 0 255
-i16720
  ixa 1
  ldci 0
  stoi
@@ -20132,10 +20159,10 @@ i16720
  ldcc '1'
  ordc
  chki 0 255
+i16750
  ixa 1
  ldci 1
  stoi
-i16730
  lao 2021
  ldcc '2'
  ordc
@@ -20143,10 +20170,10 @@ i16730
  ixa 1
  ldci 2
  stoi
+i16760
  lao 2021
  ldcc '3'
  ordc
-i16740
  chki 0 255
  ixa 1
  ldci 3
@@ -20154,10 +20181,10 @@ i16740
  lao 2021
  ldcc '4'
  ordc
+i16770
  chki 0 255
  ixa 1
  ldci 4
-i16750
  stoi
  lao 2021
  ldcc '5'
@@ -20165,10 +20192,10 @@ i16750
  chki 0 255
  ixa 1
  ldci 5
+i16780
  stoi
  lao 2021
  ldcc '6'
-i16760
  ordc
  chki 0 255
  ixa 1
@@ -20176,10 +20203,10 @@ i16760
  stoi
  lao 2021
  ldcc '7'
+i16790
  ordc
  chki 0 255
  ixa 1
-i16770
  ldci 7
  stoi
  lao 2021
@@ -20187,10 +20214,10 @@ i16770
  ordc
  chki 0 255
  ixa 1
+i16800
  ldci 8
  stoi
  lao 2021
-i16780
  ldcc '9'
  ordc
  chki 0 255
@@ -20200,11 +20227,11 @@ i16780
  retp
 l1739=7
 l1740=7
-l1743
- ent 1 l1744
- ent 2 l1745
+l1745
+i16810
+ ent 1 l1746
+ ent 2 l1747
  lao 1937
-i16790
  ldci 0
  chki 0 60
  ixa 1
@@ -20212,10 +20239,10 @@ i16790
  chki -4 4
  stoi
  lao 1937
+i16820
  ldci 1
  chki 0 60
  ixa 1
-i16800
  ldci 0
  chki -4 4
  stoi
@@ -20223,10 +20250,10 @@ i16800
  ldci 2
  chki 0 60
  ixa 1
+i16830
  ldci 1
  ngi
  chki -4 4
-i16810
  stoi
  lao 1937
  ldci 3
@@ -20234,10 +20261,10 @@ i16810
  ixa 1
  ldci 1
  ngi
+i16840
  chki -4 4
  stoi
  lao 1937
-i16820
  ldci 4
  chki 0 60
  ixa 1
@@ -20245,10 +20272,10 @@ i16820
  ngi
  chki -4 4
  stoi
+i16850
  lao 1937
  ldci 5
  chki 0 60
-i16830
  ixa 1
  ldci 1
  ngi
@@ -20256,10 +20283,10 @@ i16830
  stoi
  lao 1937
  ldci 6
+i16860
  chki 0 60
  ixa 1
  ldci 1
-i16840
  ngi
  chki -4 4
  stoi
@@ -20267,10 +20294,10 @@ i16840
  ldci 7
  chki 0 60
  ixa 1
+i16870
  ldci 1
  ngi
  chki -4 4
-i16850
  stoi
  lao 1937
  ldci 8
@@ -20278,10 +20305,10 @@ i16850
  ixa 1
  ldci 0
  chki -4 4
+i16880
  stoi
  lao 1937
  ldci 9
-i16860
  chki 0 60
  ixa 1
  ldci 0
@@ -20289,10 +20316,10 @@ i16860
  stoi
  lao 1937
  ldci 10
+i16890
  chki 0 60
  ixa 1
  ldci 0
-i16870
  chki -4 4
  stoi
  lao 1937
@@ -20300,10 +20327,10 @@ i16870
  chki 0 60
  ixa 1
  ldci 1
+i16900
  ngi
  chki -4 4
  stoi
-i16880
  lao 1937
  ldci 12
  chki 0 60
@@ -20311,10 +20338,10 @@ i16880
  ldci 1
  ngi
  chki -4 4
+i16910
  stoi
  lao 1937
  ldci 13
-i16890
  chki 0 60
  ixa 1
  ldci 1
@@ -20322,10 +20349,10 @@ i16890
  chki -4 4
  stoi
  lao 1937
+i16920
  ldci 14
  chki 0 60
  ixa 1
-i16900
  ldci 1
  ngi
  chki -4 4
@@ -20333,10 +20360,10 @@ i16900
  lao 1937
  ldci 15
  chki 0 60
+i16930
  ixa 1
  ldci 1
  ngi
-i16910
  chki -4 4
  stoi
  lao 1937
@@ -20344,10 +20371,10 @@ i16910
  chki 0 60
  ixa 1
  ldci 1
+i16940
  ngi
  chki -4 4
  stoi
-i16920
  lao 1937
  ldci 17
  chki 0 60
@@ -20355,10 +20382,10 @@ i16920
  ldci 0
  chki -4 4
  stoi
+i16950
  lao 1937
  ldci 18
  chki 0 60
-i16930
  ixa 1
  ldci 0
  chki -4 4
@@ -20366,10 +20393,10 @@ i16930
  lao 1937
  ldci 19
  chki 0 60
+i16960
  ixa 1
  ldci 0
  chki -4 4
-i16940
  stoi
  lao 1937
  ldci 20
@@ -20377,10 +20404,10 @@ i16940
  ixa 1
  ldci 0
  chki -4 4
+i16970
  stoi
  lao 1937
  ldci 21
-i16950
  chki 0 60
  ixa 1
  ldci 1
@@ -20388,10 +20415,10 @@ i16950
  chki -4 4
  stoi
  lao 1937
+i16980
  ldci 22
  chki 0 60
  ixa 1
-i16960
  ldci 1
  ngi
  chki -4 4
@@ -20399,10 +20426,10 @@ i16960
  lao 1937
  ldci 23
  chki 0 60
+i16990
  ixa 1
  ldci 0
  chki -4 4
-i16970
  stoi
  lao 1937
  ldci 24
@@ -20410,10 +20437,10 @@ i16970
  ixa 1
  ldci 0
  chki -4 4
+i17000
  stoi
  lao 1937
  ldci 25
-i16980
  chki 0 60
  ixa 1
  ldci 0
@@ -20421,10 +20448,10 @@ i16980
  stoi
  lao 1937
  ldci 26
+i17010
  chki 0 60
  ixa 1
  ldci 2
-i16990
  ngi
  chki -4 4
  stoi
@@ -20432,10 +20459,10 @@ i16990
  ldci 27
  chki 0 60
  ixa 1
+i17020
  ldci 0
  chki -4 4
  stoi
-i17000
  lao 1937
  ldci 28
  chki 0 60
@@ -20443,10 +20470,10 @@ i17000
  ldci 1
  ngi
  chki -4 4
+i17030
  stoi
  lao 1937
  ldci 29
-i17010
  chki 0 60
  ixa 1
  ldci 0
@@ -20454,10 +20481,10 @@ i17010
  stoi
  lao 1937
  ldci 30
+i17040
  chki 0 60
  ixa 1
  ldci 0
-i17020
  chki -4 4
  stoi
  lao 1937
@@ -20465,10 +20492,10 @@ i17020
  chki 0 60
  ixa 1
  ldci 0
+i17050
  chki -4 4
  stoi
  lao 1937
-i17030
  ldci 32
  chki 0 60
  ixa 1
@@ -20476,10 +20503,10 @@ i17030
  chki -4 4
  stoi
  lao 1937
+i17060
  ldci 33
  chki 0 60
  ixa 1
-i17040
  ldci 1
  ngi
  chki -4 4
@@ -20487,10 +20514,10 @@ i17040
  lao 1937
  ldci 34
  chki 0 60
+i17070
  ixa 1
  ldci 0
  chki -4 4
-i17050
  stoi
  lao 1937
  ldci 35
@@ -20498,10 +20525,10 @@ i17050
  ixa 1
  ldci 0
  chki -4 4
+i17080
  stoi
  lao 1937
  ldci 36
-i17060
  chki 0 60
  ixa 1
  ldci 1
@@ -20509,10 +20536,10 @@ i17060
  chki -4 4
  stoi
  lao 1937
+i17090
  ldci 37
  chki 0 60
  ixa 1
-i17070
  ldci 1
  chki -4 4
  stoi
@@ -20520,10 +20547,10 @@ i17070
  ldci 38
  chki 0 60
  ixa 1
+i17100
  ldci 1
  chki -4 4
  stoi
-i17080
  lao 1937
  ldci 39
  chki 0 60
@@ -20531,10 +20558,10 @@ i17080
  ldci 1
  chki -4 4
  stoi
+i17110
  lao 1937
  ldci 40
  chki 0 60
-i17090
  ixa 1
  ldci 2
  ngi
@@ -20542,10 +20569,10 @@ i17090
  stoi
  lao 1937
  ldci 41
+i17120
  chki 0 60
  ixa 1
  ldci 0
-i17100
  chki -4 4
  stoi
  lao 1937
@@ -20553,10 +20580,10 @@ i17100
  chki 0 60
  ixa 1
  ldci 0
+i17130
  chki -4 4
  stoi
  lao 1937
-i17110
  ldci 43
  chki 0 60
  ixa 1
@@ -20564,10 +20591,10 @@ i17110
  ngi
  chki -4 4
  stoi
+i17140
  lao 1937
  ldci 44
  chki 0 60
-i17120
  ixa 1
  ldci 1
  ngi
@@ -20575,10 +20602,10 @@ i17120
  stoi
  lao 1937
  ldci 45
+i17150
  chki 0 60
  ixa 1
  ldci 0
-i17130
  chki -4 4
  stoi
  lao 1937
@@ -20586,10 +20613,10 @@ i17130
  chki 0 60
  ixa 1
  ldci 0
+i17160
  chki -4 4
  stoi
  lao 1937
-i17140
  ldci 47
  chki 0 60
  ixa 1
@@ -20597,10 +20624,10 @@ i17140
  ngi
  chki -4 4
  stoi
+i17170
  lao 1937
  ldci 48
  chki 0 60
-i17150
  ixa 1
  ldci 1
  ngi
@@ -20608,10 +20635,10 @@ i17150
  stoi
  lao 1937
  ldci 49
+i17180
  chki 0 60
  ixa 1
  ldci 1
-i17160
  ngi
  chki -4 4
  stoi
@@ -20619,10 +20646,10 @@ i17160
  ldci 50
  chki 0 60
  ixa 1
+i17190
  ldci 1
  chki -4 4
  stoi
-i17170
  lao 1937
  ldci 51
  chki 0 60
@@ -20630,10 +20657,10 @@ i17170
  ldci 1
  chki -4 4
  stoi
+i17200
  lao 1937
  ldci 52
  chki 0 60
-i17180
  ixa 1
  ldci 1
  ngi
@@ -20641,31 +20668,6 @@ i17180
  stoi
  lao 1937
  ldci 53
- chki 0 60
- ixa 1
- ldci 1
-i17190
- ngi
- chki -4 4
- stoi
- lao 1937
- ldci 54
- chki 0 60
- ixa 1
- ldci 1
- chki -4 4
- stoi
-i17200
- lao 1937
- ldci 55
- chki 0 60
- ixa 1
- ldci 1
- ngi
- chki -4 4
- stoi
- lao 1937
- ldci 56
 i17210
  chki 0 60
  ixa 1
@@ -20674,10 +20676,35 @@ i17210
  chki -4 4
  stoi
  lao 1937
- ldci 57
+ ldci 54
  chki 0 60
  ixa 1
 i17220
+ ldci 1
+ chki -4 4
+ stoi
+ lao 1937
+ ldci 55
+ chki 0 60
+ ixa 1
+ ldci 1
+ ngi
+ chki -4 4
+i17230
+ stoi
+ lao 1937
+ ldci 56
+ chki 0 60
+ ixa 1
+ ldci 1
+ ngi
+ chki -4 4
+ stoi
+ lao 1937
+i17240
+ ldci 57
+ chki 0 60
+ ixa 1
  ldci 0
  chki -4 4
  stoi
@@ -20685,10 +20712,10 @@ i17220
  ldci 58
  chki 0 60
  ixa 1
+i17250
  ldci 0
  chki -4 4
  stoi
-i17230
  lao 1937
  ldci 59
  chki 0 60
@@ -20696,10 +20723,10 @@ i17230
  ldci 0
  chki -4 4
  stoi
+i17260
  lao 1937
  ldci 60
  chki 0 60
-i17240
  ixa 1
  ldci 0
  chki -4 4
@@ -20707,10 +20734,10 @@ i17240
  lao 1998
  ldci 1
  chki 1 23
+i17270
  deci 1
  ixa 1
  ldci 1
-i17250
  ngi
  chki -7 7
  stoi
@@ -20718,10 +20745,10 @@ i17250
  ldci 2
  chki 1 23
  deci 1
+i17280
  ixa 1
  ldci 1
  ngi
-i17260
  chki -7 7
  stoi
  lao 1998
@@ -20729,10 +20756,10 @@ i17260
  chki 1 23
  deci 1
  ixa 1
+i17290
  ldci 2
  ngi
  chki -7 7
-i17270
  stoi
  lao 1998
  ldci 4
@@ -20740,10 +20767,10 @@ i17270
  deci 1
  ixa 1
  ldci 2
+i17300
  ngi
  chki -7 7
  stoi
-i17280
  lao 1998
  ldci 5
  chki 1 23
@@ -20751,10 +20778,10 @@ i17280
  ixa 1
  ldci 2
  ngi
+i17310
  chki -7 7
  stoi
  lao 1998
-i17290
  ldci 6
  chki 1 23
  deci 1
@@ -20762,10 +20789,10 @@ i17290
  ldci 3
  ngi
  chki -7 7
+i17320
  stoi
  lao 1998
  ldci 7
-i17300
  chki 1 23
  deci 1
  ixa 1
@@ -20773,10 +20800,10 @@ i17300
  ngi
  chki -7 7
  stoi
+i17330
  lao 1998
  ldci 8
  chki 1 23
-i17310
  deci 1
  ixa 1
  ldci 3
@@ -20784,10 +20811,10 @@ i17310
  chki -7 7
  stoi
  lao 1998
+i17340
  ldci 9
  chki 1 23
  deci 1
-i17320
  ixa 1
  ldci 3
  ngi
@@ -20795,10 +20822,10 @@ i17320
  stoi
  lao 1998
  ldci 10
+i17350
  chki 1 23
  deci 1
  ixa 1
-i17330
  ldci 4
  ngi
  chki -7 7
@@ -20806,10 +20833,10 @@ i17330
  lao 1998
  ldci 11
  chki 1 23
+i17360
  deci 1
  ixa 1
  ldci 0
-i17340
  chki -7 7
  stoi
  lao 1998
@@ -20817,10 +20844,10 @@ i17340
  chki 1 23
  deci 1
  ixa 1
+i17370
  ldci 2
  ngi
  chki -7 7
-i17350
  stoi
  lao 1998
  ldci 13
@@ -20828,10 +20855,10 @@ i17350
  deci 1
  ixa 1
  ldci 1
+i17380
  ngi
  chki -7 7
  stoi
-i17360
  lao 1998
  ldci 14
  chki 1 23
@@ -20839,10 +20866,10 @@ i17360
  ixa 1
  ldci 0
  chki -7 7
+i17390
  stoi
  lao 1998
  ldci 15
-i17370
  chki 1 23
  deci 1
  ixa 1
@@ -20850,10 +20877,10 @@ i17370
  chki -7 7
  stoi
  lao 1998
+i17400
  ldci 16
  chki 1 23
  deci 1
-i17380
  ixa 1
  ldci 0
  chki -7 7
@@ -20861,10 +20888,10 @@ i17380
  lao 1998
  ldci 17
  chki 1 23
+i17410
  deci 1
  ixa 1
  ldci 0
-i17390
  chki -7 7
  stoi
  lao 1998
@@ -20872,10 +20899,10 @@ i17390
  chki 1 23
  deci 1
  ixa 1
+i17420
  ldci 0
  chki -7 7
  stoi
-i17400
  lao 1998
  ldci 19
  chki 1 23
@@ -20883,10 +20910,10 @@ i17400
  ixa 1
  ldci 0
  chki -7 7
+i17430
  stoi
  lao 1998
  ldci 20
-i17410
  chki 1 23
  deci 1
  ixa 1
@@ -20894,10 +20921,10 @@ i17410
  chki -7 7
  stoi
  lao 1998
+i17440
  ldci 21
  chki 1 23
  deci 1
-i17420
  ixa 1
  ldci 1
  ngi
@@ -20905,10 +20932,10 @@ i17420
  stoi
  lao 1998
  ldci 22
+i17450
  chki 1 23
  deci 1
  ixa 1
-i17430
  ldci 1
  ngi
  chki -7 7
@@ -20916,24 +20943,24 @@ i17430
  lao 1998
  ldci 23
  chki 1 23
+i17460
  deci 1
  ixa 1
  ldci 1
-i17440
  ngi
  chki -7 7
  stoi
  retp
-l1744=5
-l1745=7
+l1746=5
+l1747=7
 l1718
- ent 1 l1746
- ent 2 l1747
+ ent 1 l1748
+ ent 2 l1749
  mst 0
+i17470
  cup 0 l1719
  mst 0
  cup 0 l1722
-i17450
  mst 0
  cup 0 l1725
  mst 0
@@ -20941,24 +20968,24 @@ i17450
  mst 0
  cup 0 l1732
  mst 0
+i17480
  cup 0 l1738
  mst 0
- cup 0 l1743
-i17460
+ cup 0 l1745
  retp
-l1746=5
-l1747=5
-l1748
- ent 1 l1749
- ent 2 l1750
+l1748=5
+l1749=5
+l1750
+ ent 1 l1751
+ ent 2 l1752
  mst 0
  cup 0 l1712
  mst 0
  cup 0 l1715
+i17490
  mst 0
  cup 0 l1718
  ldci 0
-i17470
  chki 0 10
  sroi 52
  ldci 0
@@ -20966,10 +20993,10 @@ i17470
  sroi 53
  lao 55
  ldci 0
+i17500
  chki 0 20
  ixa 5
  stra 0 2280
-i17480
  ldoa 2280
  ldcn
  chka 0 1073741823
@@ -20977,10 +21004,10 @@ i17480
  ldoa 2280
  inca 1
  ldcn
+i17510
  chka 0 1073741823
  stoa
  ldoa 2280
-i17490
  inca 2
  ldci 0
  chki 0 3
@@ -20988,10 +21015,10 @@ i17490
  mst 0
  cup 0 l1691
  mst 0
+i17520
  cup 0 l1688
  mst 0
  cup 0 l1694
-i17500
  mst 0
  cup 0 l1709
  ldci 1
@@ -20999,10 +21026,10 @@ i17500
  sroi 53
  ldci 1
  chki 0 10
+i17530
  sroi 52
  lao 55
  ldci 1
-i17510
  chki 0 20
  ixa 5
  stra 0 2280
@@ -21010,10 +21037,10 @@ i17510
  ldcn
  chka 0 1073741823
  stoa
+i17540
  ldoa 2280
  inca 1
  ldcn
-i17520
  chka 0 1073741823
  stoa
  ldoa 2280
@@ -21021,10 +21048,10 @@ i17520
  ldci 0
  chki 0 3
  stoi
+i17550
  mst 0
  cup 0 l25
  mst 0
-i17530
  ldos 190
  ldos 187
  uni
@@ -21032,10 +21059,10 @@ i17530
  dif
  cup 1 l1670
  ldoi 35
+i17560
  ldci 0
  neqi
- fjp l1751
-i17540
+ fjp l1753
  ldcc '!'
  ldci 1
  lda 0 6
@@ -21043,22 +21070,22 @@ i17540
  ldoi 35
  ldci 0
  lda 0 6
+i17570
  csp wri
  lca' errors'
  ldci 7
-i17550
  ldci 7
  lda 0 6
  csp wrs
  lda 0 6
  csp wln
-l1751
+l1753
  retp
-l1749=2281
-l1750=10
+l1751=2281
+l1752=10
 q
 i0
  mst 0
- cup 0 l1748
+ cup 0 l1750
  stp
 q

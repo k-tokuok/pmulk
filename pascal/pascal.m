@@ -1,5 +1,5 @@
 pascal-p4 processor
-$Id: mulk/pascal pascal.m 1442 2025-06-12 Thu 10:05:28 kt $
+$Id: mulk/pascal pascal.m 1504 2025-12-28 Sun 21:47:47 kt $
 #ja
 
 *[man]
@@ -24,7 +24,7 @@ Comments are denoted by (* ... *).
 .item
 Use the symbol '^' for pointer references.
 .item
-Identifiers are allowed in lowercase only and are distinguished by the first 8 characters.
+Identifiers are distinguished by the first 8 characters.
 .item
 String literals are valid up to 128 characters.
 .item
@@ -100,7 +100,7 @@ gotoのジャンプ先は手続き内のみ可。
 .item
 ポインタ参照は記号'^'を使用する。
 .item
-識別子は小文字のみ使用可能で、最初の8文字で区別する。
+識別子は最初の8文字で区別する。
 .item
 文字列リテラルは最長128文字まで有効。
 .item

@@ -1,5 +1,5 @@
 実装メモ
-$Id: mulk/pascal note.txt 1457 2025-07-31 Thu 09:17:22 kt $
+$Id: mulk/pascal note.txt 1504 2025-12-28 Sun 21:47:47 kt $
 
 mulkによるp-codeインタプリタ上で、p-codeのコンパイラを用いてpascalプログラムのコンパイルを行い実行する。
 
@@ -22,6 +22,8 @@ mulk版pcode machineはlcaの文字列を可変長で解釈出来るので、gen
 
 nextchがeol時の処理として改行を出力する他、eolnがtrueの場合もこれを読み取って出力している。このためlistingで改行が常に重複して出力される。
 eol時の改行出力を削除。
+
+識別子として英大文字も使用可能に修正。
 
 *bootstrapについて
 https://sourceforge.net/projects/pascalp4/
@@ -46,7 +48,7 @@ pascal-p4_20161119.tar.gz
 のようにstoreを大幅に拡張する必要があるが、これで出来たpcom.p4はかなり改善される。
 現状のpcom.p4はこの版を用い、package向けにrevision番号行を
 
-	i $Id: mulk/pascal note.txt 1457 2025-07-31 Thu 09:17:22 kt $
+	i $Id: mulk/pascal note.txt 1504 2025-12-28 Sun 21:47:47 kt $
 	
 のように付加している。
 

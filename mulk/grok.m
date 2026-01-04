@@ -1,5 +1,5 @@
 chat with Grok
-$Id: mulk grok.m 1479 2025-10-18 Sat 21:05:23 kt $
+$Id: mulk grok.m 1490 2025-12-11 Thu 21:24:28 kt $
 #ja Grokとチャットする
 
 *[man]
@@ -7,20 +7,20 @@ $Id: mulk grok.m 1479 2025-10-18 Sat 21:05:23 kt $
 .caption DESCRIPTION
 Chat with Grok.
 
-See manual topic aichat for actual operation.
-It is necessary to register https://console.x.ai and API-KEY to Cmd.grok.apikey in the system dictionary in advance.
+See manual topic aichat for actual preparation and operation.
 
 .caption SEE ALSO
+	https://console.x.ai
 .summary aichat
 
 **#ja
 .caption 説明
 Grokとチャットを行う。
 
-実際の操作についてはマニュアルトピックaichatを参照のこと。
-事前にhttps://console.x.aiに登録し、API-KEYをシステム辞書のCmd.grok.apikeyに登録しておく必要がある。
+実際の準備、操作についてはマニュアルトピックaichatを参照のこと。
 
 .caption 関連項目
+	https://console.x.ai
 .summary aichat
 
 *import.@

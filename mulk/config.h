@@ -1,6 +1,6 @@
 /*
 	configure.
-	$Id: mulk config.h 1445 2025-06-19 Thu 21:29:00 kt $
+	$Id: mulk config.h 1511 2026-01-03 Sat 09:48:19 kt $
 */
 
 /* archtecture and compiler */
@@ -106,10 +106,20 @@
 /** gcc oriented */
 #ifdef __GNUC__
 #define GCC_NORETURN __attribute__((noreturn))
+#define COMPUTED_GOTO_P TRUE
 #endif
 
 #ifndef GCC_NORETURN
 #define GCC_NORETURN
+#endif
+
+/** clang oriented */
+#ifdef __clang__
+#define COMPUTED_GOTO_P TRUE
+#endif
+
+#ifndef COMPUTED_GOTO_P
+#define COMPUTED_GOTO_P FALSE
 #endif
 
 /* flags */
@@ -162,19 +172,14 @@
 
 /* options for mulk */
 
-#define K 1024
-#define DEFAULT_STACK_SIZE 2 /* * K CELL */
-
-#define IP_POLLING_INTERVAL 16384 /* for gc/interrupt check */
-
-#define GC_OLD_AMOUNT 256
-#define GC_NEW_AMOUNT 256
-
 #ifdef NDEBUG
 #define TUNE_P TRUE
 #else
 #define TUNE_P FALSE
 #endif
+
+#define K 1024
+#define DEFAULT_STACK_SIZE 2 /* * K CELL */
 
 #define MACRO_OM_P_P TUNE_P
 #define MACRO_SINT_P_P TUNE_P
@@ -182,4 +187,24 @@
 #define MACRO_SINT_P TUNE_P
 #define MACRO_OM_SIZE_P TUNE_P
 
+#define GC_OLD_AMOUNT 256
+#define GC_NEW_AMOUNT 256
+
 /* #define GC_LOG */
+
+#define IP_POLLING_INTERVAL 16384 /* for gc/interrupt check */
+
+#define IP_VER1 1
+#define IP_VER2 2
+#define IP_VER3 3
+
+#if TUNE_P
+#if COMPUTED_GOTO_P
+#define IP_VER IP_VER3
+#else
+#define IP_VER IP_VER2
+#endif
+#else
+#define IP_VER IP_VER1
+#endif
+

@@ -1,13 +1,12 @@
 /*
 	interpreter.
-	$Id: mulk ip.h 1433 2025-06-03 Tue 21:15:38 kt $
+	$Id: mulk ip.h 1510 2026-01-02 Fri 21:21:13 kt $
 */
 
 extern int ip_trap_code;
 #define TRAP_NONE 0
-#define TRAP_ERROR 1
-#define TRAP_INTERRUPT 2 /* ctrl-c */
-#define TRAP_QUIT 3 /* for WM_CLOSE, etc */
+#define TRAP_INTERRUPT 1 /* ctrl-c */
+#define TRAP_QUIT 2 /* for WM_CLOSE, etc */
 
 extern void ip_start(object arg,int fs_size);
 extern void ip_mark_object(int full_gc_p);

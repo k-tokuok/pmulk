@@ -1,5 +1,5 @@
 skkユーティリティ
-$Id: mulk skkut.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk skkut.m 1505 2025-12-29 Mon 20:00:53 kt $
 
 *[man]
 .caption 書式
@@ -18,10 +18,12 @@ skkutはskkの使用を支援するユーティリティプログラムである
 .caption 関連項目
 .summary oldchars
 
-**skkut.jtod 最大熟語長
+**skkut.jtod [-s] 最大熟語長
 skkのjisyo形式をskk/Mulkの変換辞書形式に変換する。
 
 skk/Mulkで使用出来ない情報、azikと競合する送りがな、変換結果にかな等を含むもの、指定の最大熟語長より長いエントリは削除される。
+
+-sオプションを指定すると、記号を排除する。
 
 変換辞書はcsv形式で以下のフィールドからなる。
 	読み,変換候補1,候補2,...
@@ -92,7 +94,13 @@ DICTが存在しない場合頻度情報のみから辞書を生成する。
 	self addInvalidChars: OldChars oldstr;
 	invalidCharSet remove: '龍';
 	invalidCharSet remove: '凛'
-
+***Cmd.skkut >> invalidateSymbols
+	--きごう
+	self addInvalidChars: "〆…‥〓―‐♂♀※〒℃°′″¢£§¶†‡Å‰Ц♪♯♭☆★○●◎□■◇◆△▲▽▼→←↑↓ヽヾゞ〃仝々゛゜“”´｀¨＾∪∩∧∨¬∞∝∽∠⌒≡≒≠≦≧≪≫∴∵∫×÷±（）〔〕［］｛｝〈〉《》「」『』【】＋＝＜＞＃＊＠／＼￥＄％＆、。，．・：；？！‘’｜〇ー￣＿";
+	--すうがくきごう
+	self addInvalidChars: "⇒⇔∀∃∂∇√∬∈∋⊆⊇⊂⊃⊥";
+	--けいせん
+	self addInvalidChars: "─│┌┐┘└├┬┤┴┼━┃┏┓┛┗┣┳┫┻╋┠┯┨┷┿┝┰┥┸╂"
 ***Cmd.skkut >> validCol?: buf
 	buf size > compoundLen ifTrue: [false!];
 	buf allSatisfy?: [:ch invalidCharSet includes?: ch, not]!
@@ -119,8 +127,10 @@ DICTが存在しない場合頻度情報のみから辞書を生成する。
 	result do: [:s2 Out put: s2 asString] separatedBy: [Out put: ','];
 	Out putLn
 ***Cmd.skkut >> main.jtod: args
+	OptionParser new init: "s" ->:op, parse: args ->args;
 	args first asInteger ->compoundLen;
 	self setupInvalidChars;
+	op at: 's', ifTrue: [self invalidateSymbols];
 	In contentLines do: [:ln self jtod: (WideCharArray new addString: ln)]
 
 **Cmd.skkut >> readChunk: fileArg

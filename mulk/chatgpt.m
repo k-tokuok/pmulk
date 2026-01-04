@@ -1,5 +1,5 @@
 chat with ChatGPT
-$Id: mulk chatgpt.m 1479 2025-10-18 Sat 21:05:23 kt $
+$Id: mulk chatgpt.m 1496 2025-12-18 Thu 21:46:13 kt $
 #ja ChatGPTとチャットする
 
 *[man]
@@ -7,20 +7,20 @@ $Id: mulk chatgpt.m 1479 2025-10-18 Sat 21:05:23 kt $
 .caption SYNOPSIS
 Chat with ChatGPT.
 
-For actual operation, please refer to the manual topic aichat.
-It is necessary to register https://platform.openai.com/ and API-KEY to Cmd.chatgpt.apikey in the system dictionary in advance.
+See manual topic aichat for actual preparation and operation.
 
 .caption SEE ALSO
+	https://platform.openai.com/
 .summary aichat
 
 **#ja
 .caption 説明
 ChatGPTとチャットを行う。
 
-実際の操作についてはマニュアルトピックaichatを参照のこと。
-事前にhttps://platform.openai.com/に登録し、API-KEYをシステム辞書のCmd.chatgpt.apikeyに登録しておく必要がある。
+実際の準備、操作についてはマニュアルトピックaichatを参照のこと。
 
 .caption 関連項目
+	https://platform.openai.com/
 .summary aichat
 
 *import.@
@@ -39,6 +39,8 @@ ChatGPTとチャットを行う。
 	result car: (jsonArg at: "role");
 	result cdr: (jsonArg at: "content");
 	result!
+**Cmd.chatgpt >> adjustLastDialog: textArg
+	self dialogs last at: "content" put: textArg
 **Cmd.chatgpt >> addDialogRole: roleArg text: textArg
 	Dictionary new ->:message;
 	message at: "role" put: roleArg;

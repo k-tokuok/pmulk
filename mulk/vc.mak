@@ -1,6 +1,6 @@
 #
 #	Makefile for Visual-C
-#	$Id: mulk vc.mak 1433 2025-06-03 Tue 21:15:38 kt $
+#	$Id: mulk vc.mak 1510 2026-01-02 Fri 21:21:13 kt $
 #
 #	nmake /fvc.mak [setup=setup.m]
 #
@@ -14,10 +14,10 @@ setup=setup.m
 !ENDIF
 
 cc=cl
-uflags=/O2 /W3 /WX /MD
+uflags=/O2 /W3 /WX /MD /GL
 cflags=$(uflags) /c /DNDEBUG /DINTR_CHECK_P=1
 lflags=$(uflags)
-link=$(cc) $(lflags) /Fe$@ $** user32.lib gdi32.lib
+link=$(cc) $(lflags) $** user32.lib gdi32.lib /link /LTCG /OUT:$@
 
 ppflags=windows caseInsensitiveFileName
 

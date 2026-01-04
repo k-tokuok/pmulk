@@ -1,4 +1,4 @@
- (* $Id: mulk/pascal pcom.pas 1442 2025-06-12 Thu 10:05:28 kt $*)
+ (* $Id: mulk/pascal pcom.pas 1504 2025-12-28 Sun 21:47:47 kt $*)
  (***********************************************
   *                                             *
   *      Portable Pascal compiler               *
@@ -3934,6 +3934,9 @@ var
       chartp[']'] := special ; chartp[':'] := chcolon ;
       chartp['^'] := special ; chartp[';'] := special ;
       chartp['<'] := chlt    ; chartp['>'] := chgt    ;
+      
+      for i := ord('A') to ord('Z') do chartp[chr(i)]:=letter;
+      
       ordint['0'] := 0; ordint['1'] := 1; ordint['2'] := 2;
       ordint['3'] := 3; ordint['4'] := 4; ordint['5'] := 5;
       ordint['6'] := 6; ordint['7'] := 7; ordint['8'] := 8;

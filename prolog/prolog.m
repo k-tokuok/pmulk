@@ -1,8 +1,8 @@
 prolog prototype.
-$Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
+$Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 
 *import.@
-	Mulk import: #("optparse" "prompt" "repl")
+	Mulk import: #("optparse" "prompt" "repl" "math" "random")
 	
 *cell -- clause structure.
 **Prolog.Functor class.@
@@ -129,11 +129,12 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 ***Prolog.Lexer >> identifierLeadChar?
 	nextChar lower? or: [nextChar = '$']!
 ***Prolog.Lexer >> identifierTrailChar?
-	nextChar alpha? or: [nextChar = '$'], or: [nextChar digit?]!
+	nextChar alpha? or: [nextChar = '$'], or: [nextChar = '_'],
+		or: [nextChar digit?]!
 ***Prolog.Lexer >> varLeadChar?
 	nextChar = '_' or: [nextChar upper?]!
 ***Prolog.Lexer >> symbolChar?
-	#('+' '-' '*' '/' '=' '<' '>' ':' '?') includes?: nextChar!
+	#('+' '-' '*' '/' '=' '<' '>' ':' '?' '\\') includes?: nextChar!
 ***Prolog.Lexer >> getDigits
 	[self digit?] whileTrue: [self getChar]	
 ***Prolog.Lexer >> getToken
@@ -225,6 +226,11 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 		Prolog.Term new initFunctor: cons args:
 			(Array new addLast: e, addLast: cdr) ->cdr];
 	cdr!
+***Prolog.Reader >> createTerm: functorArg args: argsArg
+	argsArg size = 1 and: [argsArg first ->:a0, kindOf?: Number], 
+		and: [functorArg = (prolog functorOf: "-" arity: 1)], 
+		ifTrue: [a0 negated!];
+	Prolog.Term new initFunctor: functorArg args: argsArg!
 ***Prolog.Reader >> parseLeft: priArg
 	nextTk = ',' | (nextTk = #atom) ifTrue:
 		[self nextAtom ->:atom;
@@ -244,7 +250,7 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 							(f type = #fx ifTrue: [1] ifFalse: [0]))]];
 		args size = 0 
 			ifTrue: [atom] 
-			ifFalse: [Prolog.Term new initFunctor: f args: args]!];
+			ifFalse: [self createTerm: f args: args]!];
 	nextTk = #var ifTrue: 
 		[prolog varOf: lexer token ->:result;
 		self skip;
@@ -286,8 +292,8 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 					ifTrue:
 						[self skip;
 						f pri ->leftPri;
-						Prolog.Term new initFunctor: f args: 
-							(Array new addLast: left) ->left]
+						self createTerm: f args: (Array new addLast: left) 
+							->left]
 					ifFalse: [left!]]];
 	left!
 ***Prolog.Reader >> read
@@ -298,31 +304,39 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 
 *Prolog.Writer class.@
 	Object addSubclass: #Prolog.Writer instanceVars: "prolog writer"
-**Prolog.Writer >> init: prologArg writer: writerArg
-	prologArg ->prolog;
-	writerArg ->writer
+**Prolog.Writer >> init: prologArg
+	prologArg ->prolog
 **Prolog.Writer >> cons?: cell
 	cell memberOf?: Prolog.Term, and: [cell functor = prolog consFunctor]!
-**Prolog.Writer >> write: cell
+**Prolog.Writer >> writeCell: cell
 	prolog deref: cell ->cell;
 
 	self cons?: cell, ifTrue:
 		[writer put: '[';
-		[self write: cell args first;
+		[self writeCell: cell args first;
 		prolog deref: (cell args at: 1) ->cell;
 		self cons?: cell] whileTrue:
 			[writer put: ','];
 		cell <> prolog nilAtom ifTrue: 
 			[writer put: '|';
-			self write: cell];
+			self writeCell: cell];
 		writer put: ']'!];
 		
 	cell memberOf?: Prolog.Term, ifTrue:
 		[writer put: cell functor name, put: '(';
-		cell args do: [:a self write: a] separatedBy: [writer put: ','];
+		cell args do: [:a self writeCell: a] separatedBy: [writer put: ','];
 		writer put: ')'!];
 	writer put: cell
-	
+**Prolog.Writer >> write: cellArg to: writerArg
+	writerArg ->writer;
+	self writeCell: cellArg
+**Prolog.Writer >> write: cellArg
+	self write: cellArg to: Out
+**Prolog.Writer >> writeToString: cellArg
+	StringWriter new ->writer;
+	self writeCell: cellArg;
+	writer asString!
+
 *query.
 **Prolog.Environment class.@
 	Object addSubclass: #Prolog.Environment instanceVars: "ep cutCp body"
@@ -378,20 +392,24 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 
 ***Prolog.Query >> init: prologArg
 	prologArg ->prolog;
-	Prolog.Writer new init: prolog writer: Out ->writer;
+	Prolog.Writer new init: prolog ->writer;
 	Array new ->trail
 	
 ***materialize.
+****Prolog.Query >> createVar
+	Prolog.Var new init: varNo ->:result;
+	varNo + 1 ->varNo;
+	result!
 ****Prolog.Query >> sweep: cellArg
 	cellArg memberOf?: Prolog.ClauseVar, ifTrue:
 		[clauseVars indexOf: cellArg ->:ix, nil?
 			ifTrue:
-				[Prolog.Var new init: varNo ->:result;
+				[self createVar ->:result;
 				clauseVars addLast: cellArg;
 				vars addLast: result;
-				varNo + 1 ->varNo;
-				result!]
-			ifFalse: [vars at: ix!]];
+				result]
+			ifFalse: [vars at: ix]!];
+	cellArg memberOf?: Prolog.VoidVar, ifTrue: [self createVar!];
 	cellArg memberOf?: Prolog.Term, ifTrue:
 		[Array new ->:args;
 		cellArg args do: [:arg args addLast: (self sweep: arg)];
@@ -414,9 +432,6 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 	--atom, number and string.
 	p = q ifTrue: [true!];
 
-	p memberOf?: Prolog.VoidVar, or: [q memberOf?: Prolog.VoidVar], 
-		ifTrue: [true!];
-		
 	p memberOf?: Prolog.Var, ifTrue:
 		[q memberOf?: Prolog.Var,
 			ifTrue: 
@@ -450,39 +465,51 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 	args first, functorOf: (args at: 1), 
 		type: (args at: 2) asSymbol pri: (args at: 3);
 	true!
+****Prolog.Query >> b.stop: args
+	self error: "stop"
 ****Prolog.Query >> b.cut: args
 	ep cutCp ->cp;
 	true!
 	
 ****meta-logical.
+*****Prolog.Query >> b.atom: args
+	args first memberOf?: Prolog.Atom!
 *****Prolog.Query >> b.var: args
 	args first ->:a0, memberOf?: Prolog.Var, 
 		or: [a0 memberOf?: Prolog.VoidVar]!
+*****Prolog.Query >> b.integer: args
+	args first kindOf?: Integer!
 *****Prolog.Query >> b.number: args
 	args first kindOf?: Number!
-
-****Prolog.Query >> b.lt: args
-	--X<Y
-	args first < (args at: 1)!
-				
-****arithmetic.
-*****Prolog.Query >> b.add: args
-	--$add(X,Y,X+Y)
-	self unify: args first + (args at: 1) and: (args at: 2)!
-*****Prolog.Query >> b.minus: args
-	--$minus(X,-X)
-	self unify: args first negated and: (args at: 1)!
-*****Prolog.Query >> b.multiply: args
-	--$multiply(X,Y,X*Y)
-	self unify: args first * (args at: 1) and: (args at: 2)!
-*****Prolog.Query >> b.divide: args
-	--$divide(X,Y,X/Y)
-	self unify: args first / (args at: 1) and: (args at: 2)!
-*****Prolog.Query >> b.clock: args
-	--$clock(OS >> clock)
-	self unify: OS clock and: args first!
+*****Prolog.Query >> b.compound: args
+	args first memberOf?: Prolog.Term!
+	
+*****==
+******Prolog.Query >> identical: a with: b
+	-- each deferenced.
+	a == b ifTrue: [true!];
+	a memberOf?: Prolog.Term, 
+		and: [b memberOf?: Prolog.Term],
+		and: [a functor == b functor],
+	ifTrue:
+		[a args ->:aa;
+		b args ->:ba;
+		aa size timesDo: 
+			[:i 
+			self identical: (prolog deref: (aa at: i)) 
+				with: (prolog deref: (ba at: i)), ifFalse: [false!]];
+		true!];
+	false!
+******Prolog.Query >> b.identical: args
+	self identical: args first with: (args at: 1)!
 	
 ****input/output.
+*****Prolog.Query >> b.read: args
+	Out put: "read>"; In getLn ->:ln, nil? ifFalse:
+		[Prolog.Reader new init: prolog reader: (StringReader new init: ln),
+			read ->:cell];
+	cell nil? ifTrue: [prolog atomOf: "end_of_file" ->cell];
+	self unify: args first and: cell!
 *****Prolog.Query >> b.write: args
 	writer write: args first;
 	true!
@@ -490,6 +517,45 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 	Out put: args first asChar;
 	true!
 
+****Prolog.Query >> b.lt: args
+	--X<Y
+	args first < (args at: 1)!
+
+****arithmetic.
+*****Prolog.Query >> b.add: args
+	--$add(X,Y,X+Y)
+	self unify: args first + (args at: 1) and: (args at: 2)!
+*****Prolog.Query >> b.negated: args
+	--$negated(X,-X)
+	self unify: args first negated and: (args at: 1)!
+*****Prolog.Query >> b.multiply: args
+	--$multiply(X,Y,X*Y)
+	self unify: args first * (args at: 1) and: (args at: 2)!
+*****Prolog.Query >> b.divide: args
+	--$divide(X,Y,X/Y)
+	self unify: args first / (args at: 1) and: (args at: 2)!
+*****Prolog.Query >> b.div: args
+	--$div(X,Y,X//Y)
+	self unify: args first // (args at: 1) and: (args at: 2)!
+*****Prolog.Query >> b.mod: args
+	--$mod(X,Y,X%Y)
+	self unify: args first % (args at: 1) and: (args at: 2)!	
+*****Prolog.Query >> b.clock: args
+	--$clock(OS >> clock)
+	self unify: OS clock and: args first!
+*****Prolog.Query >> b.sqrt: args
+	--$sqrt(X,X sqrt)
+	self unify: args first sqrt and: (args at: 1)!
+*****Prolog.Query >> b.log: args
+	--$log(X,X log)
+	self unify: args first log and: (args at: 1)!
+*****Prolog.Query >> b.sin: args
+	--$sin(X,X sin)
+	self unify: args first sin and: (args at: 1)!
+*****Prolog.Query >> b.random: args
+	--$random(N,Random until: N)
+	self unify: (args at: 1) and: (Random until: args first)!
+	
 ****clause control.
 *****Prolog.Query >> b.consult: args
 	prolog consult: args first asFile;
@@ -497,6 +563,21 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 *****Prolog.Query >> b.abolish: args
 	--abolish(atom,arity)
 	args first functorOf: (args at: 1), removeClauses;
+	true!
+
+*****assert.
+******Prolog.Query >> dematerialize: cellArg
+	--cellArg is dereferenced.
+	cellArg memberOf?: Prolog.Var, ifTrue: [prolog varOf: cellArg asString!];
+	cellArg memberOf?: Prolog.Term, ifTrue:
+		[Array new ->:args;
+		cellArg args do: 
+			[:arg
+			args addLast: (self dematerialize: (prolog deref: arg))];
+		Prolog.Term new initFunctor: cellArg functor args: args!];
+	cellArg!
+******Prolog.Query >> b.assert: args
+	prolog assert: (self dematerialize: args first);
 	true!
 	
 ****debug support.
@@ -555,8 +636,9 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 	[trail size <> cp tp] whileTrue:
 		[trail last value: nil;
 		trail removeLast];
-	cp alternativeExist? ifFalse: [cp cp ->cp];
-	self processClause: cp!
+	cp cp ->:cp0;
+	cp alternativeExist? ifFalse: [cp0 ->cp];
+	self processClause: cp0!
 ****Prolog.Query >> processLoop: next
 	[next = #success or: [next = #fail]] whileFalse: 
 		[self perform: next ->next];
@@ -629,12 +711,14 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 	cell functor is: "?-" arity: 1, ifTrue: [self query: cell silent: false!];
 	cell functor is: ":-" arity: 1, ifTrue: [self query: cell silent: true!];
 	self assert: cell
-	
+
+***Prolog >> consultReader: readerArg
+	Prolog.Reader new init: self reader: readerArg ->:r;
+	[r read ->:cell, notNil?] whileTrue: [self assertOrQuery: cell]
 ***Prolog >> consult: fileArg
 	fileArg readDo:
 		[:s
-		Prolog.Reader new init: self reader: s ->:reader;
-		[reader read ->:cell, notNil?] whileTrue: [self assertOrQuery: cell]]
+		self consultReader: s]
 		
 *driver.@
 	Object addSubclass: #Cmd.prolog instanceVars: "wb prolog"
@@ -649,12 +733,12 @@ $Id: mulk/prolog prolog.m 1470 2025-08-29 Fri 23:04:09 kt $
 			[Out put: " token: " + lexer token];
 		Out putLn]
 **Cmd.prolog >> processLn: ln
-	ln = "" 
-		ifTrue: [wb inputText: "" ->ln, nil? or: [ln = ""], ifTrue: [self!]]
-		ifFalse: ["?-" + ln ->ln];
-	Prolog.Reader new init: prolog reader: (StringReader new init: ln) 
-		->:reader;
-	prolog assertOrQuery: reader read
+	ln <> "" ifTrue:
+		[Prolog.Reader new init: prolog 
+			reader: (StringReader new init: "?-" + ln) ->:r;
+		prolog assertOrQuery: r read!];
+	wb inputText: "" ->:str, nil? or: [str = ""], ifTrue: [self!];
+	prolog consultReader: (StringReader new init: str)
 **Cmd.prolog >> main: args
 	OptionParser new init: "d" ->:op, parse: args ->args;
 	op at: 'd' ->:debug?;

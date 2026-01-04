@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1474 2025-10-04 Sat 21:15:41 kt $
+$Id: mulk wb.m 1493 2025-12-13 Sat 21:44:25 kt $
 #ja テキストエディタ
 
 *[man]
@@ -2058,11 +2058,11 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 **abbrevCommand.
 ***#en
 ****Wb.class >> abbrevPatternType: ch
-	ch alnum? or: [ch = '_'], or: [ch = '-'], ifTrue: [#ascii!];
+	ch alnum? or: [ch = '_'], ifTrue: [#ascii!];
 	nil!
 ***#ja
 ****Wb.class >> abbrevPatternType: ch
-	ch alnum? or: [ch = '_'], or: [ch = '-'], ifTrue: [#ascii!];
+	ch alnum? or: [ch = '_'], ifTrue: [#ascii!];
 	ch between: 'ぁ' and: 'ん', ifTrue: [#hiragana!];
 	ch between: 'ァ' and: 'ヶ', or: [ch = 'ー'], ifTrue: [#katakana!];
 	ch = '々' ifTrue: [#kanji!];
@@ -2074,7 +2074,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	nil!
 ***Wb.class >> abbrevComplementType: ch
 	self abbrevPatternType: ch ->:result, notNil? ifTrue: [result!];
-	ch = '?' or: [ch = ':'], or: [ch = '.'], ifTrue: [#ascii!];
+	ch = '?' or: [ch = ':'], or: [ch = '.'], or: [ch = '-'], ifTrue: [#ascii!];
 	nil!
 
 ***Wb.class >> abbrevPatternTypeAt: pos

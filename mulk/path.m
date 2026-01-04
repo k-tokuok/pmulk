@@ -1,5 +1,5 @@
 system file search path
-$Id: mulk path.m 1468 2025-08-19 Tue 20:52:07 kt $
+$Id: mulk path.m 1495 2025-12-17 Wed 21:40:04 kt $
 #ja システムファイル検索パス
 
 *[man]
@@ -7,7 +7,7 @@ $Id: mulk path.m 1468 2025-08-19 Tue 20:52:07 kt $
 .caption SYNOPSIS
 	path [OPTION] [PATH...]
 .caption DESCRIPTION
-Add the PATH list to the search path for system files in the specified order.
+Add the PATH list to the search path for system files (Mulk.extraSystemDirectories) in the specified order.
 These will be the target of searches for libraries, loading system files, and command class modules.
 .caption OPTION
 	c -- reset additional paths.
@@ -17,7 +17,7 @@ These will be the target of searches for libraries, loading system files, and co
 .caption 書式
 	path [OPTION] [PATH...]
 .caption 説明
-PATHリストを指定の順序でシステムファイルの検索パスに追加する。
+PATHリストを指定の順序でシステムファイルの検索パス(Mulk.extraSystemDirectories)に追加する。
 これらはライブラリやシステムファイルの読み込み、コマンドクラスモジュールの検索の対象となる。
 .caption オプション
 	c -- 追加パスをリセットする。
