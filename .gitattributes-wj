@@ -1,25 +1,5 @@
-*.bat text working-tree-encoding=cp932
-*.c text working-tree-encoding=cp932
-*.cgi text working-tree-encoding=cp932
-*.cpp text working-tree-encoding=cp932
-*.d text working-tree-encoding=cp932
-#dotx -- windows document template
-*.gradle text working-tree-encoding=cp932
-*.h text working-tree-encoding=cp932
-*.htm text working-tree-encoding=cp932
-#jar -- android resource
-*.java text working-tree-encoding=cp932
-*.l text working-tree-encoding=cp932
-*.m text working-tree-encoding=cp932
-*.mak text working-tree-encoding=cp932
-*.mc text working-tree-encoding=cp932
-*.mk text working-tree-encoding=cp932
-*.mm text working-tree-encoding=cp932
-#ott -- libreoffice template
-#png -- android resource
-*.pro text working-tree-encoding=cp932
-*.properties text working-tree-encoding=cp932
-*.txt text working-tree-encoding=cp932
-*.xml text working-tree-encoding=cp932
-*.pas text working-tree-encoding=cp932
-*.p4 text working-tree-encoding=cp932
+* text working-tree-encoding=cp932
+*.dotx binary
+*.jar binary
+*.ott binary
+*.png binary
