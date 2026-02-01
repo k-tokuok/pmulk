@@ -1,12 +1,12 @@
 introduction
-$Id: mulk intro.mm 1489 2025-12-10 Wed 21:14:02 kt $
+$Id: mulk intro.mm 1529 2026-01-21 Wed 21:17:30 kt $
 #ja はじめに
 
 *#en
-Mulk is the name of the original object-oriented language, its processing system, and various tools and libraries written in Mulk itself.
+Mulk is the name of an object-oriented programming language, encompassing its interpreter and the collective set of tools and libraries written in Mulk itself.
 
-It uses a UNIX-like command line interface, and there is some compatibility in the handling of the current directory, command interpreter (shell) operations such as redirection and pipes, and commands such as file operations and various filters.
-Normally, the following prompt is printed when starting up, and it waits for input.
+It adopts a UNIX-like command-line interface, offering a degree of compatibility with command interpreter (shell) behaviors such as command argument handling, current directory management, redirection, and pipes, as well as with command groups like file operations and various filters.
+Typically, upon startup, it outputs the following prompt and waits for input. 
 
 	]
 
@@ -31,9 +31,9 @@ The following commands list the available commands.
 	]man.whatis -p tool
 
 *#ja
-Mulkはオリジナルのオブジェクト指向言語の名称であり、その処理系とMulk自身で記述された各種ツール、ライブラリ群の総体です。
+Mulkはオブジェクト指向プログラミング言語の名称であり、その処理系とMulk自身で記述された各種ツール、ライブラリ群の総体です。
 
-UNIX風のコマンドラインインタフェースを採用しており、カレントディレクトリの扱い、リダイレクション、パイプといったコマンドインタプリタ(シェル)の動作、ファイル操作や各種フィルタといったコマンド群にはある程度の互換性があります。
+UNIX風のコマンドラインインタフェースを採用しており、コマンド引数の仕組み、カレントディレクトリの扱い、リダイレクション、パイプといったコマンドインタプリタ(シェル)の動作、ファイル操作や各種フィルタといったコマンド群にはある程度の互換性があります。
 通常、起動すると次のプロンプトが出力され、入力待ちとなります。
 
 	]

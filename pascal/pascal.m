@@ -1,5 +1,5 @@
 pascal-p4 processor
-$Id: mulk/pascal pascal.m 1504 2025-12-28 Sun 21:47:47 kt $
+$Id: mulk/pascal pascal.m 1532 2026-01-30 Fri 20:58:38 kt $
 #ja
 
 *[man]
@@ -580,11 +580,12 @@ They require the courage to discard and abandon, to select simplicity and transp
 	false ->error?;
 	true ->firstColumn?;
 	
-	[pc <> -1] whileTrue:
+	[[pc <> -1] whileTrue:
 		[code at: pc ->inst;
 		pc + 1 ->pc;
 		self perform: inst opcode;
-		cycle + 1 ->cycle];
+		cycle + 1 ->cycle]] on: Error do:
+	[:e self error: e message + " at " + (pc - 1)];
 	
 	stream7 notNil? ifTrue: [stream7 close];
 	stream8 notNil? ifTrue: [stream8 close];

@@ -1,5 +1,5 @@
 % startup.pl
-% $Id: mulk/prolog startup.pl 1513 2026-01-03 Sat 20:59:52 kt $
+% $Id: mulk/prolog startup.pl 1517 2026-01-11 Sun 16:38:13 kt $
 
 :-($builtin($op,4,"b.op:")).
 
@@ -145,6 +145,14 @@ Y is X :- error(["is/2: illegal expr ",X]).
 :-$builtin(abolish,2,"b.abolish:").
 :-$builtin(consult,1,"b.consult:").
 :-$builtin(assert,1,"b.assert:").
+
+% findall
+:-$builtin($findall_push,0,"b.findallPush:").
+:-$builtin($findall_add,1,"b.findallAdd:").
+:-$builtin($findall_pop,1,"b.findallPop:").
+
+findall(T,G,_):-$findall_push,G,$findall_add(T),fail.
+findall(_,_,L):-$findall_pop(L).
 
 % debug support.
 :-$builtin($debugTerm,1,"b.debugTerm:").

@@ -1,14 +1,14 @@
 #
 #	makefile for gnu toolchain.
-#	$Id: mulk makefile 1435 2025-06-06 Fri 16:09:23 kt $
+#	$Id: mulk makefile 1527 2026-01-18 Sun 20:52:36 kt $
 #
 #	make hostos={cygwin,linux,macosx,minix,freebsd,netbsd,illumos,windows}
 #		[dl=on|off] [term=on|off] [view=on|off|sdl] [xft=on|off] 
 #		[setup=setup.m] [cross=|wine]
-#		[debug=off|on] [ptr=p64|p32] [disableSendCommon=off|on]
+#		[debug=off|on] [disableSendCommon=off|on]
 #		[target=xxx setup=xxx sall]
 #	The former is the default.
-#
+#	
 
 unixen=cygwin linux macosx minix freebsd netbsd illumos
 supportos=$(unixen) windows
@@ -18,7 +18,6 @@ $(error illegal hostos)
 endif
 
 ifeq ($(hostos),minix)
-ptr=p32
 xft=off
 endif
 
@@ -32,12 +31,7 @@ view?=on
 xft?=on
 setup?=setup.m
 debug?=off
-ptr?=p64
 disableSendCommon?=off
-
-ifeq ($(filter p32 p64,$(ptr)),)
-$(error illegal ptr)
-endif
 
 .SUFFIXES: .c .o
 
@@ -66,21 +60,16 @@ endif
 ppflags=$(hostos)
 
 ifeq ($(hostos),windows)
-ccname=gcc
-ifeq ($(ptr),p32)
-toolprefix=i686-pc-mingw32-
-cflags+=-DINTER_ISFINITE_P=1
-else
+ifeq ($(cross),wine)
+wine=wine
 toolprefix=x86_64-w64-mingw32-
+ccname=gcc
 endif
 ppflags+=caseInsensitiveFileName
 xcobjs+=osw.o pfw.o
 exe=.exe
 termobjs+=termw.o
 termprims+=termw.c
-ifeq ($(cross),wine)
-wine=wine
-endif
 endif
 
 ifneq ($(filter $(unixen),$(hostos)),)

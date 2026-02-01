@@ -1,4 +1,4 @@
-%chapter 04. �ƌn�}
+%chapter 04. 家系図
 %$Id: mulk/prolog ch04.pl 1497 2025-12-20 Sat 09:23:52 kt $
 
 male(taro).

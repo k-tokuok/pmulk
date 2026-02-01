@@ -1,6 +1,6 @@
 /*
 	interpreter.
-	$Id: mulk ip.c 1511 2026-01-03 Sat 09:48:19 kt $
+	$Id: mulk ip.c 1525 2026-01-17 Sat 15:25:38 kt $
 */
 
 #include "std.h"
@@ -284,7 +284,7 @@ static struct cache {
 	object class,selector,method;
 } *cache;
 
-#define CACHE_N 3
+#define CACHE_N 4
 static int cache_size;
 static int cache_entry;
 #if U64_P
@@ -318,7 +318,7 @@ static void cache_reset(object sel)
 	struct cache *c;
 	for(i=0;i<cache_size;i++) {
 		c=&cache[i];
-		if(c->class!=NULL&&(sel==om_nil||c->selector==sel)) {
+		if(c->selector==sel&&c->class!=NULL) {
 			cache_entry--;
 			c->class=NULL;
 		}
@@ -335,12 +335,12 @@ static object find_method(object cl,object sel)
 	object m;
 
 	cache_call++;
-	hval=hval0=(HASH(cl)^(HASH(sel)<<1))&(cache_size-1);
+	hval=hval0=(HASH(cl)^HASH(sel))&(cache_size-1);
 
 	for(i=0;i<CACHE_N;i++) {
 		c=&cache[hval];
 		if(c->class==NULL) break;
-		if(c->class==cl&&c->selector==sel) {
+		if(c->selector==sel&&c->class==cl) {
 			cache_hit++;
 			return c->method;
 		}
@@ -363,7 +363,7 @@ static object find_method(object cl,object sel)
 	c->method=m;
 	cache_entry++;
 
-	if(cache_entry>(cache_size*8/10)) {
+	if(cache_entry>(cache_size*7/10)) {
 		cache_size*=2;
 		xfree(cache);
 		cache_alloc();
@@ -526,13 +526,23 @@ static object perform_method(object rec,object m,int narg,object *args)
 		/* every primitive counts as one cycle */
 		if(profile_fn!=NULL) profile_get(m)->cycle_count++;
 #endif
-		if((st=(*prim_table[prim])(rec,args,&result))==PRIM_SUCCESS) {
+		if(prim<METHOD_INSTANCE_VAR_GETTER) {
+			if((st=(*prim_table[prim])(rec,args,&result))==PRIM_SUCCESS) {
+				return result;
+			}
+			prim_last_error=st;
+			if(METHOD_BYTECODE_SIZE(m)==0) {
+				send_error(rec,om_primitiveFailed,m->method.selector,narg,args);
+				return NULL;
+			}
+		} else if(prim<METHOD_INSTANCE_VAR_SETTER) {
+			/* instance var getter */
+			return rec->gobject.elt[prim-METHOD_INSTANCE_VAR_GETTER];
+		} else {
+			/* instance var setter */
+			rec->gobject.elt[prim-METHOD_INSTANCE_VAR_SETTER]=args[0];
+			gc_refer(rec,args[0]);
 			return result;
-		}
-		prim_last_error=st;
-		if(METHOD_BYTECODE_SIZE(m)==0) {
-			send_error(rec,om_primitiveFailed,m->method.selector,narg,args);
-			return NULL;
 		}
 	}
 
@@ -847,6 +857,12 @@ static int poll(void)
 	return TRUE;
 }
 
+#ifdef __DMC__
+#define RESTART() if(setjmp(restart_env)) cycle++
+#else
+#define RESTART() setjmp(restart_env)
+#endif
+
 static void ip_main(void)
 {
 #if IP_VER==IP_VER1
@@ -861,7 +877,7 @@ static void ip_main(void)
 	common_literal[5]=om_true;
 	common_literal[6]=om_false;
 
-	setjmp(restart_env);
+	RESTART();
 
 	while(TRUE) {
 #ifdef IP_PROFILE
@@ -885,9 +901,7 @@ static void ip_main(void)
 				if(poll()) i_branch(-fetch());
 				break;
 			case DROP_INST: --sp; break;
-			case EXIT_INST: 
-				if(poll()) i_exit();
-				break;
+			case EXIT_INST: i_exit(); break;
 			case RETURN_INST: 
 				if(poll()) {
 					if(i_return()) return;
@@ -951,7 +965,7 @@ static void ip_main(void)
 #if IP_VER==IP_VER2
 	int opr;
 
-	setjmp(restart_env);
+	RESTART();
 	while(TRUE) {
 #ifdef IP_PROFILE
 		if(profile_fn!=NULL) cur_profile->cycle_count++;
@@ -966,23 +980,17 @@ static void ip_main(void)
 		case 0x04: i_set_instance_var(fetch()); break;
 		case 0x05: i_set_context_var(fetch()); break;
 		case 0x06: i_set_temp_var(fetch()); break;
-		case 0x07: /* branch bacward */
+		case 0x07: 
 			if(poll()) i_branch(-fetch());
 			break;
-		case 0x08: /* drop */
-			--sp; 
-			break; 
-		case 0x09: /* exit */
-			if(poll()) i_exit();
-			break;
-		case 0x0a: /* return */
+		case 0x08: --sp; break;
+		case 0x09: i_exit(); break;
+		case 0x0a: 
 			if(poll()) {
 				if(i_return()) return;
 			}
 			break;
-		case 0x0b: /* dup */
-			push(STACK(sp-1)); 
-			break;
+		case 0x0b: push(STACK(sp-1)); break;
 
 		/* send */
 		case 0x10: i_send(FALSE,0,fetch()); break;
@@ -1278,7 +1286,7 @@ static void ip_main(void)
 	
 #define DISPATCH() { cycle++; goto *inst_table[fetch()]; }
 
-	setjmp(restart_env);
+	RESTART();
 	DISPATCH();
 	
 	/* basic inst */
@@ -1289,23 +1297,17 @@ static void ip_main(void)
 	I04: i_set_instance_var(fetch()); DISPATCH();
 	I05: i_set_context_var(fetch()); DISPATCH();
 	I06: i_set_temp_var(fetch()); DISPATCH();
-	I07: /* branch bacward */
+	I07: 
 		if(poll()) i_branch(-fetch());
 		DISPATCH();
-	I08: /* drop */
-		--sp; 
-		DISPATCH(); 
-	I09: /* exit */
-		if(poll()) i_exit();
-		DISPATCH();
-	I0a: /* return */
+	I08: --sp; DISPATCH();
+	I09: i_exit(); DISPATCH();
+	I0a: 
 		if(poll()) {
 			if(i_return()) return;
 		}
 		DISPATCH();
-	I0b: /* dup */
-		push(STACK(sp-1)); 
-		DISPATCH();
+	I0b: push(STACK(sp-1)); DISPATCH();
 	
 	/* send */
 	I10: i_send(FALSE,0,fetch()); DISPATCH();

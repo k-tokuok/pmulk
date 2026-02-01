@@ -1,6 +1,6 @@
 /*
 	object memory.
-	$Id: mulk om.h 1433 2025-06-03 Tue 21:15:38 kt $
+	$Id: mulk om.h 1518 2026-01-11 Sun 18:35:02 kt $
 */
 
 typedef union om *object;
@@ -89,6 +89,8 @@ union om {
 #define METHOD_CONTEXT_SIZE_POS 12
 #define METHOD_CONTEXT_SIZE(m) \
 ((sint_val(m->method.attr)&METHOD_CONTEXT_SIZE_MASK)>>METHOD_CONTEXT_SIZE_POS)
+#define METHOD_INSTANCE_VAR_GETTER 0x200
+#define METHOD_INSTANCE_VAR_SETTER 0x300
 #define METHOD_MAX_PRIM 0x3ff
 #define METHOD_PRIM_POS 20
 #define METHOD_PRIM_MASK (METHOD_MAX_PRIM<<METHOD_PRIM_POS)

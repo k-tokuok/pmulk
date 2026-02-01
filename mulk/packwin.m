@@ -1,5 +1,5 @@
 create Mulk/Windows binary package
-$Id: mulk packwin.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk packwin.m 1527 2026-01-18 Sun 20:52:36 kt $
 #ja Mulk/Windowsバイナリパッケージを作成する
 
 *[man]
@@ -79,7 +79,8 @@ EXPRを省略するとstdの最小構成でパッケージが作られる。
 		[TempFile create mkdir ->:crossDir;
 		"package vm " + crossDir quotedPath, runCmd;
 		"base.m" asSystemFile pipeTo: crossDir + "base.m";
-		"os -o sh -c 'cd " + crossDir quotedPath + " ; make hostos=windows cross=wine mulk.exe base.mi'" ->:s;
+		"os -o sh -c 'cd " + crossDir quotedPath + " ; "
+			+ "make hostos=windows cross=wine mulk.exe base.mi'" ->:s;
 		Out putLn: s;
 		s runCmd;
 		crossDir ->baseDir];

@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1512 2026-01-03 Sat 13:02:28 kt $
+$Id: mulk base.m 1522 2026-01-13 Tue 21:21:58 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -697,8 +697,15 @@ Returns nil if it has no features.
 	featuresArg memberOf?: FixedArray,
 		ifTrue: [featuresArg do: [:f self assert: f superclass = Feature]]
 		ifFalse: [self assert: featuresArg nil?];
+		
+	Set new ->:selectors;
+	features notNil? ifTrue:
+		[features do: [:f1 f1 methods do: [:m1 selectors add: m1 selector]]];
+	featuresArg notNil? ifTrue:
+		[featuresArg do: 
+			[:f2 f2 methods do: [:m2 selectors add: m2 selector]]];
 	featuresArg ->features;
-	Kernel cacheReset: nil
+	selectors do: [:s Kernel cacheReset: s]
 ******[man.m]
 *******#en
 Let featuresArg be the feature list of the receiver.
@@ -4558,7 +4565,7 @@ Only integers from 0 to 255 can be stored as elements.
 ****FixedByteArray >> bytesHash: caseInsensitiveArg?
 	$fbarray_bytesHash
 *****[test.m]
-	self assert: (ar bytesHash: false) = 597101
+	self assert: (ar bytesHash: false) = 344178
 
 ****FixedByteArray >> basicAt: destPosArg copyFrom: srcArg at: srcPosArg 
 		size: sizeArg
@@ -5411,7 +5418,8 @@ Any object can be used as a key in a collection with the key itself as a value.
 	
 ****Set >> add: keyArg
 	self nodeAt: keyArg ->:node, notNil? ifTrue: [self!];
-	size > (table size * 3 // 4) and: [size < 0x100000], ifTrue: [self rehash];
+	size > (table size * 7 // 10) and: [size < 0x100000], 
+		ifTrue: [self rehash];
 	self addNode: (HashTable.Node new key: keyArg)
 *****[man.m]
 ******#en
@@ -5534,7 +5542,7 @@ It also functions as a Collection for values.
 	self nodeAt: keyArg ->:node, notNil?
 		ifTrue: [node value: valueArg]
 		ifFalse:
-			[size > (table size * 3 // 4) and: [size < 0x100000],
+			[size > (table size * 7 // 10) and: [size < 0x100000],
 				ifTrue: [self rehash];
 			self addNode: (Dictionary.Node new key: keyArg, value: valueArg)]
 *****[man.m]
@@ -8768,8 +8776,29 @@ Skip '*' in the outline line from the beginning of the block.
 
 ***MethodCompiler class.#
 	class MethodCompiler Object : parser belongClass selector argCount;
+****MethodCompiler >> testGetter: tr
+	tr nil? ifTrue: [nil!];
+	tr car = '!' ifFalse: [nil!];
+	tr cdar ->:exp;
+	exp car = #instanceVar ifTrue: [exp cdar!];
+	nil!
+****MethodCompiler >> testSetter: tr
+	tr nil? ifTrue: [nil!];
+	tr car = #setInstanceVar ifFalse: [nil!];
+	tr cdar ->:exp;
+	exp car = #localVar and: [exp cdar = 1], ifTrue: [tr cddar!];
+	nil!
 ****MethodCompiler >> compileMain
 	parser parseBody ->:tr;
+	
+	parser primCode ->:primCode;
+	self testGetter: tr ->:ivno, notNil? ifTrue:
+		[nil ->tr;
+		0x200 {METHOD_INSTANCE_VAR_GETTER} + ivno ->primCode];
+	self testSetter: tr ->ivno, notNil? ifTrue:
+		[nil ->tr;
+		0x300 {METHOD_INSTANCE_VAR_SETTER} + ivno ->primCode];
+		
 	parser localVarsCount ->:localVarsCount;
 	MethodCompiler.Optimizer new init: belongClass = Object, optimize: tr;
 	MethodCompiler.BlockFinder new blockExist?: tr ->:blockExist?;
@@ -8788,7 +8817,7 @@ Skip '*' in the outline line from the beginning of the block.
 		initSelector: selector
 		argCount: argCount
 		belongClass: belongClass
-		primCode: parser primCode
+		primCode: primCode
 		extTempSize: extTempSize
 		contextSize: contextSize
 		bytecode: cg bytecode

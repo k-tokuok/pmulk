@@ -1,6 +1,6 @@
 /*
 	object memory.
-	$Id: mulk om.c 1433 2025-06-03 Tue 21:15:38 kt $
+	$Id: mulk om.c 1525 2026-01-17 Sat 15:25:38 kt $
 */
 
 #include "std.h"
@@ -78,12 +78,14 @@ void om_init_hash(object o)
 
 int om_bytes_hash(char *p,int size,int case_insensitive_p)
 {
-	int i,hval,ch;;
-	hval=0;
+	int i,ch;
+	unsigned int hval;
+	/* FNV-1a hash */
+	hval=2166136261;
 	for(i=0;i<size;i++) {
 		ch=LC(p+i);
 		if(case_insensitive_p) ch=tolower(ch);
-		hval=hval*137+ch;
+		hval=(hval^ch)*16777619;
 	}
 	return hval&HEADER_HASH_MASK;
 }

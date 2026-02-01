@@ -1,11 +1,11 @@
-chat with ChatGPT
-$Id: mulk chatgpt.m 1496 2025-12-18 Thu 21:46:13 kt $
-#ja ChatGPTとチャットする
+chat with OpenAI ChatGPT
+$Id: mulk chatgpt.m 1524 2026-01-15 Thu 20:36:24 kt $
+#ja OpenAI ChatGPTとチャットする
 
 *[man]
 **#en
 .caption SYNOPSIS
-Chat with ChatGPT.
+Chat with OpenAI ChatGPT.
 
 See manual topic aichat for actual preparation and operation.
 
@@ -15,7 +15,7 @@ See manual topic aichat for actual preparation and operation.
 
 **#ja
 .caption 説明
-ChatGPTとチャットを行う。
+OpenAI ChatGPTとチャットを行う。
 
 実際の準備、操作についてはマニュアルトピックaichatを参照のこと。
 

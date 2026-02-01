@@ -1,5 +1,5 @@
 prolog prototype.
-$Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
+$Id: mulk/prolog prolog.m 1527 2026-01-18 Sun 20:52:36 kt $
 
 *import.@
 	Mulk import: #("optparse" "prompt" "repl" "math" "random")
@@ -107,16 +107,19 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 ****Prolog.Term >> args
 	args!
 	
-***Prolog.Term >> initFunctor: functorArg args: argsArg
+***Prolog.Term >> initFunctor: functorArg args: faArg
 	functorArg ->functor;
-	argsArg asFixedArray ->args
+	faArg ->args
 
 *reader.
 **Prolog.Lexer class.@
-	AheadReader addSubclass: #Prolog.Lexer instanceVars: "ungotChar"
+	AheadReader addSubclass: #Prolog.Lexer instanceVars: "ungotChar lineno"
 ***Prolog.Lexer >> initReader: readerArg
 	super initReader: readerArg;
-	nil ->ungotChar
+	nil ->ungotChar;
+	1 ->lineno
+***Prolog.Lexer >> error: msg
+	super error: msg + " in " + lineno
 ***Prolog.Lexer >> skipChar
 	self errorIfEof;	
 	nextChar ->:result;
@@ -125,6 +128,7 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 			[ungotChar ->nextChar;
 			nil ->ungotChar]
 		ifFalse: [reader getChar ->nextChar];
+	result = '\n' ifTrue: [lineno + 1 ->lineno];
 	result!
 ***Prolog.Lexer >> identifierLeadChar?
 	nextChar lower? or: [nextChar = '$']!
@@ -201,12 +205,12 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 ***Prolog.Reader >> skip
 	lexer getToken ->nextTk
 ***Prolog.Reader >> skip: tkArg
-	nextTk <> tkArg ifTrue: [self error: "missing " + tkArg];
+	nextTk <> tkArg ifTrue: [lexer error: "missing " + tkArg];
 	self skip
 ***Prolog.Reader >> nextAtom
 	nextTk = ',' ifTrue: [prolog atomOf: ","!];
 	nextTk = #atom ifTrue: [prolog atomOf: lexer token!];
-	self error: "require , or atom"
+	lexer error: "require , or atom"
 ***Prolog.Reader >> parseList
 	self skip;
 	prolog nilAtom ->:cdr;
@@ -220,17 +224,12 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 		self parseMain: 999 ->cdr];
 	self skip: ']';
 	
-	prolog consFunctor ->:cons;
-	ar reverse do:
-		[:e
-		Prolog.Term new initFunctor: cons args:
-			(Array new addLast: e, addLast: cdr) ->cdr];
-	cdr!
+	prolog createList: ar tail: cdr!
 ***Prolog.Reader >> createTerm: functorArg args: argsArg
 	argsArg size = 1 and: [argsArg first ->:a0, kindOf?: Number], 
 		and: [functorArg = (prolog functorOf: "-" arity: 1)], 
 		ifTrue: [a0 negated!];
-	Prolog.Term new initFunctor: functorArg args: argsArg!
+	Prolog.Term new initFunctor: functorArg args: argsArg asFixedArray!
 ***Prolog.Reader >> parseLeft: priArg
 	nextTk = ',' | (nextTk = #atom) ifTrue:
 		[self nextAtom ->:atom;
@@ -270,7 +269,7 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 		self skip: ')';
 		result!];
 		
-	self error: "syntax error"
+	lexer error: "syntax error"
 ***Prolog.Reader >> parseMain: priArg
 	self parseLeft: priArg ->:left;
 	0 ->:leftPri;
@@ -285,7 +284,7 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 				f pri ->leftPri;
 				args addLast: (self parseMain: leftPri - 
 					(f type <> #xfy ifTrue: [1] ifFalse: [0]));
-				Prolog.Term new initFunctor: f args: args ->left]
+				self createTerm: f args: args ->left]
 			ifFalse:
 				[atom functorOf: 1 ->f;
 				f postfixOfPri: priArg leftPri: leftPri, 
@@ -389,7 +388,8 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 		+ " vars clauseVars varNo"
 		+ " resultVars resultClauseVars"
 		+ " writer"
-
+		+ " findallStack"
+		
 ***Prolog.Query >> init: prologArg
 	prologArg ->prolog;
 	Prolog.Writer new init: prolog ->writer;
@@ -411,9 +411,13 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 			ifFalse: [vars at: ix]!];
 	cellArg memberOf?: Prolog.VoidVar, ifTrue: [self createVar!];
 	cellArg memberOf?: Prolog.Term, ifTrue:
-		[Array new ->:args;
-		cellArg args do: [:arg args addLast: (self sweep: arg)];
-		Prolog.Term new initFunctor: cellArg functor args: args!];
+		[cellArg functor ->:cf;
+		cellArg args ->:cargs;
+		FixedArray basicNew: cf arity ->:args;
+		cf arity timesDo:
+			[:i
+			args at: i put: (self sweep: (cargs at: i))];
+		Prolog.Term new initFunctor: cf args: args!];
 	cellArg!
 ****Prolog.Query >> materialize: cellArg cutCp: cutCpArg
 	Prolog.Environment new initEp: ep cutCp: cutCpArg body: body ->ep;
@@ -570,15 +574,43 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 	--cellArg is dereferenced.
 	cellArg memberOf?: Prolog.Var, ifTrue: [prolog varOf: cellArg asString!];
 	cellArg memberOf?: Prolog.Term, ifTrue:
-		[Array new ->:args;
-		cellArg args do: 
-			[:arg
-			args addLast: (self dematerialize: (prolog deref: arg))];
-		Prolog.Term new initFunctor: cellArg functor args: args!];
+		[cellArg functor ->:cf;
+		cellArg args ->:cargs;
+		FixedArray basicNew: cf arity ->:args;
+		cf arity timesDo:
+			[:i 
+			args at: i put: (self dematerialize: (prolog deref: 
+				(cargs at: i)))];
+		Prolog.Term new initFunctor: cf args: args!];
 	cellArg!
 ******Prolog.Query >> b.assert: args
 	prolog assert: (self dematerialize: args first);
 	true!
+	
+****findall.
+*****Prolog.Query >> b.findallPush: args
+	findallStack nil? ifTrue: [Array new ->findallStack];
+	findallStack addLast: Array new;
+	true!
+*****Prolog.Query >> copyCell: cellArg
+	--cellArg is dereferenced
+	cellArg memberOf?: Prolog.Var, ifTrue: [self error: "copy var"];
+	cellArg memberOf?: Prolog.Term, ifTrue:
+		[cellArg functor ->:cf;
+		cellArg args ->:cargs;
+		FixedArray basicNew: cf arity ->:args;
+		cf arity timesDo:
+			[:i
+			args at: i put: (self copyCell: (prolog deref: (cargs at: i)))];
+		Prolog.Term new initFunctor: cf args: args!];
+	cellArg!
+*****Prolog.Query >> b.findallAdd: args
+	findallStack last addLast: (self copyCell: args first);
+	true!
+*****Prolog.Query >> b.findallPop: args
+	findallStack last ->:ar;
+	findallStack removeLast;
+	self unify: (prolog createList: ar) and: args first!
 	
 ****debug support.
 *****Prolog.Query >> b.debugTerm: args
@@ -588,7 +620,7 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 ***main process.
 ****Prolog.Query >> processClause: cutCpArg
 	self materialize: clause cutCp: cutCpArg ->clause;
-	clause functor is: ":-" arity: 2, 
+	clause functor = prolog becomesFunctor, 
 		ifTrue:
 			[clause args first ->:h;
 			clause args at: 1 ->body]
@@ -610,7 +642,7 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 		[ep body ->body;
 		ep ep ->ep, nil? ifTrue: [#success!]];
 	prolog deref: body ->body;
-	body functor is: "," arity: 2, 
+	body functor = prolog commaFunctor
 		ifTrue:
 			[body args first ->head;
 			body args at: 1 ->body]
@@ -664,7 +696,7 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 			
 *Prolog class.@
 	Object addSubclass: #Prolog instanceVars: "varDict atomDict"
-		+ " nilAtom consFunctor"
+		+ " nilAtom consFunctor becomesFunctor commaFunctor"
 **Prolog >> varOf: nameArg
 	varDict at: nameArg ifAbsentPut: 
 		[nameArg = "_" 
@@ -675,23 +707,41 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 **Prolog >> functorOf: nameArg arity: arityArg
 	self atomOf: nameArg, functorOf: arityArg!
 
-**Prolog >> nilAtom
-	nilAtom!
-**Prolog >> consFunctor
-	consFunctor!
+**Prolog >> init
+	Dictionary new ->varDict;
+	Dictionary new ->atomDict;
+	self atomOf: "$nil" ->nilAtom;
+	self functorOf: "$cons" arity: 2 ->consFunctor;
+	self functorOf: ":-" arity: 2 ->becomesFunctor;
+	self functorOf: "," arity: 2 ->commaFunctor
 
+**recent uses atom and functor
+***Prolog >> nilAtom
+	nilAtom!
+***Prolog >> consFunctor
+	consFunctor!
+***Prolog >> becomesFunctor
+	becomesFunctor!
+***Prolog >> commaFunctor
+	commaFunctor!
+	
 **Prolog >> deref: p
 	[p memberOf?: Prolog.Var] whileTrue:
 		[p value nil? ifTrue: [p!];
 		p value ->p];
 	p!
 
-**Prolog >> init
-	Dictionary new ->varDict;
-	Dictionary new ->atomDict;
-	self atomOf: "$nil" ->nilAtom;
-	self functorOf: "$cons" arity: 2 ->consFunctor
-
+**Prolog >> createList: arrayArg tail: result
+	arrayArg reverse do:
+		[:e
+		FixedArray basicNew: 2 ->:args;
+		args at: 0 put: e;
+		args at: 1 put: result;
+		Prolog.Term new initFunctor: consFunctor args: args ->result];
+	result!
+**Prolog >> createList: arrayArg
+	self createList: arrayArg tail: nilAtom!
+	
 **external api.
 ***Prolog >> query: cell silent: silent?
 	Prolog.Query new init: self ->:query;
@@ -705,7 +755,7 @@ $Id: mulk/prolog prolog.m 1508 2026-01-01 Thu 21:32:38 kt $
 					[query retry ->result, ifFalse: [false ->retry?]]]];
 		Out putLn: result]
 ***Prolog >> assert: cell
-	cell functor is: ":-" arity: 2, ifTrue: [cell args first] ifFalse: [cell],
+	cell functor = becomesFunctor ifTrue: [cell args first] ifFalse: [cell],
 		functor addClause: cell
 ***Prolog >> assertOrQuery: cell
 	cell functor is: "?-" arity: 1, ifTrue: [self query: cell silent: false!];

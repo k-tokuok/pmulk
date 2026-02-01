@@ -1,11 +1,11 @@
-chat with Grok
-$Id: mulk grok.m 1490 2025-12-11 Thu 21:24:28 kt $
-#ja Grokとチャットする
+chat with xAI Grok
+$Id: mulk grok.m 1524 2026-01-15 Thu 20:36:24 kt $
+#ja xAI Grokとチャットする
 
 *[man]
 **#en
 .caption DESCRIPTION
-Chat with Grok.
+Chat with xAI Grok.
 
 See manual topic aichat for actual preparation and operation.
 
@@ -15,7 +15,7 @@ See manual topic aichat for actual preparation and operation.
 
 **#ja
 .caption 説明
-Grokとチャットを行う。
+xAI Grokとチャットを行う。
 
 実際の準備、操作についてはマニュアルトピックaichatを参照のこと。
 
