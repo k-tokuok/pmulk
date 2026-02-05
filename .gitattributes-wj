@@ -3,3 +3,4 @@
 *.jar binary
 *.ott binary
 *.png binary
+*.dll binary
