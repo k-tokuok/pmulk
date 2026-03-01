@@ -1,13 +1,13 @@
 execute host OS commands
-$Id: mulk os.m 1468 2025-08-19 Tue 20:52:07 kt $
+$Id: mulk os.m 1544 2026-02-22 Sun 21:09:09 kt $
 #ja ホストOSのコマンドを実行
 
 *[man]
 **#en
 .caption SYNOPSIS
 	os [OPTION] ARG...
-	os.path [OPTION] [ARG...] -- ARG... to the beginning of the PATH environment variable.
-	os.which ARG -- Search the PATH column for the file indicated by the ARG and display the full path.
+	os.path [OPTION] [ARG...] -- Append ARG... to the beginning of the PATH environment variable and print the list.
+	os.which ARG -- Search the PATH column for the file indicated by the ARG and print the full path.
 .caption DESCRIPTION
 Execute host OS commands.
 
@@ -17,15 +17,16 @@ The output of the command is output to the standard output of Mulk in text mode,
 .caption OPTION
 	i -- Input Mulk's standard input to the command. Do not invoke the command until the input reaches EOF
 	o -- Outputs command output to the OS standard output
-	v -- Display processings verbosely
+	v -- Output processings verbosely
+	I -- Continue execution ignoring the command's return value
 	c -- Set PATH to ARG... only (os.path)
 	r -- Exclude the specified ARG from PATH (os.path)
-	l -- Display a list of PATH (os.path).
+	s -- Suppress print the PATH list (os.path)
 **#ja
 .caption 書式
 	os [OPTION] ARG...
-	os.path [OPTION] [ARG...] -- ARG...をPATH環境変数の先頭に追加する。引数省略時はPATHの一覧を表示する。
-	os.which ARG -- PATH列からARGで示されたファイルを検索し、フルパスを表示する。
+	os.path [OPTION] [ARG...] -- ARG...をPATH環境変数の先頭に追加し一覧を出力する。
+	os.which ARG -- PATH列からARGで示されたファイルを検索し、フルパスを出力する。
 .caption 説明
 ホストOSのコマンドを実行する。
 
@@ -35,11 +36,11 @@ ARGはそれぞれがquoteされたコマンド及び引数列として解釈さ
 .caption オプション
 	i -- Mulkの標準入力をコマンドに入力する。入力がEOFになるまではコマンドを起動しない
 	o -- コマンドの出力をOSの標準出力へ出力する
-	v -- 処理を詳細に表示する
+	v -- 処理を詳細に出力する
+	I -- コマンドの返り値を無視して実行を継続する
 	c -- PATHをARG...のみに設定する (os.path)
 	r -- 指定されたARGをPATHから除く (os.path)
-	l -- PATHの一覧を表示する (os.path)
-	
+	s -- PATHの一覧出力を抑止する (os.path)
 *os tool.@
 	Mulk addGlobalVar: #Cmd.os.verbose?, set: false;
 	Mulk import: #("optparse" "tempfile");
@@ -93,7 +94,7 @@ ARGはそれぞれがquoteされたコマンド及び引数列として解釈さ
 	wr asString!
 	
 **Cmd.os >> main: args
-	OptionParser new init: "iov" ->:op, parse: args ->args;
+	OptionParser new init: "iovI" ->:op, parse: args ->args;
 	op at: 'i', ifTrue: [In pipe: "cat" to: (TempFile create ->:inFile)];
 	op at: 'o', ifFalse: [TempFile create ->:outFile];
 	Cmd.os.verbose? | (op at: 'v') ->:verbose?;
@@ -102,11 +103,11 @@ ARGはそれぞれがquoteされたコマンド及び引数列として解釈さ
 	verbose? ifTrue: [Out0 putLn: "OS system: " + sysstr];
 	OS system: sysstr ->:st;
 	verbose? ifTrue: [Out0 putLn: "status: " + st];
-
+	outFile notNil? ifTrue: [outFile pipe: "cat" to: Out];
+	op at: 'I', not and: [st <> 0],
+		ifTrue: [self error: "os " + sysstr describe + " failed"];
 	inFile notNil? ifTrue: [inFile remove];
-	outFile notNil? ifTrue:
-		[outFile pipe: "cat" to: Out;
-		outFile remove]
+	outFile notNil? ifTrue: [outFile remove]
 
 **path
 ***Cmd.os >> pathSeparator
@@ -124,13 +125,13 @@ ARGはそれぞれがquoteされたコマンド及び引数列として解釈さ
 			path copyFrom: pos + 1 ->path];
 		self value: path on: b]!
 ***Cmd.os >> main.path: args
-	OptionParser new init: "crl" ->:op, parse: args ->args;
+	OptionParser new init: "crs" ->:op, parse: args ->args;
 	self paths asArray ->:paths;
 	op at: 'c', ifTrue: [Array new ->paths];
 	args collectAsArray: [:p p asFile] ->args;
 	args do: [:p2 paths indexOf: p2 ->:i, notNil? ifTrue: [paths removeAt: i]];
 	op at: 'r', ifFalse: [args reverse do: [:p3 paths addFirst: p3]];
-	op at: 'l', ifTrue: [paths do: [:p4 Out putLn: p4 path]];
+	op at: 's', ifFalse: [paths do: [:p4 Out putLn: p4 path]];
 	StringWriter new ->:wr;
 	wr put: "PATH=";
 	paths do:

@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1522 2026-01-13 Tue 21:21:58 kt $
+$Id: mulk base.m 1535 2026-02-05 Thu 14:59:43 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -7138,8 +7138,9 @@ Change the last update time of the receiver to DateAndTime mtimeArg.
 	
 ***list.
 ****File >> childFiles
+	OS readdir: path ->:files;
 	Iterator new init: 
-		[:b OS readdir: path, split: '\n', do: [:fn b value: self + fn]]!
+		[:b files split: '\n', do: [:fn b value: self + fn]]!
 *****[man.m]
 ******#en
 Returns an Iterator of files directly under the receiver directory.

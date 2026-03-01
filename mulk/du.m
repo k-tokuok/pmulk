@@ -1,5 +1,5 @@
 disk usage
-$Id: mulk du.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk du.m 1535 2026-02-05 Thu 14:59:43 kt $
 #ja ディスク使用量
 
 *[man]
@@ -43,12 +43,18 @@ If the directory is omitted, the usage below the current directory is displayed.
 		[:f
 		f directory?
 			ifTrue:
-				[self sweep: f childFiles level: level + 1 ->:size;
+				[[f childFiles ->:files] on: Error do: 
+					[:e 
+					Out putLn: "!illegal dir " + f;
+					0 ->:size;
+					nil ->files];
+				files notNil? ifTrue: 
+					[self sweep: f childFiles level: level + 1 ->size];
 				true ->:print?]
 			ifFalse:
 				[f size ->size;
 				size nil? ifTrue:
-					[Out putLn: "illegal file " + f;
+					[Out putLn: "!illegal file " + f;
 					0 ->size];
 				kilo? ifTrue: [size + 1023 // 1024 ->size];
 				all? ->print?];

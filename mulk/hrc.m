@@ -1,5 +1,5 @@
 HttpRequest.c class
-$Id: mulk hrc.m 1444 2025-06-17 Tue 22:15:49 kt $
+$Id: mulk hrc.m 1537 2026-02-06 Fri 14:08:22 kt $
 #ja
 
 *[man]
@@ -22,7 +22,7 @@ HttpRequestのcurlコマンドによる実装。
 	HttpRequest addSubclass: #HttpRequest.c instanceVars: "option"
 **HttpRequest.c >> init
 	super init;
-	"-s -L" ->option
+	"-s -L -w '%{http_code}\\n'" ->option
 **HttpRequest.c >> method: arg
 	option + " -X " + arg ->option
 **HttpRequest.c >> header: keyArg value: valueArg
@@ -31,13 +31,16 @@ HttpRequestのcurlコマンドによる実装。
 	dataFile notNil? ifTrue:
 		[data close;
 		option + " --data-binary @" + dataFile hostPath ->option];
-	outFile notNil? 
-		ifTrue: [option + " -o " + outFile quotedHostPath ->option];
+	outFile nil? 
+		ifTrue: [Mulk.hostOS = #windows ifTrue: ["nul"] ifFalse: ["/dev/null"]]
+		ifFalse: [outFile quotedHostPath] ->:outPath;
+	option + " -o " + outPath ->option;
+
 	"os " ->:cmdstr;
 	Mulk.hostOS = #windows ifTrue: 
 		[cmdstr + " c:\\windows\\system32\\" ->cmdstr];
 	cmdstr + "curl " + option + ' ' + url ->cmdstr;
 	verbose? ifTrue: [Out putLn: "HttpRequest: " + cmdstr];
-	cmdstr runCmd;
+	[cmdstr runCmd] pipe: [In getLn asInteger ->:st];
 	dataFile notNil? ifTrue: [dataFile remove];
-	1! --general success.
+	st!

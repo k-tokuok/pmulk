@@ -1,5 +1,5 @@
 http communication library
-$Id: mulk hrlib.m 1444 2025-06-17 Tue 22:15:49 kt $
+$Id: mulk hrlib.m 1537 2026-02-06 Fri 14:08:22 kt $
 #ja http通信ライブラリ
 
 *[man]
@@ -143,11 +143,13 @@ Returns a stream of transmitted data.
 ****#en
 Communicate according to the theory.
 
-The communication is synchronous and returns from the method when the communication ends.
+Communication is synchronous and returns an HTTP status upon completion.
+If communication fails, it terminates with an exception.
 ****#ja
 設定に従って通信を行う。
 
-通信は同期式で、通信が終わるとメソッドから戻る。
+通信は同期式で、通信が終わるとHTTP statusを返す。
+通信に失敗した場合は例外で終了する。
 
 *HttpRequestFactory class.@
 	Object addSubclass: #HttpRequestFactory

@@ -1,5 +1,5 @@
 Google Drive
-$Id: mulk gdrive.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk gdrive.m 1537 2026-02-06 Fri 14:08:22 kt $
 #ja Googleドライブ
 
 *[man]
@@ -97,7 +97,7 @@ Googleドライブをマウントする。
 **GDrive.class >> runJson
 	TempFile create ->:outFile;
 	hr outFile: outFile;
-	hr run = 0 ifTrue: [nil!];
+	hr run;
 	outFile readDo: [:fs JsonReader new read: fs ->:result];
 	outFile remove;
 	result!

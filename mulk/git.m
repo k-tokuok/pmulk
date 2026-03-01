@@ -1,5 +1,5 @@
 revision control system
-$Id: mulk git.m 1458 2025-08-03 Sun 21:21:55 kt $
+$Id: mulk git.m 1537 2026-02-06 Fri 14:08:22 kt $
 #ja 改訂管理システム
 
 *[man]
@@ -29,7 +29,7 @@ Execute git on the host OS as a command.
 	Mulk import: #("os" "optparse" "cmdstr");
 	Object addSubclass: #Cmd.git
 **Cmd.git >> runGit: strArg
-	"os git " + strArg + " | ctr u =", runCmd
+	"os -I git " + strArg + " | ctr u =", runCmd
 **Cmd.git >> main: args
 	self runGit: args asCmdString
 **Cmd.git >> main.log: args

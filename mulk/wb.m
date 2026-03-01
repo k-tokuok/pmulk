@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1493 2025-12-13 Sat 21:44:25 kt $
+$Id: mulk wb.m 1545 2026-02-28 Sat 19:51:10 kt $
 #ja テキストエディタ
 
 *[man]
@@ -404,7 +404,8 @@ Register the series of operations and execute them to reproduce the operations.
 
 During the definition, M is displayed at the beginning of the bottom line.
 
-	^x + ^r + KEY -- Executes the macro for KEY and stops. Then repeat the macro 10 to 100 times for '1' to '9' and '0', and once for SPC/Enter. Exit with ^h/^[.
+	^x + ^r + KEY -- Executes the KEY macro and stops. Subsequently, repeats the macro execution 10 to 100 times for '1' through '9' and '0', and once for SPC/Enter. If specified during macro definition, repeats the current macro definition as-is. Terminates with ^h/^[.
+
 ****#ja マクロ
 一連の繰作の内容を登録し、実行すると繰作を再現する。
 
@@ -413,7 +414,7 @@ During the definition, M is displayed at the beginning of the bottom line.
 	
 定義中は最下行の先頭にMが表示される。
 
-	^x + ^r + KEY -- KEYのマクロを実行し停止する。その後、'1'から'9'及び'0'では10回から100回、SPC/Enterでは1回ずつマクロを繰り返し実行する。^h/^[で終了する。
+	^x + ^r + KEY -- KEYのマクロを実行し停止する。その後、'1'から'9'及び'0'では10回から100回、SPC/Enterでは1回ずつマクロを繰り返し実行する。マクロ定義中に指定すると、定義中のマクロをそのまま繰り返す。^h/^[で終了する。
 
 **Execute/evaluate/load (^x + ^x)
 ***#en
@@ -1971,7 +1972,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 
 ***history.
 ****Wb.class >> historyAt: wbfile
-	history at: wbfile fullName ifAbsent: [nil]!
+	history at: wbfile file ifAbsent: [nil]!
 ****Wb.class >> historyFile
 	"wb.mpi" asWorkFile!
 ****Wb.class >> setupHistory
@@ -1993,7 +1994,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	self historyAt: wbfile ->:fh;
 	fh notNil? and: [fh tag = tag], and: [fh offset = offset], ifTrue: [self!];
 	wbfile fullName ->:fn;
-	history at: fn put: (Wb.History new init: fn tag: tag offset: offset);
+	history at: wbfile file 
+		put: (Wb.History new init: fn tag: tag offset: offset);
 	self message: tag describe + " saved";
 	self saveHistory
 ****Wb.class >> updateHistoryPosition: wbfile
@@ -2173,11 +2175,13 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 ****Wb.class >> macroRegistStartCommand
 	self registeringMacroCheck;
 	StringWriter new ->macro
-****Wb.class >> macroRegistEndCommand
-	macro nil? ifTrue: [self error: "unregistering macro"];
+****Wb.class >> registeringMacro
+	macro nil? ifTrue: [self error: "not registering macro"];
 	macro asString ->:s;
-	s copyUntil: s size - 2 ->s; -- remove ^x)
 	nil ->macro;
+	s copyUntil: s size - 2! -- remove ^x) or ^x^r
+****Wb.class >> macroRegistEndCommand
+	self registeringMacro ->:s;
 	self querySetXtr: "^x)" ->:ch;
 	xDict at: ch put: s;
 	self invalidateActiveTag: ch
@@ -2186,9 +2190,12 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	1 ->operatorMergeMode;
 	StringReader new init: macroArg ->macro
 ****Wb.class >> macroRepeatCommand
-	statusBar query: "^x^r" ->:ch;
-	xDict at: ch ->:value;
-	value memberOf?: String, ifFalse: [self error: "not macro"];
+	macro nil? 
+		ifTrue:
+			[statusBar query: "^x^r" ->:ch;
+			xDict at: ch ->:value;
+			value memberOf?: String, ifFalse: [self error: "not macro"]]
+		ifFalse: [self registeringMacro ->value];
 	self startMacro: value;
 	1 ->macroRepeat
 
@@ -2513,7 +2520,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	args empty? ifTrue: [In contentLines] ifFalse: [args], do: 
 		[:fn 
 		Wb.File new init: self name: fn ->:wbfile;
-		history removeAt: wbfile fullName];
+		history removeAt: wbfile file];
 	self saveHistory
 	
 ***wb.x.

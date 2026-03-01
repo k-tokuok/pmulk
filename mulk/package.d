@@ -1,12 +1,12 @@
-;Mulk package std+skk (1534)
-;2026-02-01 Sun 20:29:21
+;Mulk package std+skk (1545)
+;2026-03-01 Sun 09:48:01
 os.c,1433,vm
 xconsole.h,1433,vm
 touch.m,1433,tool
 pfu.c,1433,vm
 readme.txt,1508,etc
 osu.c,1433,vm
-os.m,1468,tool
+os.m,1544,tool
 view.c,1433,vm
 csplit.h,1433,vm
 ctriconv.m,1433,npw,lib
@@ -19,13 +19,13 @@ oldchars.m,1433,ja,lib
 clipx.m,1433,npw,lib
 cd.m,1433,tool
 pause.m,1433,tool
-hrlib.m,1444,lib
+hrlib.m,1537,lib
 nl.m,1433,tool
 tee.m,1433,tool
 ir.h,1433,vm
 repl.m,1433,tool
 format.m,1433,tool
-base.m,1522,lib
+base.m,1535,lib
 numlnwr.m,1433,lib
 fbdata.m,1433,lib
 detab.m,1433,tool
@@ -41,7 +41,7 @@ multicol.m,1433,tool
 grok.m,1524,tool
 cp.m,1433,tool
 diff.m,1448,tool
-skkchunk.d,1532,skk
+skkchunk.d,1545,skk
 random.m,1433,lib
 mingw.mak,1433,vm
 u64.h,1433,vm
@@ -60,7 +60,7 @@ term.m,1433,lib
 cqueue.c,1433,vm
 zlib.m,1433,lib
 ls.m,1433,tool
-wb.m,1493,tool
+wb.m,1545,tool
 wordc.m,1433,tool
 script.m,1433,tool
 ar.m,1433,tool
@@ -68,7 +68,7 @@ coord.h,1433,vm
 date.m,1433,tool
 dl.m,1433,lib
 k-jp.d,1433,lib
-path.m,1495,tool
+path.m,1543,tool
 lex.h,1433,vm
 linec.m,1433,tool
 intconv.m,1433,lib
@@ -89,7 +89,7 @@ packtbz.m,1433,tool
 cmd.m,1433,tool
 updateid.m,1443,tool
 mulks.c,1433,vm
-hrc.m,1444,lib
+hrc.m,1537,lib
 cdep.m,1433,tool
 cmpb.m,1433,tool
 rm.m,1433,tool
@@ -110,7 +110,7 @@ foreach.m,1433,tool
 mem.h,1433,vm
 icmd.m,1433,tool
 ctrlib.m,1433,lib
-du.m,1433,tool
+du.m,1535,tool
 ol.m,1434,tool
 tree.m,1433,tool
 eval.mm,1433,tool
@@ -165,7 +165,7 @@ make.d,1433,vm
 inst.h,1433,vm
 ip.c,1525,vm
 std.c,1433,vm
-git.m,1458,tool
+git.m,1537,tool
 intro.mm,1529,etc
 packwin.m,1527,tool
 gemini.m,1497,tool
@@ -186,7 +186,7 @@ fgrep.m,1433,tool
 open.m,1492,tool
 pwd.m,1433,tool
 dup.m,1433,tool
-gsync.m,1499,tool
+gsync.m,1545,tool
 ir.c,1433,vm
 entab.m,1433,tool
 csvrd.m,1433,lib
@@ -207,7 +207,7 @@ crypt.m,1433,tool
 xbarray.c,1433,vm
 sort.m,1433,tool
 gc.h,1433,vm
-gdrive.m,1433,tool
+gdrive.m,1537,tool
 filec.m,1433,tool
 xctype.c,1433,vm
 asctable.m,1433,tool
@@ -223,7 +223,7 @@ traitc.m,1433,lib
 tail.m,1433,tool
 vieww.c,1433,vm
 setup.m,1452,vm
-aichat.m,1534,tool
+aichat.m,1537,tool
 wcarray.m,1433,lib
 skk.m,1433,skk
 mkmulks.m,1433,vm
@@ -236,7 +236,7 @@ csv.m,1433,tool
 ld.m,1433,tool
 azik.mm,1433,skk
 heap.h,1433,vm
-h.m,1433,tool
+h.m,1544,tool
 xctype.h,1433,vm
 charc.m,1433,tool
 more.m,1433,tool
@@ -255,7 +255,7 @@ ctr.m,1433,tool
 hr.m,1433,tool
 pfs.m,1433,lib
 splay.c,1433,vm
-package.d,1534,tool
+package.d,1545,tool
 dump.m,1433,tool
 console.m,1433,lib
 std.h,1433,vm
