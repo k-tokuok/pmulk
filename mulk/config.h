@@ -1,6 +1,6 @@
 /*
 	configure.
-	$Id: mulk config.h 1511 2026-01-03 Sat 09:48:19 kt $
+	$Id: mulk config.h 1553 2026-03-14 Sat 23:08:49 kt $
 */
 
 /* archtecture and compiler */
@@ -80,10 +80,6 @@
 #endif
 
 #ifdef __DMC__
-#define OS_CODE OS_WINDOWS
-#endif
-
-#ifdef __POCC__
 #define OS_CODE OS_WINDOWS
 #endif
 

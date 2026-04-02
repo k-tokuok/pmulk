@@ -1,5 +1,5 @@
 chat with Google Gemini
-$Id: mulk gemini.m 1497 2025-12-20 Sat 09:23:52 kt $
+$Id: mulk gemini.m 1547 2026-03-08 Sun 20:34:37 kt $
 #ja Google Geminiとチャットする
 
 *[man]
@@ -10,11 +10,12 @@ Chat with Google Gemini.
 See manual topic aichat for actual preparation and operation.
 
 .caption MODELS
-		gemini-2.5-flash-lite		
-	1	gemini-2.5-flash
-	2	gemini-2.5-pro
-	3	gemini-3-flash-preview
-	4	gemini-3-pro-preview
+		gemini-3.1-flash-lite-preview
+	1	gemini-3-flash-preview
+	2	gemini-3.1-pro-preview
+	3	gemini-2.5-flash-lite
+	4	gemini-2.5-flash
+	5	gemini-2.5-pro
 	
 .caption SEE ALSO
 	https://aistudio.google.com
@@ -27,11 +28,12 @@ Google Geminiとチャットを行う。
 実際の準備、操作についてはマニュアルトピックaichatを参照のこと。
 
 .caption モデル
-		gemini-2.5-flash-lite		
-	1	gemini-2.5-flash
-	2	gemini-2.5-pro
-	3	gemini-3-flash-preview
-	4	gemini-3-pro-preview
+		gemini-3.1-flash-lite-preview
+	1	gemini-3-flash-preview
+	2	gemini-3.1-pro-preview
+	3	gemini-2.5-flash-lite
+	4	gemini-2.5-flash
+	5	gemini-2.5-pro
 	
 .caption 関連項目
 	https://aistudio.google.com
@@ -45,8 +47,12 @@ Google Geminiとチャットを行う。
 **Cmd.gemini >> suffix
 	"gem"!
 **Cmd.gemini >> models
-	#("gemini-2.5-flash-lite" "gemini-2.5-flash" "gemini-2.5-pro" 
-		"gemini-3-flash-preview" "gemini-3-pro-preview")!
+	#(	"gemini-3.1-flash-lite-preview" 
+		"gemini-3-flash-preview"
+		"gemini-3.1-pro-preview"
+		"gemini-2.5-flash-lite"
+		"gemini-2.5-flash"
+		"gemini-2.5-pro")!
 **Cmd.gemini >> dialogs
 	chat at: "contents"!
 **Cmd.gemini >> dialogOf: jsonArg

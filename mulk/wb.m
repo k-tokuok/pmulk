@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1545 2026-02-28 Sat 19:51:10 kt $
+$Id: mulk wb.m 1561 2026-03-22 Sun 22:00:20 kt $
 #ja テキストエディタ
 
 *[man]
@@ -521,8 +521,29 @@ KEYが文字列ならそれ自体を。
 
 KEYを省略するとユーザー登録キーの一覧を出力する。
 
+**Text Input Integration
+***#en
+You can enter text in coordination with applications running within interactive documents.
+
+When the application prompts for text input, the following screen appears and the system waits for input.
+	>>
+		(Text)
+	<< apply([y,1]/n,0)?
+
+In this state, edit the range enclosed by ">>" and "<<", and when you press Enter on the "apply" line, the text range is passed to the application.
+***#ja テキスト入力連携
+インタラクティブドキュメント内で動作するアプリケーションに対して、連携してテキストを入力することが出来る。
+
+アプリケーションからテキスト入力を要求されると、次のように表示され入力待ちとなる。
+	>>
+		(テキスト)
+	<< apply([y,1]/n,0)?
+
+この状態で">>"と"<<"で括られた範囲を編集し、apply行でEnterを入力するとテキストの範囲がアプリケーションに渡される。
+
 *import.@
-	Mulk import: #("wcarray" "console" "pi" "cliplib" "optparse" "tempfile")
+	Mulk import: #("wcarray" "console" "pi" "cliplib" "optparse" "tempfile" 
+		"prompt")
 
 *Wb.BufferReader class.@
 	Object addSubclass: #Wb.BufferReader instanceVars:
@@ -1301,8 +1322,9 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	Object addSubclass: #Wb.File instanceVars: "wb file conv"
 **Wb.File >> init: wbArg name: nameArg
 	wbArg ->wb;
-	nameArg indexOf: ':' ->:cpos, notNil? ifTrue:
+	nameArg indexOf: ':' ->:cpos, = 1 | (cpos = 2) ifTrue:
 		[nameArg copyUntil: cpos ->conv;
+		cpos = 1 ifTrue: [conv + '=' ->conv];
 		nameArg copyFrom: cpos + 1 ->nameArg];
 	nameArg asFile ->file
 **Wb.File >> file
@@ -1340,8 +1362,8 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	conv notNil? ifTrue:
 		[StringReader new init: wb focusedBytes, pipe: "ctr " + conv, 
 			contentBytes ->:bytes;
-			bytes size = file size 
-				and: [bytes contentsEqual?: file contentBytes]!];
+		bytes size = file size 
+			and: [bytes contentsEqual?: file contentBytes]!];
 	wb equalFocusedWith: file!
 **Wb.File >> fileDo: block
 	conv notNil? ifTrue:
@@ -2525,7 +2547,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 	
 ***wb.x.
 ****Wb.class >> stringSummary: value
-	Out put: '"';
+	Out put: "string \"";
 	LimitableStringWriter new ->:wr;
 	StringReader new init: value ->:rd;
 	[[rd getWideChar ->:ch, notNil?] whileTrue: [ch printEscapedOn: wr]]
@@ -2536,23 +2558,24 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		wr put: "..."];
 	Out put: wr asString, put: '"'
 ****Wb.class >> macroSummary: value
-	Out put: "M " + value describe
+	Out put: "macro " + value describe
 ****Wb.class >> tagSummary: value
+	Out put: "tag ";
 	self focusDocAt: value ->:type, = #top, ifTrue: [Out put: "TOP"!];
 	type = #bottom ifTrue: [Out put: "BOTTOM"!];
 	type = #doc ifTrue: [Out put: self docHeader]
 ****Wb.class >> xList
-	xDict keysAndValuesDo:
+	[xDict keysAndValuesDo:
 		[:ch :value
 		ch print? & (value memberOf?: Symbol) not ifTrue:
-			[Out put: ch, put: ' ';
+			[Out put: ch describe, put: ' ';
 			value kindOf?: Integer,
 				ifTrue: [self tagSummary: value]
 				ifFalse:
 					[value memberOf?: FixedByteArray,
 						ifTrue: [self stringSummary: value]
 						ifFalse: [self macroSummary: value]];
-			Out putLn]]
+			Out putLn]]] pipe: "sort" to: Out
 ****Wb.class >> tagOf: tagName
 	xDict at: tagName first ->:result, kindOf?: Integer, ifFalse:
 		[self error: "illegal tag " + tagName];
@@ -2584,8 +2607,7 @@ KEYを省略するとユーザー登録キーの一覧を出力する。
 		[self error: "not wb console"];
 	Out putLn: ">>";
 	defaultArg notNil? ifTrue: [Out put: defaultArg];
-	Out put: "<< apply (enter only):";
-	In getLn <> "" ifTrue: [nil!];
+	Prompt getBoolean: "<< apply" default: true, ifFalse: [nil!];
 	buffer find: (self bytes: "<<") before: cursor ->:en;
 	buffer find: (self bytes: "\n>>\n") before: en ->:st;
 	buffer stringFrom: st + buffer matchSize until: en!	

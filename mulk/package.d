@@ -1,5 +1,5 @@
-;Mulk package std+skk (1545)
-;2026-03-01 Sun 09:48:01
+;Mulk package std+skk (1573)
+;2026-04-03 Fri 06:11:37
 os.c,1433,vm
 xconsole.h,1433,vm
 touch.m,1433,tool
@@ -25,8 +25,8 @@ tee.m,1433,tool
 ir.h,1433,vm
 repl.m,1433,tool
 format.m,1433,tool
-base.m,1535,lib
-numlnwr.m,1433,lib
+base.m,1558,lib
+numlnwr.m,1549,lib
 fbdata.m,1433,lib
 detab.m,1433,tool
 om.c,1525,vm
@@ -37,11 +37,11 @@ fbdatab.m,1433,npw,lib
 ip.h,1510,vm
 cal.m,1433,tool
 cqueue.h,1433,vm
-multicol.m,1433,tool
+multicol.m,1559,tool
 grok.m,1524,tool
 cp.m,1433,tool
 diff.m,1448,tool
-skkchunk.d,1545,skk
+skkchunk.d,1573,skk
 random.m,1433,lib
 mingw.mak,1433,vm
 u64.h,1433,vm
@@ -60,7 +60,7 @@ term.m,1433,lib
 cqueue.c,1433,vm
 zlib.m,1433,lib
 ls.m,1433,tool
-wb.m,1545,tool
+wb.m,1561,tool
 wordc.m,1433,tool
 script.m,1433,tool
 ar.m,1433,tool
@@ -100,7 +100,7 @@ wcbuild.m,1433,lib
 setupwj.m,1452,vm
 sconsole.m,1433,lib
 deff.m,1433,tool
-config.h,1511,vm
+config.h,1553,vm
 oauthlr.c,1433,vm
 sleep.m,1433,tool
 tr.m,1433,tool
@@ -114,8 +114,8 @@ du.m,1535,tool
 ol.m,1434,tool
 tree.m,1433,tool
 eval.mm,1433,tool
-zlibdl.m,1433,lib
 echo.m,1433,tool
+zlibdl.m,1433,lib
 onquit.m,1433,tool
 viewx.c,1433,vm
 pi.m,1433,lib
@@ -130,7 +130,7 @@ termw.c,1433,vm
 viewp.m,1433,lib
 unittest.m,1433,tool
 skkut.m,1505,skk
-diffdir.m,1433,tool
+diffdir.m,1553,tool
 package.m,1433,tool
 addxc.c,1433,vm
 man.m,1471,tool
@@ -156,7 +156,7 @@ c-term.m,1433,lib
 math.m,1433,lib
 prim.h,1433,vm
 print.m,1433,tool
-cp932.m,1433,lib
+cp932.m,1551,lib
 icd.m,1433,tool
 pp.c,1433,vm
 makefile,1527,vm
@@ -168,10 +168,11 @@ std.c,1433,vm
 git.m,1537,tool
 intro.mm,1529,etc
 packwin.m,1527,tool
-gemini.m,1497,tool
+gemini.m,1547,tool
 clean.m,1433,tool
 os.h,1433,vm
 clipw.m,1433,lib
+win32.m,1559,lib
 packzip.m,1433,tool
 pagewr.m,1433,lib
 crlf.m,1433,lib
@@ -186,7 +187,7 @@ fgrep.m,1433,tool
 open.m,1492,tool
 pwd.m,1433,tool
 dup.m,1433,tool
-gsync.m,1545,tool
+gsync.m,1569,tool
 ir.c,1433,vm
 entab.m,1433,tool
 csvrd.m,1433,lib
@@ -200,9 +201,10 @@ dtrans.m,1444,tool
 vkey.c,1433,vm
 osw.c,1433,vm
 mkdir.m,1433,tool
-hidecnsl.m,1433,tool
+hidecnsl.m,1555,tool
 mv.m,1433,tool
 omd.c,1433,vm
+cli.m,1565,tool
 crypt.m,1433,tool
 xbarray.c,1433,vm
 sort.m,1433,tool
@@ -223,7 +225,7 @@ traitc.m,1433,lib
 tail.m,1433,tool
 vieww.c,1433,vm
 setup.m,1452,vm
-aichat.m,1537,tool
+aichat.m,1561,tool
 wcarray.m,1433,lib
 skk.m,1433,skk
 mkmulks.m,1433,vm
@@ -255,7 +257,7 @@ ctr.m,1433,tool
 hr.m,1433,tool
 pfs.m,1433,lib
 splay.c,1433,vm
-package.d,1545,tool
+package.d,1573,tool
 dump.m,1433,tool
 console.m,1433,lib
 std.h,1433,vm

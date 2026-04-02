@@ -1,5 +1,5 @@
 program characterCounts(output,prd);
-(* $Id: mulk/pascal p61.pas 1532 2026-01-30 Fri 20:58:38 kt $ *)
+(* $Id: mulk/pascal p61.pas 1540 2026-02-11 Wed 21:09:07 kt $ *)
 const
   maxcount=10000;
 type
@@ -33,7 +33,7 @@ begin
         total:=total+1
       end
     end;
-    read(prd,c); line:=line+1
+    readln(prd); line:=line+1
   end;
   writeln;
   writeln('    行数:',line:5);

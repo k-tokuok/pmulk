@@ -1,5 +1,5 @@
 basic game collection
-$Id: mulk/basic basgames.mm 1442 2025-06-12 Thu 10:05:28 kt $
+$Id: mulk/basic basgames.mm 1564 2026-03-26 Thu 21:05:30 kt $
 
 .caption DESCRIPTION
 This is 70-80s basic game collection.
@@ -205,3 +205,4 @@ This is 70-80s basic game collection.
 *misc
 .summary oregntrl
 .summary lemonade
+.summary iskandal

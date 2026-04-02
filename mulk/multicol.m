@@ -1,5 +1,5 @@
 multi-column output
-$Id: mulk multicol.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk multicol.m 1559 2026-03-20 Fri 21:53:31 kt $
 #ja マルチカラム出力
 
 *[man]
@@ -10,7 +10,7 @@ $Id: mulk multicol.m 1433 2025-06-03 Tue 21:15:38 kt $
 Read standard input line by line and output side by side.
 
 The part exceeding the column width is not output.
-If the column width is omitted, 12 is assumed to be specified.
+If the COLUMNWIDTH is omitted, the width will be adjusted to show the entire content.
 
 **#ja
 .caption 書式
@@ -19,7 +19,7 @@ If the column width is omitted, 12 is assumed to be specified.
 標準入力を行毎に読み込み、横に並べて出力する。
 
 カラム幅を越える部分は出力しない。
-カラム幅を省略した場合は12が指定されたものと見做す。
+カラム幅を省略した場合は全体が表示されるよう調整される。
 
 *multicol tool.@
 	Mulk import: "console";
@@ -32,12 +32,23 @@ If the column width is omitted, 12 is assumed to be specified.
 		Out put: ch;
 		npos ->pos];
 	pos!
+**Cmd.multicol >> countWidth: lines
+	0 ->:result;
+	lines do: 
+		[:l
+		StringReader new init: l ->:r;
+		0 ->:w;
+		[r getWideChar ->:ch, notNil?] whileTrue: [w + ch width ->w];
+		result max: w ->result];
+	result!
 **Cmd.multicol >> main: args
-	args empty? ifTrue: [12] ifFalse: [args first asInteger] ->width;
+	In contentLines asArray ->:lines;
+	args empty? 
+		ifTrue: [self countWidth: lines]
+		ifFalse: [args first asInteger] ->width;
 	Console width // (width + 1) ->:ncol;
-
 	0 ->:i;
-	In contentLinesDo:
+	lines do:
 		[:l
 		self putLine: l ->:pos;
 		i + 1 ->i;

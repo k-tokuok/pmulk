@@ -1,5 +1,5 @@
 codepage 932
-$Id: mulk cp932.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk cp932.m 1551 2026-03-12 Thu 22:24:03 kt $
 #ja
 
 *[man]
@@ -32,36 +32,3 @@ Windows CP932にコードページを切替える。
 		
 *WideChar >> width
 	2!
-	
-*String >> lowerDo: blockArg
-	0 ->:trail;
-	self do:
-		[:ch
-		trail = 0
-			ifTrue:
-				[blockArg value: ch lower;
-				ch trailSize ->trail]
-			ifFalse:
-				[blockArg value: ch;
-				trail - 1 ->trail]]
-				
-*String >> caseInsensitiveEqual?: stringArg
-	stringArg memberOf?: String, ifFalse: [false!];
-	self size ->:sz, = stringArg size, ifFalse: [false!];
-	self hash = stringArg hash,
-		and: [self unmatchIndexWith: stringArg size: sz, nil?],
-		ifTrue: [true!];
-
-	0 ->:trail;
-	self size timesDo:
-		[:i
-		self at: i ->:ch;
-		stringArg at: i ->:ch2;
-		trail = 0
-			ifTrue:
-				[ch lower = ch2 lower ifFalse: [false!];
-				ch trailSize ->trail]
-			ifFalse:
-				[ch = ch2 ifFalse: [false!];
-				trail - 1 ->trail]];
-	true!

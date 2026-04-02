@@ -1,11 +1,12 @@
 hide console
-$Id: mulk hidecnsl.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk hidecnsl.m 1555 2026-03-16 Mon 22:04:26 kt $
 #ja コンソールを非表示とする
 
 *[man]
 **#en
 .caption SYNOPSIS
 	hidecnsl
+	hidecnsl.show -- Show the console again
 .caption DESCRIPTION
 Hide the console of Mulk process.
 
@@ -19,6 +20,7 @@ https://learn.microsoft.com/ja-jp/troubleshoot/windows-server/performance/obtain
 **#ja
 .caption 書式
 	hidecnsl
+	hidecnsl.show -- コンソールを再度表示する
 .caption 説明
 Mulkプロセスのコンソールを非表示とする。
 
@@ -30,17 +32,16 @@ Windowsでのみ動作可。
 https://learn.microsoft.com/ja-jp/troubleshoot/windows-server/performance/obtain-console-window-handle
 
 *@
-	Mulk import: "dl"
+	Mulk import: #("win32" "dl")
 *@
-	DL import: "kernel32.dll" procs: 
-			#(#GetCurrentProcessId 0 #SetConsoleTitleA 101),
-		import: "user32.dll" procs: #(#FindWindowA 102 #ShowWindow 102)
+	DL import: "user32.dll" procs: #(#ShowWindow 102)
 		
 *hidecnsl tool.@
-	Object addSubclass: #Cmd.hidecnsl
+	Object addSubclass: #Cmd.hidecnsl;
+	Mulk addGlobalVar: #Cmd.hidecnsl.hWnd
+	
 **Cmd.hidecnsl >> main: args
-	"mulk-" + (DL call: #GetCurrentProcessId) ->:name;
-	DL call: #SetConsoleTitleA with: name;
-	0.1 sleep;
-	DL call: #FindWindowA with: 0 with: name ->:h;
-	DL call: #ShowWindow with: h with: 0
+	Win32 consoleWindow ->Cmd.hidecnsl.hWnd;
+	DL call: #ShowWindow with: Cmd.hidecnsl.hWnd with: 0
+**Cmd.hidecnsl >> main.show: args
+	DL call: #ShowWindow with: Cmd.hidecnsl.hWnd with: 1

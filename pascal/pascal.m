@@ -1,5 +1,5 @@
 pascal-p4 processor
-$Id: mulk/pascal pascal.m 1532 2026-01-30 Fri 20:58:38 kt $
+$Id: mulk/pascal pascal.m 1540 2026-02-11 Wed 21:09:07 kt $
 #ja
 
 *[man]
@@ -192,7 +192,35 @@ They require the courage to discard and abandon, to select simplicity and transp
 		nextChar = '+' ifTrue: [self skipChar];
 		result asFloat power10: self skipInteger ->result];
 	result!
-		
+
+*Pascal.Reader class.@
+	Object addSubclass: #Pascal.Reader instanceVars: "areader deferReadln?"
+**Pascal.Reader >> init: streamArg
+	Pascal.AheadReader new initReader: streamArg ->areader;
+	false ->deferReadln?
+**Pascal.Reader >> executeDeferred
+	deferReadln? ifTrue:
+		[areader skipChar;
+		false ->deferReadln?]
+**Pascal.Reader >> rdi
+	self executeDeferred;
+	areader skipSpace;
+	areader skipInteger!
+**Pascal.Reader >> rdr
+	self executeDeferred;
+	areader skipSpace;
+	areader skipNumber asFloat!
+**Pascal.Reader >> rdc
+	self executeDeferred;
+	areader skipChar!
+**Pascal.Reader >> rln
+	self executeDeferred;
+	[areader nextChar <> '\n'] whileTrue: [areader skipChar];
+	true ->deferReadln?
+**Pascal.Reader >> nextChar
+	self executeDeferred;
+	areader nextChar!
+	
 *Pascal class.@
 	Object addSubclass: #Pascal instanceVars: "code pc"
 		+ " inst store mp sp ep epmax np npmin"
@@ -287,35 +315,28 @@ They require the courage to discard and abandon, to select simplicity and transp
 ****Pascal >> readerAt: noArg -- 5: in, 7: prd
 	noArg = 5 ifTrue:
 		[reader5 nil? ifTrue: 
-			[Pascal.AheadReader new initReader: In ->reader5];
+			[Pascal.Reader new init: In ->reader5];
 		reader5!];
 	noArg = 7 ifTrue:
 		[reader7 nil? ifTrue:
 			[file7 openRead ->stream7;
-			Pascal.AheadReader new initReader: stream7 ->reader7];
+			Pascal.Reader new init: stream7 ->reader7];
 		reader7!];
 	self assertFailed
 ****Pascal >> stdproc.rdi
-	self readerAt: (store at: sp) ->:rd;
-	rd skipSpace;
-	store at: (store at: sp - 1) put: rd skipInteger;
+	store at: (store at: sp - 1) put: (self readerAt: (store at: sp)) rdi;
 	sp - 2 ->sp
 ****Pascal >> stdproc.rdc
-	self readerAt: (store at: sp) ->:rd;
-	store at: (store at: sp - 1) put: rd skipChar;
+	store at: (store at: sp - 1) put: (self readerAt: (store at: sp)) rdc;
 	sp - 2 ->sp
 ****Pascal >> stdproc.rdr
-	self readerAt: (store at: sp) ->:rd;
-	rd skipSpace;
-	store at: (store at: sp - 1) put: rd skipNumber asFloat
-****Pascal >> stdproc.eln
-	self readerAt: (store at: sp) ->:rd;
-	rd nextChar = '\n' ->:result;
-	store at: sp put: result
+	store at: (store at: sp - 1) put: (self readerAt: (store at: sp)) rdr;
+	sp - 2 ->sp
 ****Pascal >> stdproc.rln
-	self readerAt: (store at: sp) ->:rd;
-	[rd nextChar <> '\n'] whileTrue: [rd skipChar];
+	self readerAt: (store at: sp), rln;
 	sp - 1 ->sp
+****Pascal >> stdproc.eln
+	store at: sp put: (self readerAt: (store at: sp)) nextChar = '\n'
 	
 ***write.
 ****Pascal >> writerAt: noArg -- 6: out, 8: prr
@@ -406,7 +427,7 @@ They require the courage to discard and abandon, to select simplicity and transp
 			epmax < ep ifTrue: [ep ->epmax];
 			ep > np ifTrue: [self error: "store overflow"]]
 ***Pascal >> eof
-	store at: sp put: (self readerAt: (store at: sp), nextChar nil?)
+	store at: sp put: (self readerAt: (store at: sp)) nextChar nil?
 ***Pascal >> equ
 	sp - 1 ->sp;
 	store at: sp ->:p;

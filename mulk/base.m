@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1535 2026-02-05 Thu 14:59:43 kt $
+$Id: mulk base.m 1558 2026-03-19 Thu 22:11:50 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -570,6 +570,7 @@ Instances are initialized by the init method after construction.
 		= "Test.A >> a: Test.A >> a"
 		
 *****Class >> methodIndexOf: selectorArg
+	methods nil? ifTrue: [nil!];
 	methods findFirst:
 		[:m
 		m nil? ifTrue: [nil!];
@@ -4910,13 +4911,19 @@ Returns an Iterator over the substrings of the receiver separated by charArg cha
 *****[test.m]
 	self assert: (s split: 'c', asArray asString = "ab de")
 	
-****String >> lowerDo: blockArg
-	self do: [:ch blockArg value: ch lower]
-
 ****String >> lower
-	StringWriter new ->:w;
-	self lowerDo: [:ch w put: ch];
-	w asString!
+	FixedByteArray basicNew: self size ->:fba;
+	0 ->:trail;
+	self size timesDo:
+		[:i
+		self at: i ->:ch;
+		trail = 0 
+			ifTrue: 
+				[ch lower ->ch;
+				ch trailSize ->trail]
+			ifFalse: [trail - 1 ->trail];
+		fba at: i put: ch code];
+	fba makeStringFrom: 0 size: self size!
 *****[man.m]
 ******#en
 Returns the uppercase letters in the string with lowercase letters.
@@ -4931,14 +4938,21 @@ Returns the uppercase letters in the string with lowercase letters.
 
 ****String >> caseInsensitiveEqual?: stringArg
 	stringArg memberOf?: String, ifFalse: [false!];
-	self size ->:sz, = stringArg size, ifFalse: [false!];
-	self hash = stringArg hash,
-		and: [self unmatchIndexWith: stringArg size: sz, nil?],
-		ifTrue: [true!];
-
-	self size timesDo:
+	self = stringArg ifTrue: [true!];
+	self size ->:sz, = stringArg size ifFalse: [false!];
+	0 ->:trail;
+	
+	sz timesDo:
 		[:i
-		(self at: i) lower = (stringArg at: i) lower, ifFalse: [false!]];
+		self at: i ->:ch;
+		stringArg at: i ->:ch2;
+		trail = 0 
+			ifTrue:
+				[ch lower ->ch;
+				ch2 lower ->ch2;
+				ch trailSize ->trail]
+			ifFalse: [trail - 1 ->trail];
+		ch = ch2 ifFalse: [false!]];
 	true!
 *****[man.m]
 ******#en
