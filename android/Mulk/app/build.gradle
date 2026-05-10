@@ -1,0 +1,35 @@
+apply plugin: 'com.android.application'
+
+android {
+    defaultConfig {
+        compileSdk 37
+        applicationId "com.github.k_tokuok.mulk"
+        minSdkVersion 28
+        targetSdkVersion 37
+        versionCode 108
+        versionName "260508-r1596"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources = true
+        }
+    }
+    externalNativeBuild {
+        ndkBuild {
+            path = "src/main/jni/Android.mk"
+        }
+    }
+    compileOptions {
+        sourceCompatibility = 1.9
+        targetCompatibility = 1.9
+    }
+
+    ndkVersion = "27.3.13750724"
+    namespace = 'com.github.k_tokuok.mulk'
+}
+
+dependencies {
+    implementation "androidx.documentfile:documentfile:1.1.0"
+    implementation "androidx.preference:preference:1.2.1"
+}

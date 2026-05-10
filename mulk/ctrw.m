@@ -1,5 +1,5 @@
 CodeTranslator.w class
-$Id: mulk ctrw.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk ctrw.m 1591 2026-04-29 Wed 21:32:35 kt $
 #ja
 *[man]
 **#en
@@ -34,6 +34,17 @@ CodeTranslator classのWindows実装。
 **CodeTranslator.w >> init: fromTo
 	self codeNumber: fromTo first ->fromCode;
 	self codeNumber: (fromTo at: 1) ->toCode
+**CodeTranslator.w >> wcConvFrom: fromWc to: toWc count: count
+	0 ->:pos;
+	count * 2 ->:sz;
+	[wcBuf indexOf: fromWc size: 2 from: pos until: sz ->pos, 
+			notNil?] whileTrue:
+		[pos % 2 = 1 
+			ifTrue: [pos + 1]
+			ifFalse:
+				[wcBuf at: pos put: toWc first, at: pos + 1 put: (toWc at: 1);
+				pos + 2] ->pos]
+	
 **CodeTranslator.w >> translate: bufArg from: fromArg size: sizeArg
 	self reserve: sizeArg;
 	fromCode = 65536 ifTrue:
@@ -45,6 +56,11 @@ CodeTranslator classのWindows実装。
 		with: fromCode with: 0
 		with: bufArg address + fromArg with: sizeArg
 		with: wcBuf with: wcBuf size // 2 ->:wcCount;
+
+	toCode = 932 ifTrue:
+		[self wcConvFrom: #[0x1c 0x30] to: #[0x5e 0xff] count: wcCount;
+		self wcConvFrom: #[0x12 0x22] to: #[0x0d 0xff] count: wcCount];
+	
 	DL call: #WideCharToMultiByte
 		with: toCode with: 0
 		with: wcBuf with: wcCount

@@ -1,5 +1,5 @@
 load module file
-$Id: mulk ld.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk ld.m 1592 2026-04-30 Thu 20:40:48 kt $
 #ja モジュールファイルの読み込み
 
 *[man]
@@ -30,7 +30,7 @@ If the file name is omitted, load the contents of standard input.
 		ifTrue: [Loader new loadReader: In]
 		ifFalse:
 			[OptionParser new init: "s" ->:op, parse: args ->args;
-			op at: 's',
-				ifTrue: [#asSystemFile]
-				ifFalse: [#asFile] ->:selector;
-			args do: [:fn Mulk loadFile: (fn perform: selector)]]
+			args do:
+				[:f
+				op at: 's', ifTrue: [f asSystemFile ->f];
+				Mulk load: f]]

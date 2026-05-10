@@ -1,0 +1,5 @@
+#android/.gitignore
+#$Id: mulk/android .gitignore 1516 2026-01-06 Tue 21:49:20 kt $
+/mulka0
+/Mulk/app/src/main/assets
+/Mulk/app/release

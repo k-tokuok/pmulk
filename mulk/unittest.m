@@ -1,5 +1,5 @@
 unit test utility
-$Id: mulk unittest.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk unittest.m 1592 2026-04-30 Thu 20:40:48 kt $
 #ja ユニットテストユーティリティ
 
 *[man]
@@ -281,7 +281,7 @@ If this file exists after test method execution, it is automatically deleted.
 	fns do:
 		[:fn
 		fn asFile ->:file;
-		autoLoad? ifTrue: [Mulk loadFile: file];
+		autoLoad? ifTrue: [Mulk load: file];
 		autoImport? ifTrue: [Mulk import: file baseName];
 		loader load: file];
 	self testClasses: loader classes

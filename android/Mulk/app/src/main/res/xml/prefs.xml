@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <EditTextPreference
+        app:key="imageFile"
+        app:title="imageFile"/>
+    <SwitchPreferenceCompat
+        app:key="useKeymap"
+        app:title="useKeymap"
+        app:defaultValue="false"/>
+    <EditTextPreference
+        app:key="keymapFile"
+        app:title="keymapFile"/>
+    <SwitchPreferenceCompat
+        app:key="enableSoftwareKeyboard"
+        app:title="enableSoftwareKeyboard"
+        app:defaultValue="true"/>
+    <SwitchPreferenceCompat
+        app:defaultValue="false"
+        app:key="extractMulka0"
+        app:title="extractMulka0" />
+</PreferenceScreen>

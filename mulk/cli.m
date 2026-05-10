@@ -1,5 +1,5 @@
 command line input helper
-$Id: mulk cli.m 1565 2026-03-27 Fri 22:05:44 kt $
+$Id: mulk cli.m 1588 2026-04-26 Sun 20:45:27 kt $
 #ja
 
 *[man]
@@ -73,6 +73,8 @@ X11では事前にxdotoolとxselコマンドをインストールしておく必
 	result!
 	
 **Cmd.cli >> send: arg
+	[Out put: '*', putLn: DateAndTime new initNow, putLn: arg]
+		pipeAppendTo: "cli.log" asWorkFile;
 	Clip put: arg;
 	self sendPaste
 **Cmd.cli >> processLn: ln

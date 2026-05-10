@@ -1,5 +1,5 @@
 table formatting and processing
-$Id: mulk table.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk table.m 1576 2026-04-04 Sat 09:07:44 kt $
 #ja 表の整形と加工
 
 *[man]
@@ -124,7 +124,7 @@ An object representing a row in a table.
 表中の行を表すオブジェクト。
 
 **Table.Row >> type
-	self shouleBeImplemented
+	self shouldBeImplemented
 **Table.Row >> size
 	0!
 

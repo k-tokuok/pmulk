@@ -1,5 +1,5 @@
 copy and manage Mulk packages
-$Id: mulk package.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk package.m 1593 2026-05-02 Sat 20:59:30 kt $
 #ja Mulkパッケージのコピー及び管理
 
 *[man]
@@ -11,32 +11,38 @@ $Id: mulk package.m 1433 2025-06-03 Tue 21:15:38 kt $
 	package.diff [OPTION] -- Compare current system directory structure with package.d structure.
 	package.sysclean [OPTION] -- Remove extra files in the current system directory.
 .caption DESCRIPTION
-Select and convert the files in the system directory according to the purpose and copy them.
+Select, convert, and copy files from the system directory according to their intended use.
 
-Attribute symbols are assigned to each system file.
-The attributes defined in the standard are as follows.
-	vm -- Mulk virtual machine source
-	lib -- Libraries
-	tool -- Tools
-	etc -- Etc. files.
-	bin -- Binary file
-	ja -- Only available in Japanese environment
+Labels are assigned to each file as needed.
+The standard labels are defined as follows:
 
-The package expression specifies the copy target and conversion, and is defined by the following syntax.
-	EXPR = attr ('+' attr)* ('-' attr)* ('#' lang)? ('@' code)? (':' revision)
-	'+' -- Add files with attributes.
-		'*' for all files, 'std' for vm+base+lib+tool.
-	'-' -- Exclude files with attributes.
-	'#' -- Filter by delang.
-	'@' -- Specify the character code and end-of-line code in the argument format of ctr.
-	':' -- Exclude those that are the same as or older than the specified revision.
+	File categories:
+		vm -- Mulk virtual machines
+		lib -- Libraries
+		tool -- Tools
+		etc -- Miscellaneous
+	Attributes:
+		bin -- Binary files
+		ja -- Specific to the Japanese environment
+		dos -- Specific to the MS-DOS environment	
+		pw -- target of packwin tool
+		android -- Specific to Android environment
+		mulka0 -- Builtin modules for Android APK
+		
+The package expression specifies the target of the copy operation and the conversion, and is defined using the following syntax.
+	EXPR = label ('+' label)* ('-' label)* ('#' lang)? ('@' code)?
+	'+' -- Add files with the specified label. '*' includes all files.
+	'-' -- Exclude files with the specified label.
+	'#' -- Performs filtering using delang.
+	'@' -- Specifies character encoding and line-end encoding using the ctr argument format.
 .caption OPTION
 	s SYSDIR -- Use SYSDIR as the system directory.
-	r -- Display revision number of file (list).
-	m -- Multi-column output (list).
+	r -- Display the file revision number (list).
+	m -- Multi-column display (list).
 .caption SEE ALSO
-	package.d -- The file in csv format with the system filename, revision number (* if unknown), and the attributes.
+	package.d -- A file containing system filenames and revision numbers (or * if unknown) in CSV format, followed by labels.
 .summary ctr
+
 **#ja
 .caption 書式
 	package [OPTION] EXPR DIR
@@ -48,30 +54,34 @@ The package expression specifies the copy target and conversion, and is defined 
 .caption 説明
 システムディレクトリ中のファイルを用途に応じて選択・変換してコピーする。
 
-各システムファイルは属性シンボルが割り当てられている。
-標準で定義されている属性は以下の通り。
+各ファイルは必要に応じてラベルが付加されている。
+標準で定義されているラベルは以下の通り。
 
-	vm -- Mulk仮想機械のソース
-	lib -- ライブラリ
-	tool -- ツール
-	etc -- その他のファイル
-	bin -- バイナリファイル
-	ja -- 日本語環境でのみ使用可能
-	
+	ファイルの分類:
+		vm -- Mulk仮想機械
+		lib -- ライブラリ
+		tool -- ツール
+		etc -- その他
+	属性:
+		bin -- バイナリファイル
+		ja -- 日本語環境固有のもの
+		dos -- MS-DOS環境固有のもの
+		pw -- packwinの対象ファイル
+		android -- Android環境固有のもの
+		mulka0 -- Android APK用の組み込みモジュール
+		
 パッケージ式はコピーの対象や変換を指定するもので、次の構文で定義される。
-	EXPR = attr ('+' attr)* ('-' attr)* ('#' lang)? ('@' code)? (':' revision)
-	'+' -- 属性を持つファイルを加える。
-		*で全てのファイル、stdでvm+lib+tool+etcが対象となる。
-	'-' -- 属性を持つファイルを除く。
+	EXPR = label ('+' label)* ('-' label)* ('#' lang)? ('@' code)?
+	'+' -- ラベルを持つファイルを加える。'*'で全てのファイルが対象となる。
+	'-' -- ラベルを持つファイルを除く。
 	'#' -- delangによるフィルタリング処理を行う。
 	'@' -- 文字コード・行末コードをctrの引数形式で指定する。
-	':' -- 指定revisionと同じか古いものを除く。
 .caption オプション
 	s SYSDIR -- システムディレクトリとしてSYSDIRを使用する。
 	r -- ファイルのリビジョン番号を表示 (list)。
 	m -- マルチカラム表示 (list)。
 .caption 関連項目
-	package.d -- csv形式でシステムファイル名とリビジョン番号(不明なら*)、その後に属性が書かれたファイル。
+	package.d -- csv形式でシステムファイル名とリビジョン番号(不明なら*)、その後にラベルが書かれたファイル。
 .summary ctr
 *import.@
 	Mulk import: #("csvrd" "optparse" "tempfile")
@@ -129,7 +139,8 @@ The package expression specifies the copy target and conversion, and is defined 
 			[:f 
 			files add: f;
 			syms addAll: f syms]!];
-	symArg = #std ifTrue: [#(#vm #lib #tool #etc) do: [:s self addFiles: s]!];
+	symArg = #pmulk ifTrue: 
+		[#(#vm #lib #tool #etc) do: [:s self addFiles: s]!];
 	allFiles do: [:f2 f2 match?: symArg, ifTrue: [files add: f2]];
 	syms add: symArg
 **Cmd.package >> removeFilesIf: blockArg
@@ -150,7 +161,7 @@ The package expression specifies the copy target and conversion, and is defined 
 		[ar at: 0 put: (self sysFile: ar first);
 		allFiles addLast: (Package.File new init: ar)];
 	Set new ->files;
-	Set new addAll: #(#bin #ja #npw) ->syms;
+	Set new addAll: #(#bin #ja #dos #pw #android #mulka0) ->syms;
 	AheadReader new init: expr ->reader;
 	self addFiles: self getSym;
 	[reader nextChar = '+'] whileTrue:
@@ -169,12 +180,6 @@ The package expression specifies the copy target and conversion, and is defined 
 		[reader skipChar;
 		self addTextFilter: "ctr " + self getId];
 	files asArray ->packageFiles;
-	reader nextChar = ':' ifTrue:
-		[reader skipChar;
-		self getId asInteger ->:r;
-		self removeFilesIf: 
-			[:f3 
-			f3 file name <> "package.d" & (f3 revision <= r)]];
 	reader nextChar notNil? ifTrue: [self error: "illegal expr"]
 **Cmd.package >> packageRevision
 	packageFiles inject: 0 into: [:r :f r max: f revision]!

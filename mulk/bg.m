@@ -1,5 +1,5 @@
 background execution
-$Id: mulk bg.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk bg.m 1592 2026-04-30 Thu 20:40:48 kt $
 #ja バックグラウンド実行
 
 *[man]
@@ -84,7 +84,7 @@ Any other input terminates.
 	self doAction: action;
 	file remove
 **Cmd.bg >> startBackground: cmd
-	Kernel vmFn asFile quotedHostPath ->:mulk;
+	Kernel vmFile quotedHostPath ->:mulk;
 	Mulk.hostOS = #windows ifTrue: 
 		["os -o start " + mulk + ' ' + cmd, runCmd!];
 	Mulk.hostOS = #macosx ifTrue:

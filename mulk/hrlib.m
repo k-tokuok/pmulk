@@ -1,5 +1,5 @@
 http communication library
-$Id: mulk hrlib.m 1537 2026-02-06 Fri 14:08:22 kt $
+$Id: mulk hrlib.m 1596 2026-05-08 Fri 15:42:46 kt $
 #ja http通信ライブラリ
 
 *[man]
@@ -32,6 +32,14 @@ httpによる一度の送受信を行う。
 Display processings verbosely.
 ****#ja
 処理を詳細に表示する。
+
+**HttpRequest >> timeout: arg
+	self shouldBeImplemented
+***[man.m]
+****#en
+Set the timeout duration in seconds.
+****#ja
+タイムアウト時間を秒で設定する。
 
 **HttpRequest >> url: urlArg
 	urlArg ->url

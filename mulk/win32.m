@@ -1,5 +1,5 @@
 win32 api wrapper
-$Id: mulk win32.m 1559 2026-03-20 Fri 21:53:31 kt $
+$Id: mulk win32.m 1590 2026-04-28 Tue 21:16:18 kt $
 #ja
 
 *[man]
@@ -172,14 +172,15 @@ Drag the pointer from (x0arg, y0arg) to (x1arg, y1arg).
 	vkDict at: arg ->:vk;
 	self sendInput: (Win32.Input new keydown: vk);
 	self sendInput: (Win32.Input new keyup: vk)
+
+***Win32.class >> downArrow
+	self keyin: #down
 ****[man.m]
 *****#en
-Send the following key press event.
-	#down -- Down arrow
+Send the down arrow key event.
 *****#ja
-次のキー入力イベントを送信する。
-	#down -- 下矢印
-	
+下矢印キーのイベントを送信する。
+
 ***Win32.class >> ctrlv
 	vkDict at: #ctrl ->:c;
 	vkDict at: 'V' ->:v;
@@ -189,11 +190,12 @@ Send the following key press event.
 	self sendInput: (Win32.Input new keyup: c)
 ****[man.m]
 *****#en
-Send the ^v key event.
+Send the ctrl v key event.
 *****#ja
-^vキーイベントを送信する。
+Ctrl+Vキーのイベントを送信する。
 
 **Win32.class >> consoleWindow
+	--ref: https://learn.microsoft.com/ja-jp/troubleshoot/windows-server/performance/obtain-console-window-handle
 	FixedByteArray basicNew: 256 ->:oldname;
 	DL call: #GetConsoleTitleA with: oldname with: oldname size;
 	"mulk-" + (DL call: #GetCurrentProcessId) ->:name;

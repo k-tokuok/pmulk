@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Mulk</string>
+    <string-array name="keyboardTypes">
+        <item >generic</item>
+        <item >ASCII</item>
+        <item >JIS</item>
+    </string-array>
+</resources>

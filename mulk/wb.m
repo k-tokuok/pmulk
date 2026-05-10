@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1561 2026-03-22 Sun 22:00:20 kt $
+$Id: mulk wb.m 1596 2026-05-08 Fri 15:42:46 kt $
 #ja テキストエディタ
 
 *[man]
@@ -398,6 +398,7 @@ These are automatically preached and updated and do not become current tags.
 ***Macro
 ****#en
 Register the series of operations and execute them to reproduce the operations.
+You cannot register or execute another macro while defining a macro.
 
 	^x + ( -- Start macro definition
 	^x + ) + KEY -- End macro definition and registration to KEY.
@@ -408,6 +409,7 @@ During the definition, M is displayed at the beginning of the bottom line.
 
 ****#ja マクロ
 一連の繰作の内容を登録し、実行すると繰作を再現する。
+マクロ定義中に別のマクロを登録したり、実行することはできない。
 
 	^x + ( -- マクロ定義開始
 	^x + ) + KEY -- 定義終了・登録
@@ -2190,12 +2192,7 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 	xDict at: ch put: cursor
 
 ***macro.
-****Wb.class >> registeringMacroCheck
-	macro notNil? ifTrue:
-		[nil ->macro;
-		self error: "registering macro"]
 ****Wb.class >> macroRegistStartCommand
-	self registeringMacroCheck;
 	StringWriter new ->macro
 ****Wb.class >> registeringMacro
 	macro nil? ifTrue: [self error: "not registering macro"];
@@ -2208,7 +2205,6 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 	xDict at: ch put: s;
 	self invalidateActiveTag: ch
 ****Wb.class >> startMacro: macroArg
-	self registeringMacroCheck;
 	1 ->operatorMergeMode;
 	StringReader new init: macroArg ->macro
 ****Wb.class >> macroRepeatCommand
@@ -2412,7 +2408,7 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 		ifTrue: ["wbi.m" asWorkFile]
 		ifFalse:
 			[opt = "-" ifTrue: [nil] ifFalse: [opt asFile]] ->:iFile;
-	iFile notNil? and: [iFile readableFile?], ifTrue: [Mulk loadFile: iFile];
+	iFile notNil? and: [iFile readableFile?], ifTrue: [Mulk load: iFile];
 	opArg at: 'R', or: [self run?], ifTrue: [self backupRecover];
 	#quit ->mode
 

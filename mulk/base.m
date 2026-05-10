@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1558 2026-03-19 Thu 22:11:50 kt $
+$Id: mulk base.m 1592 2026-04-30 Thu 20:40:48 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -1106,21 +1106,21 @@ If the byte order of the processor is little endian, return true.
 *****#ja
 処理系のバイトオーダーがリトル・エンディアンならtrueを返す。
 
-***Kernel.class >> imageFn
-	self propertyAt: 12!
+***Kernel.class >> imageFile
+	self propertyAt: 12, asFile!
 ****[man.m]
 *****#en
-Returns the image file name string loaded at startup.
+Returns the image File object loaded at startup.
 *****#ja
-起動時に読み込んだイメージファイル名文字列を返す。
+起動時に読み込んだイメージファイルオブジェクトを返す。
 
-***Kernel.class >> vmFn
-	self propertyAt: 13!
+***Kernel.class >> vmFile
+	self propertyAt: 13, asFile!
 ****[man.m]
 *****#en
-Returns the program file name string of the processor.
+Returns a program File object in the runtime system.
 *****#ja
-処理系のプログラムファイル名文字列を返す。
+処理系のプログラムファイルオブジェクトを返す。
 
 **OS.class class.#
 	class OS.class Object : fps timediff;
@@ -9080,16 +9080,17 @@ Mulkはグローバルオブジェクト全てを保持する連想配列で、M
 	Mulk.caseInsensitiveFileName? -- ファイル名は英字の大文字小文字を区別しない場合、true。
 	
 **image.
-***Mulk.class >> save: fileNameArg
-	ImageWriter new writeTo: fileNameArg asFile
+***Mulk.class >> save: arg
+	arg kindOf?: String, ifTrue: [arg asFile ->arg];
+	ImageWriter new writeTo: arg
 ****[man.m]
 *****#en
-Save the image to the file indicated by String fileNameArg.
+Save the image to a file specified by a String or File object.
 *****#ja
-String fileNameArgで示されるファイルへイメージを保存する。
+StringもしくはFileで示されるファイルへイメージを保存する。
 
 ***Mulk.class >> save
-	self save: Kernel imageFn
+	self save: Kernel imageFile
 ****[man.m]
 *****#en
 Write the current Mulk back to the boot image file.
@@ -9097,24 +9098,22 @@ Write the current Mulk back to the boot image file.
 現在のMulkを起動イメージファイルに書き戻す。
 
 **load and import.
-***Mulk.class >> loadFile: fileArg
-	Loader new load: fileArg;
-	fileArg system? ifTrue: [imported add: fileArg baseName]
-	
-***Mulk.class >> load: fileNameArg
-	self loadFile: fileNameArg asFile
+***Mulk.class >> load: arg
+	arg kindOf?: String, ifTrue: [arg asFile ->arg];
+	Loader new load: arg;
+	arg system? ifTrue: [imported add: arg baseName]
 ****[man.m]
 *****#en
-Loads the module file indicated by String fileNameArg.
+Load the module specified by a String or File.
 *****#ja
-String fileNameArgで示されるモジュールファイルをロードする。
+StringもしくはFileで示されるモジュールをロードする。
 
 ***Mulk.class >> import: moduleArg
 	moduleArg memberOf?: FixedArray, ifTrue:
 		[moduleArg do: [:p self import: p];
 		self!];
 	imported includes?: moduleArg, ifFalse:
-		[self loadFile: (moduleArg + ".m") asSystemFile]
+		[self load: (moduleArg + ".m") asSystemFile]
 ****[man.m]
 *****#en
 Load system modules.
@@ -9295,7 +9294,7 @@ Quit the system.
 .end
 	
 	Mulk.systemDirectory nil?
-		ifTrue: [Kernel imageFn asFile parent ->Mulk.systemDirectory];
+		ifTrue: [Kernel imageFile parent ->Mulk.systemDirectory];
 	Array new ->Mulk.extraSystemDirectories;
 	Mulk.workDirectory nil?
 		ifTrue: [Mulk.systemDirectory ->Mulk.workDirectory];

@@ -1,5 +1,5 @@
 revision control system
-$Id: mulk git.m 1537 2026-02-06 Fri 14:08:22 kt $
+$Id: mulk git.m 1598 2026-05-10 Sun 20:45:07 kt $
 #ja 改訂管理システム
 
 *[man]
@@ -7,6 +7,7 @@ $Id: mulk git.m 1537 2026-02-06 Fri 14:08:22 kt $
 .caption SYNOPSIS
 	git ARGS... -- Execute git with ARGS as an argument.
 	git.log [OPTION] [ARG] -- Output log for ARG. If omitted, the current directory is the target.
+	git.files [ARGDIR] -- Outputs a list of Git-managed files in the ARGDIR directory. If omitted, the current directory is used.
 .caption DESCRIPTION
 Execute git on the host OS as a command.
 .caption OPTION
@@ -18,6 +19,7 @@ Execute git on the host OS as a command.
 .caption 書式
 	git ARGS... -- ARGSを引数のgitを実行する。
 	git.log [OPTION] [ARG] -- ARGに対するログを出力する。省略時はカレントディレクトリを対象とする。
+	git.files [ARGDIR] -- ARGDIR下のgit管理のファイル一覧を出力する。省略時はカレントディレクトリを対象とする。
 .caption 説明
 コマンドとしてホストOSのgitを実行する。
 .caption オプション
@@ -45,3 +47,8 @@ Execute git on the host OS as a command.
 	op at: 'f', ifTrue: [ln + " --follow" ->ln];
 	args empty? ifFalse: [ln + ' ' + args first ->ln];
 	self runGit: ln
+**Cmd.git >> main.files: args
+	"." asFile ->:save;
+	args empty? ifFalse: [args first asFile chdir];
+	"git ls-files" runCmd;
+	save chdir

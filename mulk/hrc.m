@@ -1,5 +1,5 @@
 HttpRequest.c class
-$Id: mulk hrc.m 1537 2026-02-06 Fri 14:08:22 kt $
+$Id: mulk hrc.m 1596 2026-05-08 Fri 15:42:46 kt $
 #ja
 
 *[man]
@@ -23,6 +23,9 @@ HttpRequestのcurlコマンドによる実装。
 **HttpRequest.c >> init
 	super init;
 	"-s -L -w '%{http_code}\\n'" ->option
+**HttpRequest.c >> timeout: arg
+	self assert: (arg kindOf?: Integer);
+	option + " -m " + arg ->option
 **HttpRequest.c >> method: arg
 	option + " -X " + arg ->option
 **HttpRequest.c >> header: keyArg value: valueArg
