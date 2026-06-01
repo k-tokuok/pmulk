@@ -1,5 +1,5 @@
 chat with Google Gemini
-$Id: mulk gemini.m 1596 2026-05-08 Fri 15:42:46 kt $
+$Id: mulk gemini.m 1602 2026-05-21 Thu 22:56:23 kt $
 #ja Google Geminiとチャットする
 
 *[man]
@@ -10,8 +10,8 @@ Chat with Google Gemini.
 See manual topic aichat for actual preparation and operation.
 
 .caption MODELS
-		gemini-3.1-flash-lite-preview
-	1	gemini-3-flash-preview
+		gemini-3.1-flash-lite
+	1	gemini-3.5-flash
 	2	gemini-3.1-pro-preview
 	3	gemini-2.5-flash-lite
 	4	gemini-2.5-flash
@@ -28,8 +28,8 @@ Google Geminiとチャットを行う。
 実際の準備、操作についてはマニュアルトピックaichatを参照のこと。
 
 .caption モデル
-		gemini-3.1-flash-lite-preview
-	1	gemini-3-flash-preview
+		gemini-3.1-flash-lite
+	1	gemini-3.5-flash
 	2	gemini-3.1-pro-preview
 	3	gemini-2.5-flash-lite
 	4	gemini-2.5-flash
@@ -47,8 +47,8 @@ Google Geminiとチャットを行う。
 **Cmd.gemini >> suffix
 	"gem"!
 **Cmd.gemini >> models
-	#(	"gemini-3.1-flash-lite-preview" 
-		"gemini-3-flash-preview"
+	#(	"gemini-3.1-flash-lite" 
+		"gemini-3.5-flash"
 		"gemini-3.1-pro-preview"
 		"gemini-2.5-flash-lite"
 		"gemini-2.5-flash"

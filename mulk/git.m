@@ -1,5 +1,5 @@
 revision control system
-$Id: mulk git.m 1598 2026-05-10 Sun 20:45:07 kt $
+$Id: mulk git.m 1604 2026-05-23 Sat 21:30:16 kt $
 #ja 改訂管理システム
 
 *[man]
@@ -48,7 +48,5 @@ Execute git on the host OS as a command.
 	args empty? ifFalse: [ln + ' ' + args first ->ln];
 	self runGit: ln
 **Cmd.git >> main.files: args
-	"." asFile ->:save;
-	args empty? ifFalse: [args first asFile chdir];
-	"git ls-files" runCmd;
-	save chdir
+	args empty? ifTrue: ["."] ifFalse: [args first], asFile chdirDo:
+		["git ls-files" runCmd]

@@ -1,5 +1,5 @@
-;Mulk package pmulk (1598)
-;2026-05-10 Sun 20:46:16
+;Mulk package pmulk (1607)
+;2026-06-01 Mon 22:08:50
 os.c,1433,vm
 xconsole.h,1433,vm
 touch.m,1433,pw,tool
@@ -23,9 +23,9 @@ hrlib.m,1596,pw,lib,mulka0
 nl.m,1433,pw,tool
 tee.m,1433,pw,tool
 ir.h,1433,vm
-repl.m,1433,pw,tool
+repl.m,1433,tool
 format.m,1433,pw,tool
-base.m,1592,lib
+base.m,1604,lib
 numlnwr.m,1549,pw,lib
 detab.m,1433,pw,tool
 fbdata.m,1433,pw,lib
@@ -41,13 +41,13 @@ multicol.m,1559,pw,mulka0,tool
 grok.m,1524,pw,tool
 cp.m,1433,pw,mulka0,tool
 diff.m,1448,pw,tool
-skkchunk.d,1586,pw,ja,tool
+skkchunk.d,1607,pw,ja,tool
 random.m,1433,pw,lib,mulka0
 mingw.mak,1433,vm
 u64.h,1433,vm
 iqueue.h,1433,vm
-viewa.m,1433,android,lib
 clip.m,1433,pw,tool
+viewa.m,1433,android,lib
 delang.m,1433,pw,tool
 coord.m,1433,pw,lib
 xorshift.m,1433,pw,lib,mulka0
@@ -77,6 +77,7 @@ k-us.d,1433,pw,lib
 xgetopt.h,1433,vm
 c-viewu.m,1433,lib
 chatgpt.m,1524,pw,tool
+png.m,1433,lib
 osd.c,1533,vm,dos
 gzip.m,1433,pw,tool
 prompt.m,1433,pw,lib,mulka0
@@ -88,10 +89,10 @@ fbarray.c,1433,vm
 lex.c,1433,vm
 cmp.m,1433,pw,tool
 packtbz.m,1433,tool
-cmd.m,1433,mulka0,tool
+cmd.m,1433,pw,mulka0,tool
 updateid.m,1443,pw,tool
 mulks.c,1433,vm
-hrc.m,1596,pw,lib
+hrc.m,1602,pw,lib
 cmpb.m,1433,pw,tool
 cdep.m,1433,pw,tool
 rm.m,1433,pw,mulka0,tool
@@ -110,12 +111,12 @@ dl.c,1433,vm
 fbdatal.m,1433,pw,lib
 foreach.m,1433,pw,tool
 mem.h,1433,vm
-icmd.m,1433,mulka0,tool
+icmd.m,1433,pw,mulka0,tool
 ctrlib.m,1433,pw,lib,mulka0
 du.m,1535,pw,tool
 ol.m,1434,pw,tool
 tree.m,1433,pw,tool
-eval.mm,1433,pw,tool
+eval.mm,1433,tool
 echo.m,1433,pw,tool
 djgpp.mak,1433,vm,dos
 zlibdl.m,1433,pw,lib
@@ -135,7 +136,7 @@ viewp.m,1433,pw,lib
 unittest.m,1592,tool
 skkut.m,1505,pw,ja,tool
 diffdir.m,1553,pw,tool
-package.m,1593,pw,tool
+package.m,1600,pw,tool
 addxc.c,1433,vm
 man.m,1471,pw,tool
 gtrans.m,1433,pw,tool
@@ -168,17 +169,18 @@ print.m,1433,pw,tool
 cp932.m,1551,lib
 icd.m,1433,pw,tool
 pp.c,1433,vm
-makefile,1527,vm
+makefile,1601,vm
 cat.m,1433,pw,mulka0,tool
 hra.m,1596,lib,android,mulka0
 make.d,1433,vm
 inst.h,1433,vm
+bzip2.m,1433,tool
 ip.c,1525,vm
 std.c,1433,vm
-git.m,1598,pw,tool
+git.m,1604,pw,tool
 intro.mm,1529,pw,etc
-packwin.m,1597,tool
-gemini.m,1596,pw,tool
+packwin.m,1607,tool
+gemini.m,1602,pw,tool
 clean.m,1433,pw,tool
 os.h,1433,vm
 clipw.m,1433,pw,lib
@@ -194,6 +196,7 @@ prim.c,1433,vm
 cmdstr.m,1433,pw,lib
 mulkprim.c,1433,vm
 fgrep.m,1433,pw,tool
+sqlite.m,1447,lib
 open.m,1492,pw,mulka0,tool
 pwd.m,1433,pw,mulka0,tool
 dup.m,1433,pw,tool
@@ -212,16 +215,17 @@ dtrans.m,1444,pw,tool
 vkey.c,1433,vm
 osw.c,1433,vm
 mkdir.m,1433,pw,mulka0,tool
+set.m,1604,pw,tool
 hidecnsl.m,1590,pw,tool
 pfd.c,1433,vm,dos
 mv.m,1433,pw,mulka0,tool
-omd.c,1433,vm
 cli.m,1588,pw,tool
+omd.c,1433,vm
 crypt.m,1433,pw,tool
 xbarray.c,1433,vm
 sort.m,1433,pw,mulka0,tool
 gc.h,1433,vm
-android.m,1592,android,lib
+android.m,1599,android,lib
 gdrive.m,1537,pw,mulka0,tool
 filec.m,1433,pw,tool
 xctype.c,1433,vm
@@ -272,8 +276,9 @@ ib.c,1433,vm
 update.m,1597,pw,mulka0,tool
 hr.m,1433,pw,mulka0,tool
 pfs.m,1433,pw,lib
+jpeg.m,1433,lib
 splay.c,1433,vm
-package.d,1598,pw,tool
+package.d,1607,pw,tool
 dump.m,1433,pw,tool
 console.m,1433,pw,lib
 std.h,1433,vm

@@ -1,5 +1,5 @@
 create Mulk/Windows binary package
-$Id: mulk packwin.m 1597 2026-05-09 Sat 20:45:35 kt $
+$Id: mulk packwin.m 1607 2026-05-29 Fri 20:03:21 kt $
 #ja Mulk/Windowsバイナリパッケージを作成する
 
 *[man]
@@ -11,9 +11,8 @@ Create a Mulk binary package for Windows and compress it in ZIP format.
 
 .caption OPTION
 	l LANG -- Language specification (en|ja). If omitted, Mulk.lang is assumed to be specified.
-	b BASEDIR -- The directory where mulk.exe and base.mi are located. If omitted, Mulk.systemDirectory is assumed to be specified.
 	c CHARSET -- Character code (utf8|sjis). If omitted, it is selected appropriately according to the language specification.
-	C -- Create a new cross compiled version of mulk.exe and base.mi.
+	C -- Create new mulk.exe and base.mi. On Windows, you need Visual C++; on Unix, you need Wine and a Mingw-based toolchain.
 .caption SEE ALSO
 .summary package
 **#ja
@@ -24,101 +23,32 @@ Windows向けMulkバイナリパッケージを作り、ZIP形式で圧縮する
 
 .caption オプション
 	l LANG -- 言語指定(en|ja)。省略時はMulk.langが指定されたものとする。
-	b BASEDIR -- コピー元のmulk.exeとbase.miのあるディレクトリ。省略時はMulk.systemDirectoryが指定されたものとする。
 	c CHARSET -- 文字コード(utf8|sjis)。省略時は言語指定によって適切に選ばれる。
-	C -- mulk.exeとbase.miをクロスコンパイルで新規に作成する。
+	C -- mulk.exeとbase.miを新規に作成する。WindowsではVisual-C++を、Unixではwineとmingwベースのツールチェインが必要。
 .caption 関連項目
 .summary package
 
 *packwin tool.@
 	Mulk import: #("optparse" "tempfile");
 	Object addSubclass: #Cmd.packwin instanceVars: 
-		"lang charset ctrdst baseDir cross?"
-**Cmd.packwin >> make_install_bat
-	Out putLn: "cd /d \"%~dp0\"",
-		putLn: "install\\mulk -i install/mulk0.mi"
-			+ " \"Mulk load: \\\"install/install.m\\\"\""
-**Cmd.packwin >> make_install_m
-	Out putLn: (Mulk at: #Cmd.packwin.installer);
-	Out putLn: "*@";
-	Out putLn: "Installer new start"
-**Cmd.packwin >> make_manual: topic to: dirArg
-	"man -ml" + lang + ' ' + topic + " | ctr = " + ctrdst 
-		pipeTo: dirArg + (topic + ".mm")
-**Cmd.packwin >> make_mulk_ar: exprArg to: destArg
-	TempFile create ->:dir, mkdir quotedPath ->:qdir;
-	"package " + exprArg + ' ' + qdir, runCmd;
-	self make_manual: "cmd" to: dir;
-	self make_manual: "icmd" to: dir;
-	"ar.c " + qdir, pipeTo: destArg;
-	"rm " + qdir, runCmd
-**Cmd.packwin >> make_mulk0_mi: destArg
-	"." asFile ->:save;
-	baseDir chdir;
-	"os -i" ->:cmd;
-	cross? ifTrue: [cmd + " wine" ->cmd];
-	cmd + " mulk -i base.mi" ->cmd;
-	[Out putLn: "Mulk import: #(\"crlf\" \"icmd\");";
-	charset = "sjis" ifTrue: [Out putLn: "Mulk import: \"cp932\";"];
-	Out put: '"', put: lang, putLn: "\" ->Mulk.lang;";
-	Out putLn: "nil ->Mulk.systemDirectory ->Mulk.workDirectory;";
-	Out putLn: "Mulk save: \"mulk0.mi\""] pipe: cmd;
-	save chdir;
-	baseDir + "mulk0.mi" pipeTo: destArg
-**Cmd.packwin >> main: args
-	OptionParser new init: "l:b:c:C" ->:op, parse: args ->args;
-	op at: 'l' ->:opt, nil? ifTrue: [Mulk.lang] ifFalse: [opt] ->lang;
-	op at: 'b' ->opt, nil? 
-		ifTrue: [Mulk.systemDirectory] 
-		ifFalse: [opt asFile] ->baseDir;
-	op at: 'c' ->opt, nil?
-		ifTrue: [lang = "ja" ifTrue: ["sjis"] ifFalse: ["utf8"]]
-		ifFalse: [opt] ->charset;
-	charset = "sjis" ifTrue: ["s"] ifFalse: ["u"] ->ctrdst;
-	ctrdst + "c" ->ctrdst;
-	
-	op at: 'C' ->cross?, ifTrue:
-		[TempFile create mkdir ->:crossDir;
-		"package vm " + crossDir quotedPath, runCmd;
-		#("base.m" "crlf.m" "cp932.m" "pipe.m" "optparse.m" "cmd.m" "icmd.m")
-			do: [:m m asSystemFile pipeTo: crossDir + m];
-		"os -o sh -c 'cd " + crossDir quotedPath + " ; "
-			+ "make hostos=windows cross=wine mulk.exe base.mi'" ->:s;
-		Out putLn: s;
-		s runCmd;
-		crossDir ->baseDir];
-		
-	"pw" ->:expr;
-	lang = "en" ifTrue: [expr + "-ja" ->expr];
-	expr + '#' + lang + '@' + ctrdst ->expr;
-	args first ->:dest;
+		"lang charset ctrdst baseDir compileDir"
 
-	TempFile create ->:topDir;
-	[self make_install_bat] pipe: "ctr = " + ctrdst, 
-		pipeTo: topDir + "install.bat";
-	[self make_install_m] pipe: "ctr = " + ctrdst,
-		pipeTo: topDir + "install/install.m";
-	baseDir + "mulk.exe" pipeTo: topDir + "install/mulk.exe";
-	self make_mulk0_mi: topDir + "install/mulk0.mi";
-	self make_mulk_ar: expr to: topDir + "install/mulk.ar";
-	Mulk.systemDirectory + "../dll/zlib1.dll" pipeTo: topDir + "dll/zlib1.dll";
+**->Cmd.packwin.install.bat
+cd /d "%~dp0"
+install\mulk -i install/mulk0.mi "Mulk load: \"install/install.m\""
 
-	"zip.c " + dest + ' ' + topDir quotedPath, runCmd;
-	"rm " + topDir quotedPath, runCmd;
-	cross? ifTrue: ["rm " + crossDir quotedPath, runCmd]
-	
-*->Cmd.packwin.installer
+**->Cmd.packwin.install.m
 installer for Windows binary kit.
 
-**installer.@
+***installer.@
 	Object addSubclass: #Installer 
-***Installer >> readString: arArg
+****Installer >> readString: arArg
 	StringWriter new ->:wr;
 	[arArg getByte ->:b, <> 0] whileTrue: 
 		[b = -1 ifTrue: [nil!];
 		wr putByte: b];
 	wr asString!
-***Installer >> extract
+****Installer >> extract
 	"install/mulk.ar" asFile ->:arFile;
 	"mulk" asFile ->:dest;
 	dest directory? ifTrue: [dest decendantFiles do: [:f f remove]];
@@ -129,36 +59,106 @@ installer for Windows binary kit.
 			FixedByteArray basicNew: sz ->:bytes;
 			ar read: bytes;
 			dest + fn writeDo: [:wr wr write: bytes]]]
-***Installer >> make_mulk_mi
+****Installer >> make_mulk_mi
 	Out putLn: "\"mulk\" asFile ->Mulk.systemDirectory;",
 		putLn: "\"work\" asFile ->Mulk.workDirectory;",
+		putLn: "Mulk import: \"icmd\";",
 		putLn: "#Cmd.icmd ->Mulk.defaultMainClass;",
 		putLn: "Mulk save: \"bin/mulk.mi\""
-***Installer >> make_icmd_mc
-	Out putLn: "os.path -s " + "dll" asFile quotedPath,
+****Installer >> make_icmd_mc
+	Out putLn: "set.home",
+		putLn: "os.path -s " + "dll" asFile quotedPath,
 		putLn: "ld -s h.m",
 		putLn: "ld -s clipw.m"
-***Installer >> make_mulkv_mc
+****Installer >> make_mulkv_mc
 	Out putLn: "cmd " + "work/icmd.mc" asFile quotedPath,
+		putLn: "cd ~",
 		putLn: "cset view";
 	Mulk.lang = "ja" ifTrue: [Out putLn: "skk"];
 	Out putLn: "hidecnsl",
 		putLn: "icmd.next wb"
-***Installer >> make_mulkv_bat
+****Installer >> make_mulkv_bat
 	Out putLn: "start \"\" " + "bin/mulk.exe" asFile quotedHostPath 
 		+ " -- -s " + "work/mulkv.mc" asFile quotedPath
-***Installer >> customFile: fileArg
+****Installer >> customFile: fileArg
 	fileArg readableFile? ifTrue:
 		[fileArg + ".." + (fileArg name + ".new") ->fileArg];
 	fileArg!
-***Installer >> start
+****Installer >> start
 	self extract;
 	"mulk" asFile ->Mulk.systemDirectory;
 	"work" asFile ->Mulk.workDirectory;
-	"bin" asFile mkdir;
-	"work" asFile mkdir;
+	Mulk import: "cmd";
+	"mkdir bin" runCmd;
+	"mkdir work" runCmd;
 	"cp install/mulk.exe bin" runCmd;
 	[self make_mulk_mi] pipe: "os -i install\\mulk -i install/mulk0.mi";
 	[self make_icmd_mc] pipeTo: (self customFile: "work/icmd.mc" asFile);
 	[self make_mulkv_mc] pipeTo: (self customFile: "work/mulkv.mc" asFile);
 	[self make_mulkv_bat] pipeTo: (self customFile: "bin/mulkv.bat" asFile)
+	
+***@
+Installer new start
+
+**->Cmd.packwin.dllsetup.bat
+rem dllsetup [/a] -- download dll from github, /a to download all
+cd /d "%~dp0"
+mkdir ..\dll
+set url=https://raw.githubusercontent.com/k-tokuok/pmulk/master/dll
+curl -o ../dll/zlib1.dll %url%/zlib1.dll
+if "%1"=="/a" for %%i in (libbz2.dll libjpeg-9.dll libpng16.dll readme.txt sqlite3.dll) do curl -o ..\dll\%%i %url%/%%i
+
+**Cmd.packwin >> make_mulk_ar: destArg
+	TempFile create ->:dir, mkdir quotedPath ->:qdir;
+	"pw" ->:expr;
+	lang = "en" ifTrue: [expr + "-ja" ->expr];
+	
+	"package " + expr + '#' + lang + '@' + ctrdst + ' ' + qdir, runCmd;
+	"ar.c " + qdir, pipeTo: destArg;
+	"rm " + qdir, runCmd
+**Cmd.packwin >> make_mulk_exe
+	TempFile create mkdir ->compileDir ->baseDir, chdirDo:
+		["package vm+pws@" + ctrdst + " .", runCmd;
+		"os -o " 
+			+ (Mulk.hostOS = #windows 
+				ifTrue: ["nmake /fvc.mak"] 
+				ifFalse: ["make hostos=windows cross=wine"])
+			+ " mulk.exe base.mi", runCmd]
+**Cmd.packwin >> make_mulk0_mi
+	baseDir chdirDo:
+		["os -io" ->:cmd;
+		Mulk.hostOS <> #windows ifTrue: [cmd + " wine" ->cmd];
+		cmd + " mulk -i base.mi" ->cmd;
+		[Out putLn: "Mulk import: #(\"crlf\" \"optparse\" \"pipe\");";
+		charset = "sjis" ifTrue: [Out putLn: "Mulk import: \"cp932\";"];
+		Out put: '"', put: lang, putLn: "\" ->Mulk.lang;";
+		Out putLn: "nil ->Mulk.systemDirectory ->Mulk.workDirectory;";
+		Out putLn: "Mulk save: \"1.wk\""] pipe: cmd];
+	baseDir + "1.wk"!
+**Cmd.packwin >> main: args
+	OptionParser new init: "l:c:C" ->:op, parse: args ->args;
+	op at: 'l' ->:opt, nil? ifTrue: [Mulk.lang] ifFalse: [opt] ->lang;
+	op at: 'c' ->opt, nil?
+		ifTrue: [lang = "ja" ifTrue: ["sjis"] ifFalse: ["utf8"]]
+		ifFalse: [opt] ->charset;
+		
+	Mulk.systemDirectory ->baseDir;
+	charset = "sjis" ifTrue: ["s"] ifFalse: ["u"] ->ctrdst;
+	ctrdst + "c" ->ctrdst;
+	
+	TempFile create ->:topDir;
+	[Out put: Cmd.packwin.install.bat] pipe: "ctr = " + ctrdst, 
+		pipeTo: topDir + "install.bat";
+	[Out put: Cmd.packwin.install.m] pipe: "ctr = " + ctrdst,
+		pipeTo: topDir + "install/install.m";
+	[Out put: Cmd.packwin.dllsetup.bat] pipe: "ctr = " + ctrdst,
+		pipeTo: topDir + "install/dllsetup.bat";
+	self make_mulk_ar: topDir + "install/mulk.ar";
+	op at: 'C', ifTrue: [self make_mulk_exe];
+	baseDir + "mulk.exe" pipeTo: topDir + "install/mulk.exe";
+	self make_mulk0_mi pipeTo: topDir + "install/mulk0.mi";
+
+	"zip.c " + args first + ' ' + topDir quotedPath, runCmd;
+	"rm " + topDir quotedPath, runCmd;
+	compileDir notNil? ifTrue: ["rm " + compileDir quotedPath, runCmd]
+	

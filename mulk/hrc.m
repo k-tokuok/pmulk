@@ -1,5 +1,5 @@
 HttpRequest.c class
-$Id: mulk hrc.m 1596 2026-05-08 Fri 15:42:46 kt $
+$Id: mulk hrc.m 1602 2026-05-21 Thu 22:56:23 kt $
 #ja
 
 *[man]
@@ -39,10 +39,7 @@ HttpRequestのcurlコマンドによる実装。
 		ifFalse: [outFile quotedHostPath] ->:outPath;
 	option + " -o " + outPath ->option;
 
-	"os " ->:cmdstr;
-	Mulk.hostOS = #windows ifTrue: 
-		[cmdstr + " c:\\windows\\system32\\" ->cmdstr];
-	cmdstr + "curl " + option + ' ' + url ->cmdstr;
+	"os curl " + option + ' ' + url ->:cmdstr;
 	verbose? ifTrue: [Out putLn: "HttpRequest: " + cmdstr];
 	[cmdstr runCmd] pipe: [In getLn asInteger ->:st];
 	dataFile notNil? ifTrue: [dataFile remove];

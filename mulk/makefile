@@ -1,6 +1,6 @@
 #
 #	makefile for gnu toolchain.
-#	$Id: mulk makefile 1527 2026-01-18 Sun 20:52:36 kt $
+#	$Id: mulk makefile 1601 2026-05-18 Mon 21:58:04 kt $
 #
 #	make hostos={cygwin,linux,macosx,minix,freebsd,netbsd,illumos,windows}
 #		[dl=on|off] [term=on|off] [view=on|off|sdl] [xft=on|off] 
@@ -64,6 +64,7 @@ ifeq ($(cross),wine)
 wine=wine
 toolprefix=x86_64-w64-mingw32-
 ccname=gcc
+uflags+=-mcrtdll=ucrt
 endif
 ppflags+=caseInsensitiveFileName
 xcobjs+=osw.o pfw.o

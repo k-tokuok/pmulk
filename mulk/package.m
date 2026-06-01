@@ -1,5 +1,5 @@
 copy and manage Mulk packages
-$Id: mulk package.m 1593 2026-05-02 Sat 20:59:30 kt $
+$Id: mulk package.m 1600 2026-05-17 Sun 20:31:27 kt $
 #ja Mulkパッケージのコピー及び管理
 
 *[man]
@@ -25,7 +25,8 @@ The standard labels are defined as follows:
 		bin -- Binary files
 		ja -- Specific to the Japanese environment
 		dos -- Specific to the MS-DOS environment	
-		pw -- target of packwin tool
+		pw -- Files to be packaged by packwin
+	    pws -- Files required for packwin's self-compilation		
 		android -- Specific to Android environment
 		mulka0 -- Builtin modules for Android APK
 		
@@ -66,7 +67,8 @@ The package expression specifies the target of the copy operation and the conver
 		bin -- バイナリファイル
 		ja -- 日本語環境固有のもの
 		dos -- MS-DOS環境固有のもの
-		pw -- packwinの対象ファイル
+		pw -- packwinのパッケージ対象ファイル
+		pws -- packwinのセルフコンパイル時に必要なもの
 		android -- Android環境固有のもの
 		mulka0 -- Android APK用の組み込みモジュール
 		

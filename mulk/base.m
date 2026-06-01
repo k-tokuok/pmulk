@@ -1,5 +1,5 @@
 base class library
-$Id: mulk base.m 1592 2026-04-30 Thu 20:40:48 kt $
+$Id: mulk base.m 1604 2026-05-23 Sat 21:30:16 kt $
 #ja 基盤クラスライブラリ
 
 *[man]
@@ -7246,6 +7246,23 @@ Make the receiver directory the current directory.
 	self assert: f = f2;
 	saveDir chdir
 
+****File >> chdirDo: blockArg
+	"." asFile ->:save;
+	[self chdir;
+	blockArg value] finally: [save chdir]
+*****[man.m]
+******#en
+Evaluate blockArg using the receiver directory as the current directory.
+When finished, return to the original directory.
+******#ja
+レシーバーディレクトリをカレントディレクトリとしてblockArgを評価する。
+終了すると元のディレクトリへ戻る。
+*****[test.m]
+	"." asFile ->:d1;
+	self createTempFile mkdir ->:d2, chdirDo: 
+		[self assert: "." asFile = d2];
+	self assert: "." asFile = d1
+	
 ***File >> printOn: writerArg
 	path printOn: writerArg
 ***File >> describeOn: writerArg

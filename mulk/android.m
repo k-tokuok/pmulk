@@ -1,5 +1,5 @@
 Android specific functions (Android.class class)
-$Id: mulk android.m 1592 2026-04-30 Thu 20:40:48 kt $
+$Id: mulk android.m 1599 2026-05-14 Thu 21:00:31 kt $
 #ja Android固有機能 (Android.class class)
 
 *[man]
@@ -47,7 +47,7 @@ Android固有機能へのアクセサオブジェクトのクラス。
 		(Android.Method new init: symbolArg signature: signatureArg)
 ***[man.m]
 ****#en
-Import the method symbolArg of the kt.mulk.Main class.
+Import the method symbolArg of the com.github.k_tokuok.mulk.Main class.
 
 signatureArg indicates the return value of the method and the argument type as a string.
 The first character is the return type, and the rest is the argument type.
@@ -64,7 +64,7 @@ B and S type return values and arguments are expressed in byte [] in UTF-8 forma
 For B type arguments, the contents of byte [] on the Java side are written back to the FixedByteArray after the method call.
 
 ****#ja
-kt.mulk.MainクラスのメソッドsymbolArgをインポートする。
+com.github.k_tokuok.mulk.MainクラスのメソッドsymbolArgをインポートする。
 
 signatureArgはメソッドの返り値、引数の型を文字列で示す。
 先頭文字が返り値の型、残りが引数の型を意味する。
