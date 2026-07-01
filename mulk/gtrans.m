@@ -1,58 +1,47 @@
 Google Translate
-$Id: mulk gtrans.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk gtrans.m 1618 2026-06-25 Thu 22:39:11 kt $
 #ja Google翻訳
 
 *[man]
 **#en
 .caption SYNOPSIS
-	gtrans sourceLanguageCode targetLanguageCode
+	gtrans TargetLanguageCode
 .caption DESCRIPTION
-Translate the input text using Google Translate service.
-
-To translate, create the following web service at https://script.google.com.
-
-	function doGet(e) {
-	  var p = e.parameter;
-	  var translatedText = LanguageApp.translate(p.text, p.source, p.target);
-	  return ContentService.createTextOutput(translatedText);
-	}
-Make this service publicly executable by anonymous users and put the URL in the Mulk dictionary "Cmd.gtrans.service".
+Use the Google Cloud Platform translation service to translate the entered text.
+Beforehand, you need to configure your project at https://console.cloud.google.com/ to enable the Cloud Translation API and set the API key in the system dictionary under Cmd.gtrans.apikey.
 .caption EXAMPLE
-	gtrans en ja -- Translate from English to Japanese.
+	gtrand en -- Translate from any language into English
 **#ja
 .caption 書式
-	gtrans 翻訳元言語コード 翻訳先言語コード
+	gtrans 翻訳先言語コード
 .caption 説明
-Google翻訳サービスを使用して入力した文章を翻訳する。
+Google Cloud Platformの翻訳サービスを使用して入力した文章を翻訳する。
 
-翻訳を行うにはhttps://script.google.comで次のwebサービスを作成する。
-
-	function doGet(e) {
-	  var p = e.parameter;
-	  var translatedText = LanguageApp.translate(p.text, p.source, p.target);
-	  return ContentService.createTextOutput(translatedText);
-	}
-
-このサービスを匿名ユーザーから実行可能に公開し、URLをMulk辞書の"Cmd.gtrans.service"に設定する。
+事前にhttps://console.cloud.google.com/のプロジェクトから、Cloud Translation APIを使用できるよう設定し、APIキーをシステム辞書のCmd.gtrans.apikeyに設定しておく必要がある。
 .caption 例
-	gtrans en ja -- 英語から日本語に翻訳する。
+	gatrans en -- 任意の言語から英語に翻訳する
 	
 *gtrans tool.@
-	Mulk import: "urlenc";
-	Object addSubclass: #Cmd.gtrans instanceVars: "source target"
-**Cmd.gtrans >> translate
-	In contentBytes ->:text, empty? ifTrue: [self error: "text empty"];
-	StringWriter new,
-		put: "hr ",
-		put: Cmd.gtrans.service,
-		put: "?text=", put: text urlEncode,
-		put: "&source=", put: source,
-		put: "&target=", put: target,
-		asString runCmd
+	Mulk import: #("jsonrd" "jsonwr");
+	Object addSubclass: #Cmd.gtrans
 **Cmd.gtrans >> main: args
-	args first ->source;
-	args at: 1 ->target;
-	Mulk.charset = #sjis
-		ifTrue: 
-			["cat | ctr u" pipe: [self translate], pipe: "ctr u =" to: Out]
-		ifFalse: ["cat" pipe: [self translate] to: Out]
+	args first ->:target;
+	In contentBytes asString ->:text;
+	HttpRequestFactory new create ->:hr;
+	hr method: "POST";
+	hr url: "https://translation.googleapis.com/language/translate/v2?key="
+		+ Cmd.gtrans.apikey;
+	hr header: "Content-Type" value: "application/json";
+	hr openData;
+	Dictionary new ->:data;
+	data at: "q" put: text;
+	data at: "target" put: target;
+	data at: "format" put: "text";
+	JsonWriter new write: data to: hr data;
+	TempFile create ->:outFile;
+	hr outFile: outFile;
+	hr run;
+	outFile pipe: [JsonReader new read: In ->:json];
+	Out put: (json at: "data", at: "translations", first, 
+		at: "translatedText");
+	outFile remove

@@ -1,5 +1,5 @@
 chat with OpenAI ChatGPT
-$Id: mulk chatgpt.m 1524 2026-01-15 Thu 20:36:24 kt $
+$Id: mulk chatgpt.m 1618 2026-06-25 Thu 22:39:11 kt $
 #ja OpenAI ChatGPTとチャットする
 
 *[man]
@@ -63,7 +63,7 @@ OpenAI ChatGPTとチャットを行う。
 	json at: "choices", first at: "message", at: "content"
 	] on: Error do:
 		[:e
-		JsonWriter new write: json to: Out;
+		JsonWriter new writeNative: json to: Out;
 		e message] ->:result;
 	self addDialogRole: "assistant" text: result;
 	result!	

@@ -1,5 +1,5 @@
 JsonWriter class
-$Id: mulk jsonwr.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk jsonwr.m 1618 2026-06-25 Thu 22:39:11 kt $
 #ja
 
 *[man]
@@ -17,7 +17,6 @@ Numerical and character expressions are not completely compatible.
 オブジェクトをJSON形式で書き出す。
 .hierarchy JsonWriter
 オブジェクトはDictionary Array String Boolean Number nilから成らなくてはならない。
-文字コードの変換は行わない。
 数値、文字表現に完全な互換性がある訳ではない。
 .caption 関連項目
 .summary jsonrd
@@ -66,10 +65,21 @@ Numerical and character expressions are not completely compatible.
 		stream put: '}'!];
 	self assertFailed
 
-**JsonWriter >> write: objArg to: streamArg
+**JsonWriter >> writeNative: objArg to: streamArg
 	streamArg ->stream;
 	self put: objArg indent: 0;
 	stream put: '\n'
+***[man.m]
+****#en
+Write objArg to streamArg using the character encoding specified by Mulk.charset.
+****#ja
+objArgをstreamArgへMulk.charsetの文字コードで出力する。
+
+**JsonWriter >> write: objArg to: streamArg
+	Mulk.charset = #sjis
+		ifTrue:  
+			[[self writeNative: objArg to: Out] pipe: "ctr s u" to: streamArg]
+		ifFalse: [self writeNative: objArg to: streamArg]
 ***[man.m]
 ****#en
 Write objArg to streamArg.

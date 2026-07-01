@@ -1,5 +1,5 @@
 sync with Google Drive
-$Id: mulk gsync.m 1569 2026-03-30 Mon 21:55:59 kt $
+$Id: mulk gsync.m 1613 2026-06-15 Mon 21:58:01 kt $
 #ja Googleドライブとの同期
 
 *[man]
@@ -122,7 +122,7 @@ SYNCDIRを省略した場合はカレントディレクトリが対象となる�
 		[gdriveWritten mtime unixTime - DateAndTime new initNow unixTime ->:d;
 		d > 0 ifTrue:
 			[Out putLn: "sleep " + d;
-			"sleep " + d, runCmd]];
+			d sleep]];
 	"touch " + f quotedPath, runCmd
 **Cmd.gsync >> main: args
 	OptionParser new init: "b" ->:op, parse: args ->args;

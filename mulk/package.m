@@ -1,5 +1,5 @@
 copy and manage Mulk packages
-$Id: mulk package.m 1600 2026-05-17 Sun 20:31:27 kt $
+$Id: mulk package.m 1608 2026-06-02 Tue 22:23:32 kt $
 #ja Mulkパッケージのコピー及び管理
 
 *[man]
@@ -163,7 +163,7 @@ The package expression specifies the target of the copy operation and the conver
 		[ar at: 0 put: (self sysFile: ar first);
 		allFiles addLast: (Package.File new init: ar)];
 	Set new ->files;
-	Set new addAll: #(#bin #ja #dos #pw #android #mulka0) ->syms;
+	Set new addAll: #(#bin #ja #dos #pw #pws #android #mulka0) ->syms;
 	AheadReader new init: expr ->reader;
 	self addFiles: self getSym;
 	[reader nextChar = '+'] whileTrue:

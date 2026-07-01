@@ -1,5 +1,5 @@
 read-eval-print loop
-$Id: mulk repl.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk repl.m 1610 2026-06-08 Mon 20:58:54 kt $
 #ja
 
 *[man]
@@ -7,16 +7,16 @@ $Id: mulk repl.m 1433 2025-06-03 Tue 21:15:38 kt $
 .caption SYNOPSIS
 	repl
 .caption DESCRIPTION
-Evaluates the statement entered for the prompt and prints it if the result is not self.
-Local variables other than block arguments are valid for the duration of the session.
+Evaluate the statement entered in response to the prompt, and if the result is not self, set it to the local variable '_' and display it.
+Local variables other than block arguments remain in scope for the duration of the session.
 
 A line beginning with '!' is executed as a command line.
-A line containing only EOF or '! is entered, the session terminates.
+The program will exit if you enter EOF or a line containing only '!'.
 **#ja
 .caption 書式
 	repl
 .caption 説明
-プロンプトに対して入力されたステートメントを評価し、結果がselfで無い場合にそれを表示する。
+プロンプトに対して入力されたステートメントを評価し、結果がselfで無い場合にローカル変数'_'に設定した上で表示する。
 ブロック引数以外のローカル変数はセッションの間有効となる。
 
 '!'で始まる記述はコマンド行として実行する。
@@ -60,7 +60,8 @@ EOFか'!'のみの行を入力すると終了する。
 	self compileMain!
 	
 *Object >> repl
-	Dictionary new ->:rvs;
+	GlobalVar new ->:last;
+	Dictionary new at: "_" put: last ->:rvs;
 	[
 		Out put: self describe + '>';
 		In getLn ->:stmts, nil? or: [stmts = "!"], ifTrue: [self!];
@@ -68,9 +69,10 @@ EOFか'!'のみの行を入力すると終了する。
 			ifTrue: [stmts copyFrom: 1, runCmd]
 			ifFalse:
 				[Repl.Compiler new compileBody: (StringReader new init: stmts)
-				class: self class replVars: rvs ->:m;
+					class: self class replVars: rvs ->:m;
 				self performMethod: m ->:result, <> self ifTrue:
-					[Out putLn: result describe]]
+					[last set: result;
+					Out putLn: result describe]]
 		] on: Error do:
 			[:e
 			e printStackTrace;

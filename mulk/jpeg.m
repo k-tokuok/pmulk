@@ -1,5 +1,5 @@
 Jpeg.Reader class
-$Id: mulk jpeg.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk jpeg.m 1621 2026-07-01 Wed 22:26:00 kt $
 #ja
 
 *[man]
@@ -21,7 +21,7 @@ jpegライブラリのラッパークラスで、jpegファイルを読み込む
 
 *import libjpeg.@
 	"libjpeg.so" ->:lib;
-	Mulk.hostOS = #windows ifTrue: ["libjpeg-9.dll" ->lib];
+	Mulk.hostOS = #windows ifTrue: ["libjpeg-10.dll" ->lib];
 	DL import: lib procs:
 		#(#jpeg_std_error 1 #jpeg_CreateDecompress 3 #jpeg_mem_src 3
 		#jpeg_read_header 2 #jpeg_start_decompress 1 #jpeg_read_scanlines 3
@@ -30,7 +30,7 @@ jpegライブラリのラッパークラスで、jpegファイルを読み込む
 *Jpeg.Decompress class.@
 	DL.Struct addSubclass: #Jpeg.Decompress
 **Jpeg.Decompress >> version
-	Mulk.hostOS = #windows ifTrue: [90!];
+	Mulk.hostOS = #windows ifTrue: [100!];
 	Mulk.hostOS = #linux ifTrue: [62!];
 	0!
 **Jpeg.Decompress >> init

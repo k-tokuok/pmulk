@@ -1,5 +1,5 @@
 AI chat common interface
-$Id: mulk aichat.m 1561 2026-03-22 Sun 22:00:20 kt $
+$Id: mulk aichat.m 1618 2026-06-25 Thu 22:39:11 kt $
 #ja AIチャット共通インターフェイス
 
 *[man]
@@ -8,7 +8,7 @@ $Id: mulk aichat.m 1561 2026-03-22 Sun 22:00:20 kt $
 	COMMAND [OPTION] [CHATFILE]
 	COMMAND.show CHATFILE -- display contents
 	COMMAND.batch [OPTION] -- input prompts and output results
-	
+		Valid only for the k, m, and M options.	
 .caption DESCRIPTION
 Chat with the AI indicated by COMMAND.
 See the description of each command for settings.
@@ -40,19 +40,16 @@ If the -k option is specified, the api key in Cmd.COMMAND.apikey.KEYSUFFIX is us
 	i CHATFILE -- Initial CHATFILE
     v -- Display processings verbosely
     a -- Save the CHATFILE for each interaction
-	s CHATFILE -- Save CHATFILE on exit
 	
 .caption SEE ALSO
 .summary wb
-.summary chatgpt
-.summary gemini
-.summary grok
 
 **#ja
 .caption 書式
 	COMMAND [オプション] [CHATFILE]
 	COMMAND.show CHATFILE -- 内容を表示
 	COMMAND.batch [オプション] -- プロンプトを入力し、結果を出力する
+		k, m, Mオプションのみ有効。
 	
 .caption 説明
 COMMANDで示されたAIとチャットを行う。
@@ -85,12 +82,8 @@ kオプションを指定するとCmd.COMMAND.apikey.KEYSUFFIXのapi keyが使�
 	i CHATFILE -- 初期CHATFILE
 	v -- 処理を詳細に表示する
 	a -- 対話の都度、CHATFILEを保存する	
-	s CHATFILE -- 終了時にCHATFILEを保存する (batch)
 .caption 関連項目
 .summary wb
-.summary chatgpt
-.summary gemini
-.summary grok
 
 *import.@
 	Mulk import: #("optparse" "hrlib" "jsonrd" "jsonwr" "prompt")
@@ -144,25 +137,19 @@ kオプションを指定するとCmd.COMMAND.apikey.KEYSUFFIXのapi keyが使�
 	self showFrom: self size - 2
 
 **AIChat >> loadChat: fileArg
-	fileArg readDo: [:s JsonReader new read: s ->chat]
+	fileArg readDo: [:s JsonReader new readNative: s ->chat]
 **AIChat >> saveChat: fileArg
-	fileArg writeDo: [:s JsonWriter new write: chat to: s]
+	fileArg writeDo: [:s JsonWriter new writeNative: chat to: s]
 
 **AIChat >> runJson: dataArg
 	hr openData;
-	Mulk.charset = #sjis 
-		ifTrue:
-			[[JsonWriter new write: dataArg to: Out]
-				pipe: "ctr s u" to: hr data]
-		ifFalse: [JsonWriter new write: dataArg to: hr data];
+	JsonWriter new write: dataArg to: hr data;
 	TempFile create ->:outFile;
 	hr outFile: outFile;
 	hr run;
-	Mulk.charset = #sjis
-		ifTrue: [JsonReader new read: (outFile pipe: "ctr u s") ->:result]
-		ifFalse: [outFile readDo: [:fs JsonReader new read: fs ->result]];
+	outFile readDo: [:fs JsonReader new read: fs ->:result];
 	outFile remove;
-	verbose? ifTrue: [JsonWriter new write: result to: Out];
+	verbose? ifTrue: [JsonWriter new writeNative: result to: Out];
 	result!
 	
 **AIChat >> inputText: default
@@ -262,11 +249,7 @@ kオプションを指定するとCmd.COMMAND.apikey.KEYSUFFIXのapi keyが使�
 	self loadChat: args first asFile;
 	self showFrom: 0
 **AIChat >> main.batch: args
-	OptionParser new init: "1234m:k:i:s:" ->:op, parse: args ->args;
+	OptionParser new init: "k:m:M:" ->:op, parse: args ->args;
 	self setModel: op;
-	false ->verbose?;
-	op at: 'i' ->:opt, nil? 
-		ifTrue: [self createChat]
-		ifFalse: [self loadChat: opt asFile];
-	Out putLn: (self generateMain: ("cat" pipe contentBytes asString));
-	op at: 's' ->opt, notNil? ifTrue: [self saveChat: opt asFile]
+	self createChat;
+	Out putLn: (self generateMain: ("cat" pipe contentBytes asString))

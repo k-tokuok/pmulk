@@ -1,5 +1,5 @@
 chat with Google Gemini
-$Id: mulk gemini.m 1602 2026-05-21 Thu 22:56:23 kt $
+$Id: mulk gemini.m 1618 2026-06-25 Thu 22:39:11 kt $
 #ja Google Geminiとチャットする
 
 *[man]
@@ -85,7 +85,7 @@ Google Geminiとチャットを行う。
 	part at: "text"
 	] on: Error do:
 		[:e
-		JsonWriter new write: json to: Out;
+		JsonWriter new writeNative: json to: Out;
 		e message] ->:result;
 	self addDialogRole: "model" text: result;
 	thoughtSignature notNil? ifTrue:

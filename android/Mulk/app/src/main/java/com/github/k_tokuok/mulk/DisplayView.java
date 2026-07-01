@@ -1,6 +1,6 @@
 /*
     DisplayView class.
-    $Id: mulk/android DisplayView.java 1552 2026-03-13 Fri 21:24:02 kt $
+    $Id: mulk/android DisplayView.java 1615 2026-06-18 Thu 21:19:44 kt $
  */
 package com.github.k_tokuok.mulk;
 
@@ -17,7 +17,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 public class DisplayView extends View {
-    boolean isReady;
+    volatile boolean isReady;
     Bitmap bitmap;
     Canvas canvas;
     Paint paint;
@@ -62,12 +62,18 @@ public class DisplayView extends View {
         initialize();
     }
 
-    protected void onDraw(@NonNull Canvas ca) {
-        if (!isReady) {
-            bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if(w < h) return;
+        if(!isReady) {
+            bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             canvas = new Canvas(bitmap);
-            isReady = true;
+            isReady=true;
         }
+    }
+
+    protected void onDraw(@NonNull Canvas ca) {
+        if (!isReady) return;
         ca.drawBitmap(bitmap, 0, 0, paint);
     }
 

@@ -1,6 +1,6 @@
 /*
     KeyboardView class.
-    $Id: mulk/android KeyboardView.java 1545 2026-02-28 Sat 19:51:10 kt $
+    $Id: mulk/android KeyboardView.java 1615 2026-06-18 Thu 21:19:44 kt $
  */
 
 package com.github.k_tokuok.mulk;
@@ -25,7 +25,7 @@ import java.util.concurrent.Semaphore;
 public class KeyboardView extends View {
     MainActivity mulkActivity;
     Paint paint;
-    boolean isReady;
+    volatile boolean isReady;
 
     int keyColor;
     int keyPressedColor;
@@ -205,8 +205,16 @@ public class KeyboardView extends View {
         canvas.drawText(text, x, y, paint);
     }
 
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if(w < h) return;
+        if(!isReady) {
+            isReady=true;
+        }
+    }
+
     protected void onDraw(@NonNull Canvas canvasArg) {
-        isReady = true;
+        if(!isReady) return;
         canvas = canvasArg;
         paint.setColor(keyColor);
 

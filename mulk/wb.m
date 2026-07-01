@@ -1,5 +1,5 @@
 text editor
-$Id: mulk wb.m 1596 2026-05-08 Fri 15:42:46 kt $
+$Id: mulk wb.m 1620 2026-07-01 Wed 06:22:24 kt $
 #ja テキストエディタ
 
 *[man]
@@ -505,7 +505,7 @@ Outputs the contents held by range editing to the standard output.
 ****#ja wb.w -- 貼り付け
 範囲編集で保持した内容を標準出力へ出力する。
 
-***wb.x [KEY [KEY]] -- refer ^x
+***wb.x [KEY [KEY]] -- refer user registration key
 ****#en
 Output the contents of the user registration key.
 
@@ -1065,6 +1065,8 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 	top!
 ****Wb.Layout >> height
 	height!
+****Wb.Layout >> track
+	track!
 	
 ***Wb.Layout >> do: blockArg
 	child1 notNil? ifTrue: [child1 do: blockArg];
@@ -1085,8 +1087,11 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 ****Wb.Layout >> createLayout
 	Wb.Layout new initWb: wb parent: self width: width,
 		track: track ntrack: ntrack, top: top height: height!
-****Wb.Layout >> split
+****Wb.Layout >> split: ex?
 	nil ->screen;
+	ex? & (ntrack = 3) ifTrue:
+		[self createLayout track: 0 ntrack: 2 ->child1;
+		self createLayout track: 2 ntrack: 1 ->child2!];
 	ntrack <> 1 ifTrue:
 		[self createLayout track: track ntrack: 1 ->child1;
 		self createLayout track: track + 1 ntrack: ntrack - 1 ->child2!];
@@ -1098,7 +1103,7 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 ****Wb.Layout >> relocate: arg
 	arg screen ->:s, notNil? ifTrue: 
 		[self createScreen cursor: s cursor, tag: s tag!];
-	self split;
+	self split: false;
 	child1 relocate: arg child1;
 	child2 relocate: arg child2
 ****Wb.Layout >> close
@@ -1112,9 +1117,14 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 		y % 2 = 1 & screen notNil? ifTrue: [' '] ifFalse: ['|'] ->:ch;
 		Console gotoX: xArg Y: y, put: ch]
 ****Wb.Layout >> drawVerticalSplitter
-	ntrack = 2 ifTrue: [self drawVerticalBar: 80 + (81 * track)!];
-	screen notNil? ifTrue: [self drawVerticalBar: 161];
-	self drawVerticalBar: 80
+	ntrack = 3 ifTrue:
+		[screen notNil?
+			ifTrue:
+				[self drawVerticalBar: 80;
+				self drawVerticalBar: 161]
+			ifFalse: 
+				[self drawVerticalBar: 80 + (child2 track - 1 * 81)]!];
+	self drawVerticalBar: 80 + (81 * track)
 ***Wb.Layout >> draw
 	screen notNil? ifTrue: [screen draw];
 	wb drawSplitter? and: [ntrack <> 1], ifTrue: [self drawVerticalSplitter!];
@@ -1437,7 +1447,7 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 	Iterator new init:
 		[:b self layouts do: [:l l screen ->:s, notNil? ifTrue: [b value: s]]]!
 	
-****Wb.class >> redrawCommand
+****Wb.class >> redrawCommand -- ^v
 	self screens do:
 		[:s
 		s = screen
@@ -1445,10 +1455,10 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 			ifFalse: [s solveDisplayRange]];
 	true ->drawSplitter?;
 	Console clear
-****Wb.class >> splitScreenCommand
+****Wb.class >> splitScreen: ex?
 	self currentLayout ->:l;
 	l height < 6 ifTrue: [self message: "can not split"!];
-	l split;
+	l split: ex?;
 	l child1 createScreen cursor: cursor, tag: currentTag;
 	l child2 createScreen ->screen;
 	self keepUndoPos: cursor;
@@ -1461,20 +1471,22 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 			[self idocPromptPos ->cursor;
 			nil ->currentTag];
 	screen cursor: cursor;
-	true ->drawSplitter?
+	true ->drawSplitter?	
+****Wb.class >> splitScreenCommand
+	self splitScreen: false
 ****Wb.class >> switchScreen: screenArg
 	screenArg cursor ->cursor;
 	screenArg tag ->currentTag;
 	screenArg ->screen
 ****Wb.class >> otherScreen: deltaArg
-	rootLayout screen notNil? ifTrue: [self splitScreenCommand!];
+	rootLayout screen notNil? ifTrue: [self splitScreen: deltaArg < 0!];
 	screen cursor: cursor, tag: currentTag;
 	self screens asArray ->:ar;
 	self switchScreen: 
 		(ar at: (ar indexOf: screen, + deltaArg + ar size % ar size))
-****Wb.class >> nextScreenCommand
+****Wb.class >> otherScreenCommand
 	self otherScreen: 1
-****Wb.class >> prevScreenCommand -- ^x^o
+****Wb.class >> otherScreenExCommand -- ^x^o
 	self focusLeapAndFinish; 
 	self otherScreen: -1
 ****Wb.class >> closeScreenCommand -- ^x^s
@@ -2347,7 +2359,7 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 		--'\cl' im latin
 		--'\cm' enter convert to ^j
 		'\cn'	#nextCharCommand		#nextCharCommand
-		'\co'	#nextScreenCommand		nil
+		'\co'	#otherScreenCommand		nil
 		'\cp'	#prevCharCommand		#prevCharCommand
 		'\cq'	#prevLineCommand		#prevLineCommand
 		'\cr'	#redoCommand			#leapRedoCommand
@@ -2379,7 +2391,7 @@ In this state, edit the range enclosed by ">>" and "<<", and when you press Ente
 		'\cz'	#leapReverseCommand
 		'\cf'	#leapStringCommand
 		'\cg'	#gotoLineCommand
-		'\co'	#prevScreenCommand
+		'\co'	#otherScreenExCommand
 		'\cs'	#closeScreenCommand
 		) ->ar;
 	0 until: ar size by: 2, do:
