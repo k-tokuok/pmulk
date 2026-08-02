@@ -1,5 +1,5 @@
-ai chat translate
-$Id: mulk atrans.m 1617 2026-06-21 Sun 22:35:04 kt $
+AI chat translate
+$Id: mulk atrans.m 1623 2026-07-19 Sun 20:48:51 kt $
 #ja AIチャット翻訳
 
 *[man] 
@@ -36,4 +36,4 @@ AIチャットサービスを使用して入力した文書を翻訳する。
 **Cmd.atrans >> main: args
 	[Out putLn: "Please translate the following text into " + args first
 		+ " and return only the result.\n--";
-	"cat" runCmd] pipe: Cmd.atrans.cmd, pipeTo: Out
+	"cat" runCmd] pipe: Cmd.atrans.cmd to: Out

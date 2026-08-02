@@ -1,5 +1,5 @@
-;Mulk package pmulk (1621)
-;2026-07-01 Wed 22:27:51
+;Mulk package pmulk (1625)
+;2026-08-02 Sun 10:55:07
 os.c,1433,vm
 xconsole.h,1433,vm
 touch.m,1433,pw,tool
@@ -42,9 +42,10 @@ multicol.m,1559,pw,mulka0,tool
 grok.m,1524,tool
 cp.m,1433,pw,mulka0,tool
 diff.m,1448,pw,tool
-skkchunk.d,1620,pw,ja,tool
+skkchunk.d,1624,pw,ja,tool
 random.m,1433,pw,lib,mulka0
 mingw.mak,1433,vm
+akk.m,1623,ja,tool
 u64.h,1433,vm
 iqueue.h,1433,vm
 clip.m,1433,pw,tool
@@ -206,7 +207,7 @@ dup.m,1433,pw,tool
 gsync.m,1613,tool
 setupa.m,1593,lib,android,mulka0
 ir.c,1433,vm
-atrans.m,1617,tool
+atrans.m,1623,tool
 entab.m,1433,pw,tool
 csvrd.m,1433,pw,lib,mulka0
 lang.mm,1487,etc
@@ -250,7 +251,7 @@ vieww.c,1433,vm
 setup.m,1452,vm
 aichat.m,1618,pw,tool
 wcarray.m,1433,pw,lib
-skk.m,1433,pw,ja,tool
+skk.m,1623,pw,ja,tool
 mkmulks.m,1433,vm
 mtrhz.d,1433,ja,lib
 csvwr.m,1433,pw,lib
@@ -286,7 +287,7 @@ pfs.m,1433,lib
 jpeg.m,1621,lib
 splay.c,1433,vm
 gatrans.m,1616,tool
-package.d,1621,pw,tool
+package.d,1625,pw,tool
 dump.m,1433,pw,tool
 console.m,1433,pw,lib
 std.h,1433,vm

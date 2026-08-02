@@ -1,0 +1,4 @@
+#forth/.gitignore
+#$Id: mulk/forth .gitignore 1627 2026-08-02 Sun 10:25:23 kt $
+*.scr
+*.img

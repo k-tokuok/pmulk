@@ -1,13 +1,14 @@
 かな漢字変換日本語インプットメソッド
-$Id: mulk skk.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk skk.m 1623 2026-07-19 Sun 20:48:51 kt $
 
 *[man]
 .caption 書式
 	skk [-l] -- 初期化しConsoleに結び付いて常駐する
 	skk.off -- 常駐を解除する
 	skk.regist 読み 変換結果 -- 個人辞書に登録する
-	skk.load -- 個人辞書/候補順序を読み込む
-	skk.save -- 個人辞書/候補順序を保存する
+	skk.load -- 個人辞書を読み込む
+	skk.save -- 個人辞書を保存する
+	skk.savetmp -- 個人辞書の中間情報を保存する。これは必要に応じて個人辞書に結合される。
 .caption 説明
 かな漢字変換方式の日本語インプットメソッド。
 
@@ -130,15 +131,17 @@ wb上であれば続けて漢字を入力し'!'以降を実行することで辞
 				[:s
 				larray includes?: s, ifFalse: [result addLast: s]]];
 	result!	
+**Skk.class >> savetmp
+	updateCount = 0 ifTrue: [self!];
+	self tDictFile ->:f, writeObject: tDict;
+	self comment: "savetmp " + f size;
+	0 ->updateCount
 **Skk.class >> henkanAt: keyArg add: value
 	self personalDictAt: keyArg ->:list;
 	list indexOf: value ->:ix, notNil? ifTrue: [list removeAt: ix];
 	list addFirst: value;
 	tDict at: keyArg put: list;
-	updateCount + 1 ->updateCount, >= 10 ifTrue: 
-		[self tDictFile ->:f, writeObject: tDict;
-		self comment: "savetmp " + f size;
-		0 ->updateCount]
+	updateCount + 1 ->updateCount, >= 10 ifTrue: [self savetmp]
 **Skk.class >> regist: key value: value
 	self log: key + ',' + value;
 	self henkanAt: key add: value
@@ -399,3 +402,5 @@ wb上であれば続けて漢字を入力し'!'以降を実行することで辞
 	Out put: value
 **Cmd.skk >> main.save: args
 	Skk save
+**Cmd.skk >> main.savetmp: args
+	Skk savetmp

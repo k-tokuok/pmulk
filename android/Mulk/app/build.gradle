@@ -6,8 +6,8 @@ android {
         applicationId "com.github.k_tokuok.mulk"
         minSdkVersion 28
         targetSdkVersion 37
-        versionCode 110
-        versionName "260626-r1618"
+        versionCode 111
+        versionName "260802-r1627"
     }
     buildTypes {
         release {
