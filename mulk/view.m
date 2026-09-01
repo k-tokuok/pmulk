@@ -1,5 +1,5 @@
 graphic screen
-$Id: mulk view.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk view.m 1635 2026-08-22 Sat 22:09:49 kt $
 #ja グラフィック画面
 
 *[man]
@@ -12,7 +12,7 @@ Provides functions related to graphic screen display and control.
 
 *View.FontDrawer class.@
 	Object addSubclass: #View.FontDrawer instanceVars: 
-		"fontWidth fontHeight offx offy woffx woffy"
+		"fontWidth fontHeight offx offy woffx woffy replaceDict"
 	
 *View.class class.@
 	Mulk import: "coord";
@@ -250,6 +250,7 @@ By passing an instance of Dictionary, the drawing position of characters can be 
 	#offy 		y-coordinate correction
 	#woffx 		x-coordinate correction of wide characters
 	#woffy 		y-coordinate correction
+	#replace    character replacement dictionary
 *****#ja
 文字フォントをウィンドウシステムに依存する以下の文字列で指定する。
 
@@ -274,6 +275,7 @@ Dictionaryのインスタンスを渡すことで、文字の描画位置を細�
 	#offy		y座標補正
 	#woffx		全角文字のx座標補正
 	#woffy		y座標補正
+	#replace	文字置換辞書
 	
 ***View.class >> fontWidth
 	fontDrawer fontWidth!
@@ -517,8 +519,11 @@ Returns true if there are characters in the input queue.
 	fontArg at: #offx ifAbsent: [0] ->offx;
 	fontArg at: #offy ifAbsent: [0] ->offy;
 	fontArg at: #woffx ifAbsent: [0] ->woffx;
-	fontArg at: #woffy ifAbsent: [0] ->woffy
+	fontArg at: #woffy ifAbsent: [0] ->woffy;
+	fontArg at: #replace ifAbsent: [nil] ->replaceDict
 **View.FontDrawer >> drawX: x Y: y char: ch foreground: fg background: bg
+	replaceDict notNil? ifTrue:
+		[replaceDict at: ch ifAbsent: [ch] ->ch];
 	ch width ->:cw;
 	View fillRectangleX: x Y: y width: fontWidth * cw height: fontHeight
 		color: bg;

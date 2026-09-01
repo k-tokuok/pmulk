@@ -1,5 +1,5 @@
 table formatting and processing
-$Id: mulk table.m 1576 2026-04-04 Sat 09:07:44 kt $
+$Id: mulk table.m 1629 2026-08-07 Fri 20:23:54 kt $
 #ja 表の整形と加工
 
 *[man]
@@ -15,10 +15,16 @@ Lines beginning with "." are processed as command lines to the table, not as dat
 The available commands are as follows:
 
 .caption .bar
-Output horizontal bar.
+Outputs horizontal bar.
+
+.caption .text [TEXT]
+Outputs the text content regardless of the column format.
+
+.caption .lineBreak
+Outputs a blank line.
 
 .caption .format COLUMNFORMAT
-Specify the format of the column at formatting.
+Specify the column format for the layout.
 
 The format is csv, specifying the width, format, and optional values for each column.
 
@@ -60,6 +66,12 @@ csv形式の表を入力し、整形・加工した上で出力する。
 
 .caption .bar
 横線を出力する。
+
+.caption .text テキスト
+カラム書式とは無関係にテキストの内容を出力する。
+
+.caption .lineBreak
+空行を出力する。
 
 .caption .format カラム書式
 整形時のカラムの書式を指定する。
@@ -133,6 +145,20 @@ An object representing a row in a table.
 **Table.BarRow >> type
 	#bar!
 
+*Table.Text class.@
+	Table.Row addSubclass: #Table.Text instanceVars: "text"
+**Table.Text >> init: textArg
+	textArg ->text
+**Table.Text >> type
+	#text!
+**Table.Text >> text
+	text!
+	
+*Table.LineBreak class.@
+	Table.Row addSubclass: #Table.LineBreak
+**Table.LineBreak >> type
+	#lineBreak!
+	
 *Table.DataRow class.@
 	Table.Row addSubclass: #Table.DataRow instanceVars: "array group"
 **[man.c]
@@ -371,8 +397,10 @@ If the column content cannot be interpreted as a number, 0 is returned.
 			columnFormats addLast: cf]];
 	totalWidth + columnFormats size - 1 ->totalWidth
 **Table.Printer >> printRow: rowArg
-	rowArg type = #bar ifTrue: [Out put: '-' times: totalWidth!];
-
+	rowArg type ->:type, = #bar ifTrue: [Out put: '-' times: totalWidth!];
+	type = #text ifTrue: [Out put: rowArg text!];
+	type = #lineBreak ifTrue: [self!];
+	
 	columnFormats size timesDo:
 		[:i
 		i <> 0 ifTrue: [Out put: ' '];
@@ -473,6 +501,10 @@ Table object
 ****Table >> command.bar: arg
 	rows addLast: Table.BarRow new;
 	lastGroup + 1 ->lastGroup
+****Table >> command.text: arg
+	rows addLast: (Table.Text new init: arg getRest)
+****Table >> command.lineBreak: arg
+	rows addLast: Table.LineBreak new
 ****Table >> command.format: arg
 	arg getRest ->format
 ****Table >> command.eval: arg

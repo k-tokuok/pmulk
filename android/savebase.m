@@ -1,11 +1,10 @@
 savebase.m.
-$Id: mulk/android savebase.m 1442 2025-06-12 Thu 10:05:28 kt $
+$Id: mulk/android savebase.m 1635 2026-08-22 Sat 22:09:49 kt $
 
 *@
 	"../mulk" asFile ->Mulk.systemDirectory;
 	Mulk import: #("android" "repl");
-	Mulk at: #Console.viewu in: "c-viewu", new ->:console,
-		convertTilda: true, convertEllipsis: true;
+	Mulk at: #Console.view in: "c-view", new ->:console;
 	Mulk.bootHook addLast: console;
 	nil ->Mulk.systemDirectory ->Mulk.workDirectory;
 	#Cmd.repl ->Mulk.defaultMainClass;

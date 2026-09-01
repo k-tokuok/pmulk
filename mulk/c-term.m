@@ -1,5 +1,5 @@
 console for character terminal (Console.term class)
-$Id: mulk c-term.m 1433 2025-06-03 Tue 21:15:38 kt $
+$Id: mulk c-term.m 1633 2026-08-16 Sun 20:52:03 kt $
 #ja キャラクタ端末用コンソール (Console.term class)
 
 *[man]
@@ -24,51 +24,55 @@ Console that supports cursor motion on character terminals.
 	Mulk import: #("sconsole" "term")
 
 *Console.term class.@
-	ScreenConsole addSubclass: #Console.term instanceVars: "term tCurX tCurY"
+	ScreenConsole addSubclass: #Console.term instanceVars: 
+		"tCurX tCurY reposition?"
 **Console.term >> rawStart
-	Terminal new start ->term
+	Term start;
+	false ->reposition?
 **Console.term >> rawSetSize
-	term width ->width;
-	term height ->height
+	Term width ->width;
+	Term height ->height
 **Console.term >> rawFinish
-	term finish
+	Term finish
 **Console.term >> scroll
 	height - 1 * width ->:sz;
 	screen basicAt: 0 copyFrom: screen at: width size: sz;
 	screen fill: ' ' from: sz until: screen size;
 
-	term autoLineFeedIfLineFilled? & (tCurX = width) ifTrue: [self!];
+	Term autoLineFeedIfLineFilled? & (tCurX = width) ifTrue: [self!];
 	tCurY <> (height - 1) ifTrue:
 		[height - 1 ->tCurY;
-		term gotoX: 0 Y: tCurY];
+		Term gotoX: 0 Y: tCurY];
 	0 ->tCurX;
-	term put: '\r', put: '\n'
+	Term put: '\r', put: '\n'
 **Console.term >> lineFeed
 	super lineFeed;
 
-	term autoLineFeedIfLineFilled? & (tCurX = width) ifTrue:
+	Term autoLineFeedIfLineFilled? & (tCurX = width) ifTrue:
 		[0 ->tCurX;
 		tCurY + 1 ->tCurY;
 		tCurY = height ifTrue: [tCurY - 1 ->tCurY]]
 **Console.term >> moveCursor
-	curX <> tCurX | (curY <> tCurY) ifTrue:
-		[term gotoX: curX Y: curY;
+	curX <> tCurX or: [curY <> tCurY], or: [reposition?], ifTrue:
+		[Term gotoX: curX Y: curY;
 		curX ->tCurX;
-		curY ->tCurY]
+		curY ->tCurY;
+		false ->reposition?]
 **Console.term >> rawPutChar: ch
 	self moveCursor;
-	term put: ch;
-	tCurX + ch width ->tCurX
+	Term put: ch;
+	tCurX + ch width ->tCurX;
+	Term repositionForWideChar? and: [ch kindOf?: WideChar] ->reposition?
 **Console.term >> rawClear
-	term clear;
+	Term clear;
 	0 ->tCurX ->tCurY
 **Console.term >> rawFetch
 	self moveCursor;
-	term get asChar ->:result;
+	Term get asChar ->:result;
 	result mblead? ifTrue:
 		[result code ->:code;
-		result trailSize timesRepeat: [code * 256 + term get ->code];
+		result trailSize timesRepeat: [code * 256 + Term get ->code];
 		code asWideChar ->result];
 	result!
 **Console.term >> hit?
-	term hit?!
+	Term hit?!

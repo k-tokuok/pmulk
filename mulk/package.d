@@ -1,5 +1,5 @@
-;Mulk package pmulk (1625)
-;2026-08-02 Sun 10:55:07
+;Mulk package pmulk (1641)
+;2026-09-01 Tue 19:22:13
 os.c,1433,vm
 xconsole.h,1433,vm
 touch.m,1433,pw,tool
@@ -42,12 +42,14 @@ multicol.m,1559,pw,mulka0,tool
 grok.m,1524,tool
 cp.m,1433,pw,mulka0,tool
 diff.m,1448,pw,tool
-skkchunk.d,1624,pw,ja,tool
+skkchunk.d,1641,pw,ja,tool
 random.m,1433,pw,lib,mulka0
 mingw.mak,1433,vm
+point.m,1433,lib
 akk.m,1623,ja,tool
 u64.h,1433,vm
 iqueue.h,1433,vm
+2048.m,1628,game
 clip.m,1433,pw,tool
 viewa.m,1433,android,lib
 delang.m,1433,pw,tool
@@ -59,8 +61,9 @@ primlist.c,1433,vm
 vc.mak,1510,vm
 uniq.m,1433,pw,tool
 bg.m,1592,pw,tool
-term.m,1433,pw,lib
+term.m,1634,pw,lib
 cqueue.c,1433,vm
+bagels.m,1630,game
 zlib.m,1433,pw,lib,mulka0
 ls.m,1433,pw,mulka0,tool
 wb.m,1620,pw,tool
@@ -77,20 +80,19 @@ linec.m,1433,pw,tool
 intconv.m,1433,pw,lib
 k-us.d,1433,pw,lib
 xgetopt.h,1433,vm
-c-viewu.m,1433,lib
 chatgpt.m,1618,tool
 png.m,1433,lib
 osd.c,1533,vm,dos
 gzip.m,1433,tool
 prompt.m,1433,pw,lib,mulka0
 fmv.m,1433,pw,tool
-c-termu.m,1433,lib
 xbarray.h,1433,vm
 optparse.m,1433,pws,lib,mulka0
 fbarray.c,1433,vm
 lex.c,1433,vm
 cmp.m,1433,pw,tool
 packtbz.m,1433,tool
+15puzzle.m,1628,game
 cmd.m,1433,pw,mulka0,tool
 updateid.m,1443,pw,tool
 mulks.c,1433,vm
@@ -126,7 +128,8 @@ zlibdl.m,1433,pw,lib
 onquit.m,1433,tool
 viewx.c,1433,vm
 pi.m,1433,pw,lib,mulka0
-view.m,1433,pw,lib
+debug.m,1518,tool
+view.m,1635,pw,lib
 log.h,1433,vm
 xwchar.c,1433,vm
 ed.m,1433,pw,mulka0,tool
@@ -139,13 +142,14 @@ viewp.m,1433,pw,lib
 unittest.m,1592,tool
 skkut.m,1505,pw,ja,tool
 diffdir.m,1553,pw,tool
-package.m,1608,pw,tool
+package.m,1628,pw,tool
 addxc.c,1433,vm
 man.m,1471,pw,tool
 gtrans.m,1618,tool
 view.h,1433,vm
 xconsole.c,1433,vm
 oss.c,1433,vm,dos
+lightout.m,1629,game
 col.m,1433,pw,tool
 fold.m,1433,pw,tool
 iqueue.c,1433,vm
@@ -166,7 +170,7 @@ float.c,1433,vm
 xarray.c,1433,vm
 pfw.c,1433,vm
 ow.mak,1590,vm,dos
-c-term.m,1433,pw,lib
+c-term.m,1633,pw,lib
 math.m,1433,pw,lib
 prim.h,1433,vm
 print.m,1433,pw,tool
@@ -189,6 +193,7 @@ clean.m,1433,pw,tool
 os.h,1433,vm
 clipw.m,1433,pw,lib
 win32.m,1590,pw,lib
+robot.m,1630,game
 packzip.m,1433,tool
 pagewr.m,1433,pw,lib,mulka0
 crlf.m,1433,lib,pws
@@ -225,6 +230,7 @@ set.m,1608,pw,tool
 hidecnsl.m,1590,pw,tool
 pfd.c,1433,vm,dos
 mv.m,1433,pw,mulka0,tool
+deflate.m,1433,tool
 cli.m,1611,pw,tool
 omd.c,1433,vm
 crypt.m,1433,tool
@@ -241,8 +247,10 @@ term.h,1433,vm
 cliplib.m,1433,pw,lib
 heap.c,1433,vm
 ibprim.c,1433,vm
+matrix.m,1433,lib
 formatl.m,1615,tool
 base64.m,1433,tool
+hangman.m,1630,game
 vkey.h,1433,vm
 skkrk.d,1433,pw,ja,tool
 traitc.m,1433,pw,lib
@@ -252,6 +260,7 @@ setup.m,1452,vm
 aichat.m,1618,pw,tool
 wcarray.m,1433,pw,lib
 skk.m,1623,pw,ja,tool
+snake.m,1631,game
 mkmulks.m,1433,vm
 mtrhz.d,1433,ja,lib
 csvwr.m,1433,pw,lib
@@ -271,7 +280,7 @@ more.m,1433,pw,mulka0,tool
 xgetopt.c,1433,vm
 mulk.c,1433,vm
 randgen.m,1433,pw,lib,mulka0
-table.m,1576,pw,tool
+table.m,1629,pw,tool
 log.c,1433,vm
 xwchar.h,1433,vm
 zliba.m,1433,lib,android,mulka0
@@ -287,7 +296,7 @@ pfs.m,1433,lib
 jpeg.m,1621,lib
 splay.c,1433,vm
 gatrans.m,1616,tool
-package.d,1625,pw,tool
+package.d,1641,pw,tool
 dump.m,1433,pw,tool
 console.m,1433,pw,lib
 std.h,1433,vm

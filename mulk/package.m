@@ -1,5 +1,5 @@
 copy and manage Mulk packages
-$Id: mulk package.m 1608 2026-06-02 Tue 22:23:32 kt $
+$Id: mulk package.m 1628 2026-08-06 Thu 21:59:14 kt $
 #ja Mulkパッケージのコピー及び管理
 
 *[man]
@@ -20,6 +20,7 @@ The standard labels are defined as follows:
 		vm -- Mulk virtual machines
 		lib -- Libraries
 		tool -- Tools
+		game -- Games
 		etc -- Miscellaneous
 	Attributes:
 		bin -- Binary files
@@ -62,6 +63,7 @@ The package expression specifies the target of the copy operation and the conver
 		vm -- Mulk仮想機械
 		lib -- ライブラリ
 		tool -- ツール
+		game -- ゲーム
 		etc -- その他
 	属性:
 		bin -- バイナリファイル
@@ -142,7 +144,7 @@ The package expression specifies the target of the copy operation and the conver
 			files add: f;
 			syms addAll: f syms]!];
 	symArg = #pmulk ifTrue: 
-		[#(#vm #lib #tool #etc) do: [:s self addFiles: s]!];
+		[#(#vm #lib #tool #game #etc) do: [:s self addFiles: s]!];
 	allFiles do: [:f2 f2 match?: symArg, ifTrue: [files add: f2]];
 	syms add: symArg
 **Cmd.package >> removeFilesIf: blockArg
